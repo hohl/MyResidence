@@ -1,0 +1,12 @@
+name: MyResidence
+main: at.co.hohl.myresidence.listener.MyResidencePlugin
+version: "${project.version}"
+database: true
+commands:
+    residence:
+        aliases: [res]
+        description: Manage your residences.
+        usage: /<command> <arguments...>
+    town:
+        description: Manage your town.
+        usage: /<command> <arguments...>
