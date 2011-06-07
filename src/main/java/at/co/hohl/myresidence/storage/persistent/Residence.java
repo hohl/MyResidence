@@ -47,6 +47,7 @@ public class Residence {
     @Length(max = 32)
     private String name;
 
+    @ManyToOne
     private PlayerData owner;
 
     private double value;
