@@ -34,20 +34,20 @@ public class Residence {
     @Id
     private int id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST, mappedBy = "residence")
     private ResidenceSign sign;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST, mappedBy = "residence")
     private ResidenceArea area;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Town town;
 
     @NotEmpty
     @Length(max = 32)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private PlayerData owner;
 
     private double value;

@@ -22,10 +22,7 @@ import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
 import com.avaje.ebean.validation.NotNull;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * DAO used for storing data values.
@@ -38,7 +35,7 @@ public class ResidenceSign {
     @Id
     private int id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "sign")
     private Residence residence;
 
     @NotEmpty

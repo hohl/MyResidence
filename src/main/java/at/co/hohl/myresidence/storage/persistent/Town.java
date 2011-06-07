@@ -21,9 +21,7 @@ package at.co.hohl.myresidence.storage.persistent;
 import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Represents a town.
@@ -40,6 +38,7 @@ public class Town {
     @Length(max = 32)
     private String name;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private PlayerData major;
 
     private double money = 0;

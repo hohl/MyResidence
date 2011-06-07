@@ -24,10 +24,7 @@ import com.avaje.ebean.validation.NotNull;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Location;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * DAO used for storing information about an area.
@@ -40,7 +37,7 @@ public class ResidenceArea {
     @Id
     private int id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "area")
     private Residence residence;
 
     @NotEmpty
