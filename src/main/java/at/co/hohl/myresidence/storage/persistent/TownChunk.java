@@ -20,8 +20,12 @@ package at.co.hohl.myresidence.storage.persistent;
 
 import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
+import com.sun.istack.internal.NotNull;
+import org.bukkit.Chunk;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Represents a chunk reserved by town.
@@ -34,19 +38,35 @@ public class TownChunk {
     @Id
     private int id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private Town town;
+    @NotNull
+    private int townId;
 
     @NotEmpty
     @Length(max = 32)
     private String world;
 
+    @NotNull
     private int x;
 
+    @NotNull
     private int z;
 
     /** Creates a new chunk reserved by a town. */
     public TownChunk() {
+    }
+
+    /**
+     * Creates a new chunk reserved by a town.
+     *
+     * @param town  the town which reserved the chunk.
+     * @param chunk the chunk to reserve.
+     */
+    public TownChunk(Town town, Chunk chunk) {
+        this.townId = town.getId();
+
+        this.setWorld(chunk.getWorld().getName());
+        this.setX(chunk.getX());
+        this.setZ(chunk.getZ());
     }
 
     public int getId() {
@@ -57,12 +77,12 @@ public class TownChunk {
         this.id = id;
     }
 
-    public Town getTown() {
-        return town;
+    public int getTownId() {
+        return townId;
     }
 
-    public void setTown(Town town) {
-        this.town = town;
+    public void setTownId(int townId) {
+        this.townId = townId;
     }
 
     public String getWorld() {

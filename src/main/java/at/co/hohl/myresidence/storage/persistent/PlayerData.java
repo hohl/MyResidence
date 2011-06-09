@@ -24,6 +24,7 @@ import com.avaje.ebean.validation.NotEmpty;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * Represents a player.
@@ -31,7 +32,7 @@ import javax.persistence.Table;
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_players")
+@Table(name = "res_players", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class PlayerData {
     @Id
     private int id;

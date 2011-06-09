@@ -1,5 +1,5 @@
 name: MyResidence
-main: at.co.hohl.myresidence.listener.MyResidencePlugin
+main: at.co.hohl.myresidence.bukkit.MyResidencePlugin
 version: "${project.version}"
 database: true
 commands:

@@ -22,36 +22,41 @@ import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.storage.Session;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.NestedCommand;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
- * Base node for all commands.
+ * Commands for confirming or canceling tasks.
  *
  * @author Michael Hohl
  */
-public class GeneralCommands {
+public class TaskCommands {
     @Command(
-            aliases = {"res", "residence"},
-            desc = "Commands to manage residences"
+            aliases = {"confirm", "y"},
+            desc = "Confirms a task",
+            max = 0
     )
-    @NestedCommand({ResidenceCommands.class})
-    public static void residence(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void confirm(CommandContext args, MyResidence plugin, Player player, Session session) {
+        if (session.getTaskActivator() == Session.Activator.CONFIRM_COMMAND) {
+            session.getTask().run();
+            session.setTaskActivator(null);
+        } else {
+            player.sendMessage(ChatColor.RED + "There is nothing to confirm!");
+        }
     }
 
     @Command(
-            aliases = {"town"},
-            desc = "Commands to manage towns"
+            aliases = {"cancel", "x", "n"},
+            desc = "Cancels a task",
+            max = 0
     )
-    @NestedCommand({TownCommands.class})
-    public static void town(CommandContext args, MyResidence plugin, Player player, Session session) {
-    }
+    public static void cancel(CommandContext args, MyResidence plugin, Player player, Session session) {
+        if (session.getTaskActivator() != null) {
+            session.setTaskActivator(null);
 
-    @Command(
-            aliases = {"task", "tasks"},
-            desc = "Confirms or cancels tasks"
-    )
-    @NestedCommand({TaskCommands.class})
-    public static void task(CommandContext args, MyResidence plugin, Player player, Session session) {
+            player.sendMessage(ChatColor.DARK_GREEN + "Task canceled!");
+        } else {
+            player.sendMessage(ChatColor.RED + "There is nothing to cancel!");
+        }
     }
 }

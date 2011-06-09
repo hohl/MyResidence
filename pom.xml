@@ -23,8 +23,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.co.hohl</groupId>
-    <artifactId>MyResidence</artifactId>
-    <version>0.1</version>
+    <artifactId>myresidence</artifactId>
+    <version>0.0.1-snapshot</version>
     <description>Allows users to manage their residences.</description>
 
     <scm>
@@ -33,11 +33,18 @@
         <developerConnection>scm:git:git@github.com:hohl/myresidence.git</developerConnection>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>ftp-repository</id>
+            <url>ftp://hohl.bplaced.net/mvn2</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <!-- Repository for dependencies of MIHO's -->
         <repository>
             <id>miho-mvn2</id>
-            <url>http://www.minelife.at/mvn2</url>
+            <url>http://hohl.bplaced.net/mvn2</url>
         </repository>
 
         <!-- Repository for other dependencies of SK's -->
@@ -65,13 +72,6 @@
         <dependency>
             <groupId>com.nijikokun</groupId>
             <artifactId>register</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <!-- Universal Permissions -->
-        <dependency>
-            <groupId>at.co.hohl</groupId>
-            <artifactId>permissions</artifactId>
             <version>1.0</version>
         </dependency>
 
@@ -135,5 +135,14 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <extensions>
+            <!-- Enabling the use of FTP -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+        </extensions>
     </build>
 </project>

@@ -19,10 +19,17 @@
 package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.exceptions.MyResidenceException;
+import at.co.hohl.myresidence.exceptions.NotEnoughMoneyException;
+import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
 import at.co.hohl.myresidence.storage.Session;
+import at.co.hohl.myresidence.storage.persistent.Town;
+import at.co.hohl.myresidence.storage.persistent.TownChunk;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 /**
@@ -32,19 +39,87 @@ import org.bukkit.entity.Player;
  */
 public class TownCommands {
     @Command(
-            aliases = {"create"},
+            aliases = {"found", "create"},
             usage = "<name>",
             desc = "Creates a new town",
             min = 1,
             flags = "w"
     )
-    @CommandPermissions({"myresidence.town.create"})
+    @CommandPermissions({"myresidence.town.found"})
     public static void create(CommandContext args, MyResidence plugin, Player player, Session session) {
+        Town town = new Town();
+        town.setName(args.getJoinedStrings(0));
+        town.setMajorId(plugin.getPlayer(player.getName()).getId());
+        plugin.getDatabase().save(town);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Town '" + args.getJoinedStrings(0) + "' created!");
+    }
+
+    @Command(
+            aliases = {"select", "sel", "s"},
+            usage = "<name>",
+            desc = "Selects a town",
+            min = 1
+    )
+    public static void select(CommandContext args, MyResidence plugin, Player player, Session session) {
+        Town townToSelect = plugin.getTown(args.getJoinedStrings(0));
+        session.setSelectedTown(townToSelect);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Town '" + townToSelect.getName() + "' selected!");
+    }
+
+    @Command(
+            aliases = {"addchunk", "chunk", "c"},
+            desc = "Adds your current chunk to the selected town",
+            max = 0
+    )
+    @CommandPermissions({"myresidence.town.major.expand"})
+    public static void addChunk(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws MyResidenceException {
+        // Get selections.
+        final Town selectedTown = session.getSelectedTown();
+        final Chunk playerChunk = player.getLocation().getBlock().getChunk();
+
+        // Check if player is major.
+        if (!session.hasMajorRights(selectedTown)) {
+            throw new PermissionsDeniedException("You are not the major of the selected town!");
+        }
+
+        // Check if already reserved?
+        if (plugin.getTown(player.getLocation()) != null) {
+            throw new MyResidenceException("This chunk is already bought by another town!");
+        }
+
+        // Check money.
+        double chunkCost = plugin.getConfiguration(player.getWorld()).getChunkCost();
+        double townMoney = selectedTown.getMoney();
+        if (townMoney < chunkCost) {
+            throw new NotEnoughMoneyException("The town has not enough money!");
+        } else {
+            selectedTown.setMoney(townMoney - chunkCost);
+        }
+
+        // Reserve new chunk.
+        TownChunk townChunk = new TownChunk(selectedTown, playerChunk);
+        plugin.getDatabase().save(townChunk);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Town bought chunk for " + ChatColor.GREEN +
+                plugin.format(chunkCost) + ChatColor.DARK_GREEN + ".");
+    }
+
+    @Command(
+            aliases = {"addselection", "selection"},
+            desc = "Adds your current chunk to the selected town",
+            max = 0
+    )
+    @CommandPermissions({"myresidence.town.major.expand"})
+    public static void addSelection(CommandContext args, MyResidence plugin, Player player, Session session) {
+
     }
 
     @Command(
             aliases = {"info", "i"},
-            desc = "Returns information about residence",
+            desc = "Returns information about the selected town",
             max = 0
     )
     @CommandPermissions({"myresidence.town.info"})
@@ -56,7 +131,7 @@ public class TownCommands {
             desc = "List available towns",
             min = 0,
             max = 0,
-            flags = "nm"
+            flags = "mi"
     )
     @CommandPermissions({"myresidence.town.list"})
     public static void list(CommandContext args, MyResidence plugin, Player player, Session session) {
@@ -69,7 +144,7 @@ public class TownCommands {
             min = 2,
             max = 2
     )
-    @CommandPermissions({"myresidence.town.major"})
+    @CommandPermissions({"myresidence.town.major.pay"})
     public static void pay(CommandContext args, MyResidence plugin, Player player, Session session) {
     }
 
@@ -80,7 +155,7 @@ public class TownCommands {
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.town.major"})
+    @CommandPermissions({"myresidence.town.major.grant"})
     public static void grant(CommandContext args, MyResidence plugin, Player player, Session session) {
     }
 }

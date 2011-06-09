@@ -21,8 +21,11 @@ package at.co.hohl.myresidence.storage.persistent;
 import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
 import com.avaje.ebean.validation.NotNull;
+import org.bukkit.block.Sign;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * DAO used for storing data values.
@@ -35,8 +38,7 @@ public class ResidenceSign {
     @Id
     private int id;
 
-    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "sign")
-    private Residence residence;
+    private int residenceId;
 
     @NotEmpty
     @Length(max = 32)
@@ -51,7 +53,20 @@ public class ResidenceSign {
     @NotNull
     private int z;
 
+    /** Creates a new sign. */
     public ResidenceSign() {
+    }
+
+    /**
+     * Creates a new sign, for the passed sign.
+     *
+     * @param sign the sign.
+     */
+    public ResidenceSign(Sign sign) {
+        setWorld(sign.getWorld().getName());
+        setX(sign.getX());
+        setY(sign.getY());
+        setZ(sign.getZ());
     }
 
     public int getId() {
@@ -62,12 +77,12 @@ public class ResidenceSign {
         this.id = id;
     }
 
-    public Residence getResidence() {
-        return residence;
+    public int getResidenceId() {
+        return residenceId;
     }
 
-    public void setResidence(Residence residence) {
-        this.residence = residence;
+    public void setResidenceId(int residenceId) {
+        this.residenceId = residenceId;
     }
 
     public String getWorld() {

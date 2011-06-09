@@ -16,66 +16,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.co.hohl.myresidence.listener;
+package at.co.hohl.myresidence.bukkit;
 
-import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.commands.GeneralCommands;
+import at.co.hohl.myresidence.exceptions.*;
+import at.co.hohl.myresidence.storage.Configuration;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
-import at.co.hohl.permissions.Permission;
-import at.co.hohl.permissions.PermissionHandler;
 import com.nijikokun.register.payment.Methods;
 import com.sk89q.minecraft.util.commands.*;
 import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.block.Sign;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.persistence.PersistenceException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Bukkit plugin which allows to manage residences and towns.
  *
  * @author Michael Home
  */
-public class MyResidencePlugin extends JavaPlugin implements MyResidence {
-    /** Logger used by this plugin. */
-    private Logger logger;
-
-    /** WorldEdit plugin. */
-    private WorldEditPlugin worldEdit;
-
-    /** Payment methods. */
-    private Methods methods;
-
-    /** PermissionHandler */
-    private PermissionHandler permissionHandler;
-
+public class MyResidencePlugin extends MyResidenceAPI {
     /** Manager for all commands bound to this plugin. */
     private CommandsManager<Player> commands;
 
-    /** Session Map used by this player. */
-    private Map<Player, Session> sessionMap = new HashMap<Player, Session>();
+    /** Maps loaded configuration to worlds. */
+    private Map<String, Configuration> configurationMap = new HashMap<String, Configuration>();
 
     /** Called on enabling this plugin. */
     public void onEnable() {
         logger = getServer().getLogger();
 
         methods = new Methods();
-        permissionHandler = new PermissionHandler(this);
 
         setupDatabase();
         setupListeners();
@@ -92,11 +75,11 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     /**
      * Called when user uses a command bind to this application.
      *
-     * @param sender
-     * @param command
-     * @param label
-     * @param args
-     * @return
+     * @param sender  the sender of the command.
+     * @param command the command itself.
+     * @param label   the label used for calling the command.
+     * @param args    the arguments passed to the command.
+     * @return true, if the plugin handles the command.
      */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -135,9 +118,20 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
             }
         } catch (NumberFormatException e) {
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Number expected; string given.");
+        } catch (NoResidenceSelectedException e) {
+            player.sendMessage(ChatColor.RED + "You have to be inside a residence or select it by clicking the sign!");
+        } catch (NoTownSelectedException e) {
+            player.sendMessage(ChatColor.RED + "You need to select a town before!");
+            player.sendMessage(ChatColor.RED + "Use /town select <name> to select a town.");
+        } catch (ResidenceSignMissingException e) {
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "Residence sign is missing!");
+        } catch (NotOwnException e) {
+            player.sendMessage(ChatColor.RED + "You are not the owner!");
         } catch (IncompleteRegionException e) {
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Make a region selection first.");
         } catch (InsufficientArgumentsException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        } catch (MyResidenceException e) {
             player.sendMessage(ChatColor.RED + e.getMessage());
         } catch (Throwable exception) {
             player.sendMessage(ChatColor.RED + "Please report this error: [See console]");
@@ -149,156 +143,19 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     }
 
     /**
-     * Returns the residence at the passed location
-     *
-     * @param location the location to look for.
-     * @return the founded residence or null.
+     * @param world the world to get configuration.
+     * @return the main configuration for the plugin.
      */
-    public Residence getResidence(Location location) {
-        ResidenceArea residenceArea = getDatabase().find(ResidenceArea.class).where()
-                .ge("lowX", location.getBlockX())
-                .ge("lowY", location.getBlockY())
-                .ge("lowZ", location.getBlockZ())
-                .le("highX", location.getBlockX())
-                .le("highY", location.getBlockY())
-                .le("highZ", location.getBlockZ())
-                .findUnique();
-
-        if (residenceArea != null) {
-            return getDatabase().find(Residence.class).where().eq("area", residenceArea).findUnique();
+    public Configuration getConfiguration(World world) {
+        if (configurationMap.containsKey(world.getName())) {
+            return configurationMap.get(world.getName());
         } else {
-            return null;
+            org.bukkit.util.config.Configuration bukkitConfig =
+                    new org.bukkit.util.config.Configuration(new File(getDataFolder(), world.getName() + ".yml"));
+            Configuration configuration = new Configuration(bukkitConfig);
+            configurationMap.put(world.getName(), configuration);
+            return configuration;
         }
-    }
-
-    /**
-     * Returns the residence with the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded residence or null.
-     */
-    public Residence getResidence(String name) {
-        return getDatabase().find(Residence.class).where().ieq("name", name).findUnique();
-    }
-
-    /**
-     * Returns the residence by the passed sign.
-     *
-     * @param sign the sign to look for.
-     * @return the founded residence or null.
-     */
-    public Residence getResidence(Sign sign) {
-        Location blockLocation = sign.getBlock().getLocation();
-
-        Map<String, Object> locationArgs = new HashMap<String, Object>();
-        locationArgs.put("x", blockLocation.getBlockX());
-        locationArgs.put("y", blockLocation.getBlockY());
-        locationArgs.put("z", blockLocation.getBlockZ());
-        locationArgs.put("world", blockLocation.getWorld().getName());
-
-        ResidenceSign residenceSign = getDatabase().find(ResidenceSign.class).where().allEq(locationArgs).findUnique();
-
-        if (residenceSign != null) {
-            return getDatabase().find(Residence.class).where().eq("sign", residenceSign).findUnique();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the town with the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded town or null.
-     */
-    public Town getTown(String name) {
-        return getDatabase().find(Town.class).where().ieq("name", name).findUnique();
-    }
-
-    /**
-     * Returns the town at the passed location.
-     *
-     * @param location the location to look for.
-     * @return the founded town or null.
-     */
-    public Town getTown(Location location) {
-        Map<String, Object> chunkArgs = new HashMap<String, Object>();
-        chunkArgs.put("x", location.getBlock().getChunk().getX());
-        chunkArgs.put("z", location.getBlock().getChunk().getZ());
-        chunkArgs.put("world", location.getWorld().getName());
-
-        TownChunk currentChunk = getDatabase().find(TownChunk.class).where().allEq(chunkArgs).findUnique();
-
-        if (currentChunk != null) {
-            return currentChunk.getTown();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the session for the passed player.
-     *
-     * @param player the player to look for the session.
-     * @return the found or create session.
-     */
-    public Session getSession(Player player) {
-        if (!sessionMap.containsKey(player)) {
-            sessionMap.put(player, new Session());
-            info("session created for %s.", player.getName());
-        }
-
-        return sessionMap.get(player);
-    }
-
-    /** @return all available payment methods. */
-    public Methods getMethods() {
-        return methods;
-    }
-
-    /** @return handler for the permissions. */
-    public PermissionHandler getPermissionHandler() {
-        return permissionHandler;
-    }
-
-    /** @return world edit plugin. */
-    public WorldEditPlugin getWorldEdit() {
-        return worldEdit;
-    }
-
-    public void setWorldEdit(WorldEditPlugin worldEdit) {
-        this.worldEdit = worldEdit;
-    }
-
-    /**
-     * Logs an message with the level info.
-     *
-     * @param message the message to log.
-     */
-    public void info(String message, Object... args) {
-        String formattedMessage = String.format(message, args);
-        logger.info(String.format("[%s] %s", getDescription().getName(), formattedMessage));
-    }
-
-    /**
-     * Logs an message with the level warning.
-     *
-     * @param message the message to log.
-     */
-    public void warning(String message, Object... args) {
-        String formattedMessage = String.format(message, args);
-        logger.warning(String.format("[%s] %s", getDescription().getName(), formattedMessage));
-    }
-
-    /**
-     * Logs an message with the level severe.
-     *
-     * @param message the message to log.
-     */
-    public void severe(String message, Object... args) {
-
-        String formattedMessage = String.format(message, args);
-        logger.severe(String.format("[%s] %s", getDescription().getName(), formattedMessage));
     }
 
     /** Setups the listeners for the plugin. */
@@ -314,6 +171,10 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         EconomyPluginListener economyPluginListener = new EconomyPluginListener(this);
         pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, economyPluginListener, Event.Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, economyPluginListener, Event.Priority.Monitor, this);
+
+        // Listen for player clicking on signs.
+        SignClickListener signClickListener = new SignClickListener(this);
+        pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, signClickListener, Event.Priority.Normal, this);
     }
 
     /** Setups the commands. */
@@ -321,7 +182,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         commands = new CommandsManager<Player>() {
             @Override
             public boolean hasPermission(Player player, String permission) {
-                return permissionHandler.hasPermission(player, new Permission(permission, true));
+                return getPermissionsResolver().hasPermission(player.getName(), permission);
             }
         };
 

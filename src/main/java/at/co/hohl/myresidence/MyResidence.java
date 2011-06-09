@@ -18,14 +18,17 @@
 
 package at.co.hohl.myresidence;
 
+import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
+import at.co.hohl.myresidence.storage.Configuration;
 import at.co.hohl.myresidence.storage.Session;
-import at.co.hohl.myresidence.storage.persistent.Residence;
-import at.co.hohl.myresidence.storage.persistent.Town;
-import at.co.hohl.permissions.PermissionHandler;
+import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
 import com.nijikokun.register.payment.Methods;
+import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.Location;
+import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -36,12 +39,27 @@ import org.bukkit.entity.Player;
  */
 public interface MyResidence {
     /**
+     * Updates the sign linked to passed Residence.
+     *
+     * @param residence Residence to update.
+     */
+    void updateResidenceSign(Residence residence) throws ResidenceSignMissingException;
+
+    /**
      * Returns the residence at the passed location
      *
      * @param location the location to look for.
      * @return the founded residence or null.
      */
     Residence getResidence(Location location);
+
+    /**
+     * Returns the residence with the passed id.
+     *
+     * @param id the id of the residence to look for.
+     * @return the founded residence or null.
+     */
+    Residence getResidence(int id);
 
     /**
      * Returns the residence with the passed name.
@@ -60,6 +78,46 @@ public interface MyResidence {
     Residence getResidence(Sign sign);
 
     /**
+     * Returns the area of the Residence.
+     *
+     * @param residence the Residence.
+     * @return the area of the Residence.
+     */
+    ResidenceArea getResidenceArea(Residence residence);
+
+    /**
+     * Returns the area of the Residence
+     *
+     * @param id the id of the Residence.
+     * @return the area of the Residence with the passed id.
+     */
+    ResidenceArea getResidenceArea(int id);
+
+    /**
+     * Returns the sign of the Residence
+     *
+     * @param residence the Residence.
+     * @return the sign of the passed Residence.
+     */
+    ResidenceSign getResidenceSign(Residence residence);
+
+    /**
+     * Returns the sign of the Residence.
+     *
+     * @param id the id of the Residence.
+     * @return the sign of the Residence with the passed id.
+     */
+    ResidenceSign getResidenceSign(int id);
+
+    /**
+     * Returns the town with the passed id.
+     *
+     * @param id the id of the town to look for.
+     * @return the founded town or null.
+     */
+    Town getTown(int id);
+
+    /**
      * Returns the town with the passed name.
      *
      * @param name the name to look for.
@@ -76,6 +134,38 @@ public interface MyResidence {
     Town getTown(Location location);
 
     /**
+     * Returns the player with the passed id.
+     *
+     * @param id the id of the player to look for.
+     * @return the founded player or null.
+     */
+    PlayerData getPlayer(int id);
+
+    /**
+     * Returns the player data for the passed name.
+     *
+     * @param name the name to look for.
+     * @return the founded player or null.
+     */
+    PlayerData getPlayer(String name);
+
+    /**
+     * Returns the PlayerData of the owner of the passed Residence.
+     *
+     * @param residence the Residence.
+     * @return PlayerData of the owner.
+     */
+    PlayerData getOwner(Residence residence);
+
+    /**
+     * Returns the major of the passed Town.
+     *
+     * @param town the Town.
+     * @return PlayerData of the major.
+     */
+    PlayerData getMajor(Town town);
+
+    /**
      * Returns the session for the passed player.
      *
      * @param player the player to look for the session.
@@ -86,14 +176,31 @@ public interface MyResidence {
     /** @return the database. */
     EbeanServer getDatabase();
 
+    /** @return the server instance, which holds the MyResidence plugin. */
+    Server getServer();
+
     /** @return all available payment methods. */
     Methods getMethods();
 
     /** @return handler for the permissions. */
-    PermissionHandler getPermissionHandler();
+    PermissionsResolver getPermissionsResolver();
 
     /** @return world edit plugin. */
     WorldEditPlugin getWorldEdit();
+
+    /**
+     * @param world the world to get configuration.
+     * @return the main configuration for the plugin.
+     */
+    Configuration getConfiguration(World world);
+
+    /**
+     * Formats the passed amount of money to a localized string.
+     *
+     * @param money the amount of money.
+     * @return a string for the amount of money.
+     */
+    String format(double money);
 
     /**
      * Logs an message with the level info.

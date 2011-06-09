@@ -18,10 +18,16 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
+import at.co.hohl.myresidence.MyResidence;
 import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
+import com.avaje.ebean.validation.NotNull;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * DAO used for storing information about residences.
@@ -34,46 +40,56 @@ public class Residence {
     @Id
     private int id;
 
-    @OneToOne(cascade = CascadeType.PERSIST, mappedBy = "residence")
-    private ResidenceSign sign;
-
-    @OneToOne(cascade = CascadeType.PERSIST, mappedBy = "residence")
-    private ResidenceArea area;
-
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private Town town;
+    private int townId = -1;
 
     @NotEmpty
     @Length(max = 32)
     private String name;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private PlayerData owner;
+    private int ownerId = -1;
 
-    private double value;
+    @NotNull
+    private double value = 0.00f;
 
-    private double cost;
+    @NotNull
+    private double price = 0.00f;
 
-    private boolean forSale = true;
+    private boolean forSale = false;
 
     /** Creates a new Residence. */
     public Residence() {
     }
 
-    public ResidenceArea getArea() {
-        return area;
-    }
+    public void sendInformation(MyResidence plugin, Player player) {
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "= = = ABOUT RESIDENCE = = =");
 
-    public void setArea(ResidenceArea area) {
-        this.area = area;
-    }
+        // Send name
+        player.sendMessage(ChatColor.GRAY + "Name: " + ChatColor.WHITE + getName());
 
-    public double getCost() {
-        return cost;
-    }
+        // Retrieve and send owner...
+        String owner = "NOBODY";
+        if (getOwnerId() != -1) {
+            owner = plugin.getPlayer(getOwnerId()).toString();
+        }
+        player.sendMessage(ChatColor.GRAY + "Owner: " + ChatColor.WHITE + owner);
 
-    public void setCost(double cost) {
-        this.cost = cost;
+        // Retrieve and send town...
+        String town = "ANY (wildness)";
+        if (getTownId() != -1) {
+            Town townData = plugin.getTown(getTownId());
+            town = townData.toString() + " (Major: " + plugin.getMajor(townData) + ")";
+        }
+        player.sendMessage(ChatColor.GRAY + "Town: " + ChatColor.WHITE + town);
+
+        // Retrieve and send area...
+        player.sendMessage(ChatColor.GRAY + "Size: " + ChatColor.WHITE + plugin.getResidenceArea(this));
+
+        // Retrieve and send money values.
+        player.sendMessage(ChatColor.GRAY + "Value: " + plugin.format(getValue()));
+        if (isForSale()) {
+            player.sendMessage(ChatColor.YELLOW + "RESIDENCE FOR SALE!");
+            player.sendMessage(ChatColor.YELLOW + "Price: " + plugin.format(getPrice()));
+        }
     }
 
     public boolean isForSale() {
@@ -100,28 +116,28 @@ public class Residence {
         this.name = name;
     }
 
-    public PlayerData getOwner() {
-        return owner;
+    public int getOwnerId() {
+        return ownerId;
     }
 
-    public void setOwner(PlayerData owner) {
-        this.owner = owner;
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
     }
 
-    public ResidenceSign getSign() {
-        return sign;
+    public double getPrice() {
+        return price;
     }
 
-    public void setSign(ResidenceSign sign) {
-        this.sign = sign;
+    public void setPrice(double price) {
+        this.price = price;
     }
 
-    public Town getTown() {
-        return town;
+    public int getTownId() {
+        return townId;
     }
 
-    public void setTown(Town town) {
-        this.town = town;
+    public void setTownId(int townId) {
+        this.townId = townId;
     }
 
     public double getValue() {

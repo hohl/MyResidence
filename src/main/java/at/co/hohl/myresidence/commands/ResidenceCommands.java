@@ -19,18 +19,22 @@
 package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Session;
-import at.co.hohl.myresidence.storage.persistent.Residence;
-import at.co.hohl.myresidence.storage.persistent.ResidenceArea;
+import at.co.hohl.myresidence.storage.persistent.*;
+import com.avaje.ebean.ExpressionList;
 import com.nijikokun.register.payment.Method;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.Selection;
+import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 /**
  * Command for managing residences.
@@ -38,55 +42,182 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class ResidenceCommands {
+    /** Maximum numbers of line per page. */
+    private static final int LINES_PER_PAGE = 7;
+
     @Command(
-            aliases = {"create"},
+            aliases = {"create", "c"},
             usage = "<name>",
-            desc = "Creates a new residence with passed name",
+            desc = "Creates a new residence with passed name. " +
+                    "(For creating residences in wildness 'myresidence.residence.wildness' is needed)",
             min = 1,
             flags = "w"
     )
-    @CommandPermissions({"myresidence.residence.create"})
-    public static void create(CommandContext args, MyResidence plugin, Player player, Session session)
-            throws IncompleteRegionException {
-        WorldEditPlugin worldEdit = plugin.getWorldEdit();
-        Selection selection = worldEdit.getSelection(player);
-        String residenceName = args.getJoinedStrings(0);
+    @CommandPermissions({"myresidence.town.major.create"})
+    public static void create(final CommandContext args,
+                              final MyResidence plugin,
+                              final Player player,
+                              final Session session)
+            throws IncompleteRegionException, MyResidenceException {
 
         // Can not make a Residence without a selection.
+        final Selection selection = plugin.getWorldEdit().getSelection(player);
         if (selection == null) {
             throw new IncompleteRegionException();
         }
 
-        ResidenceArea area = new ResidenceArea(selection);
-        plugin.getDatabase().save(area);
+        // If player wants to create residences in wildness, he needs enough rights!
+        final boolean buildInWildness = args.hasFlag('w');
+        if (buildInWildness && !session.hasPermission("myresidence.residence.wildness")) {
+            throw new PermissionsDeniedException("You are not allowed to create a residence in wildness!");
+        }
 
-        Residence residence = new Residence();
-        residence.setName(residenceName);
-        residence.setArea(area);
-        plugin.getDatabase().save(residence);
+        // If player wants to create a residence in town, he must be inside a town too!
+        final Town town = plugin.getTown(player.getLocation());
+        if (!buildInWildness && town == null) {
+            throw new MyResidenceException("You can not create a residence outside the town!");
+        }
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Residence " + residenceName + " created!");
+        // Start creating the residence.
+
+
+        // Create task, which gets executed after selecting a sign.
+        session.setTask(new Runnable() {
+            public void run() {
+                try {
+                    final Residence residence = new Residence();
+                    residence.setName(args.getJoinedStrings(0));
+                    residence.setOwnerId(session.getPlayerId());
+                    if (!buildInWildness) {
+                        residence.setTownId(town.getId());
+                    }
+                    plugin.getDatabase().save(residence);
+
+                    final ResidenceArea area = new ResidenceArea(selection);
+                    area.setResidenceId(residence.getId());
+                    plugin.getDatabase().save(area);
+
+                    ResidenceSign sign = new ResidenceSign(session.getSelectedSign());
+                    sign.setResidenceId(residence.getId());
+                    plugin.getDatabase().save(sign);
+
+                    plugin.updateResidenceSign(residence);
+
+                    player.sendMessage(ChatColor.DARK_GREEN + "Residence '" + residence.getName() + "' created!");
+                } catch (MyResidenceException e) {
+                    player.sendMessage(ChatColor.RED + e.getMessage());
+                }
+            }
+        });
+        session.setTaskActivator(Session.Activator.SELECT_SIGN);
+
+        // Notify user about he has to select a sign.
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Please select a sign, to link it to the new Residence!");
     }
 
     @Command(
-            aliases = {"buy"},
+            aliases = {"remove", "r"},
+            usage = "<name>",
+            desc = "Removes a residence",
+            max = 0
+    )
+    @CommandPermissions({"myresidence.town.major.remove"})
+    public static void remove(final CommandContext args,
+                              final MyResidence plugin,
+                              final Player player,
+                              final Session session)
+            throws NoResidenceSelectedException {
+        // Get residence.
+        final Residence residenceToRemove = session.getSelectedResidence();
+
+        // Create task to confirm.
+        session.setTask(new Runnable() {
+            public void run() {
+                plugin.getDatabase().delete(residenceToRemove);
+                player.sendMessage(ChatColor.DARK_GREEN + "Residence removed!");
+            }
+        });
+        session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);
+
+        // Notify user about need confirmation.
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Do you really want to remove '" + ChatColor.DARK_PURPLE +
+                residenceToRemove.getName() + ChatColor.LIGHT_PURPLE + "'?");
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Use /task confirm to confirm this task!");
+    }
+
+    @Command(
+            aliases = {"buy", "b"},
             desc = "Buys the residence",
             max = 0
     )
     @CommandPermissions({"myresidence.residence.buy"})
-    public static void buy(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void buy(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws MyResidenceException {
+        Residence residence = session.getSelectedResidence();
+        Method payment = plugin.getMethods().getMethod();
+
+        if (!residence.isForSale()) {
+            throw new MyResidenceException("Residence is not for sell!");
+        }
+
+        if (payment == null) {
+            throw new EconomyMissingException();
+        }
+
+        Method.MethodAccount playerAccount = payment.getAccount(player.getName());
+        double price = residence.getPrice();
+        if (!playerAccount.hasEnough(price)) {
+            throw new NotEnoughMoneyException();
+        }
+        Method.MethodAccount ownerAccount = payment.getAccount(plugin.getOwner(residence).getName());
+        playerAccount.subtract(price);
+        ownerAccount.add(price);
+
+        Player oldOwner = plugin.getServer().getPlayer(plugin.getPlayer(residence.getOwnerId()).getName());
+        residence.setOwnerId(plugin.getPlayer(player.getName()).getId());
+        residence.setForSale(false);
+        plugin.getDatabase().save(residence);
+
+        plugin.updateResidenceSign(residence);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "You have successfully bought the residence!");
+        if (oldOwner != null && oldOwner.isOnline()) {
+            oldOwner.sendMessage(ChatColor.DARK_GREEN + "Your residence was sold for " +
+                    ChatColor.YELLOW + plugin.format(price) +
+                    ChatColor.DARK_GREEN + " to " + ChatColor.YELLOW + oldOwner.getName() +
+                    ChatColor.DARK_GREEN + ".");
+        }
     }
 
     @Command(
-            aliases = {"sell"},
-            usage = "<price>",
-            desc = "Sells your residence",
+            aliases = {"sell", "sale", "s"},
+            usage = "[price]",
+            desc = "Makes your residence available for sale",
             min = 1,
-            max = 1,
-            flags = "r"
+            max = 1
     )
     @CommandPermissions({"myresidence.residence.sell"})
-    public static void sell(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void sell(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws MyResidenceException {
+        Residence residence = session.getSelectedResidence();
+
+        PlayerData residenceOwner = plugin.getOwner(residence);
+        if (!(player.getName().equals(residenceOwner.getName()))) {
+            throw new NotOwnException();
+        }
+
+        double price = args.getDouble(0, residence.getValue());
+        residence.setForSale(true);
+        residence.setPrice(price);
+        if (residence.getValue() <= 0.0) {
+            residence.setValue(price);
+        }
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Your residence is available for sale now!");
+
+        plugin.getDatabase().save(residence);
+
+        plugin.updateResidenceSign(residence);
     }
 
     @Command(
@@ -95,33 +226,107 @@ public class ResidenceCommands {
             max = 0
     )
     @CommandPermissions({"myresidence.residence.info"})
-    public static void info(CommandContext args, MyResidence plugin, Player player, Session session) {
-        Residence residence = plugin.getResidence(player.getLocation());
-        Method payment = plugin.getMethods().getMethod();
-
-        if (residence != null) {
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "= = = ABOUT RESIDENCE = = =");
-            player.sendMessage(ChatColor.GRAY + "Owner: " + ChatColor.WHITE + residence.getOwner());
-            player.sendMessage(ChatColor.GRAY + "Town: " + ChatColor.WHITE + residence.getTown());
-            player.sendMessage(ChatColor.GRAY + "Value: " + ChatColor.WHITE + payment.format(residence.getValue()));
-            player.sendMessage(ChatColor.GRAY + "Size:" + ChatColor.WHITE + residence.getArea());
-            if (residence.isForSale()) {
-                player.sendMessage(ChatColor.YELLOW + "RESIDENCE FOR SALE!");
-                player.sendMessage(ChatColor.YELLOW + "Price: " + payment.format(residence.getValue()));
-            }
-        } else {
-            player.sendMessage(ChatColor.RED + "You are not inside a Residence!");
-        }
+    public static void info(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws NoResidenceSelectedException {
+        Residence residence = session.getSelectedResidence();
+        residence.sendInformation(plugin, player);
     }
 
     @Command(
-            aliases = {"list"},
-            usage = "[search]",
-            desc = "List residences you own. (-s = only residences for sell)",
-            max = 0,
-            flags = "snp"
+            aliases = {"list", "l"},
+            usage = "[page]",
+            desc = "List residences. " +
+                    "(c: cheapest, n: nearest, o: residences you own, s: residences for sale, v: most expensive)",
+            max = 1,
+            flags = "cnosv"
     )
     @CommandPermissions({"myresidence.residence.list"})
-    public static void list(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void list(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws MyResidenceException, InsufficientArgumentsException {
+        Location playerLocation = player.getLocation();
+
+        ExpressionList expressionList = plugin.getDatabase().find(Residence.class).where();
+
+        // v: sort by value.
+        if (args.hasFlag('v')) {
+            expressionList.orderBy("value desc");
+        } else {
+            expressionList.orderBy("name asc");
+        }
+
+        // o: only residences you own.
+        if (args.hasFlag('o')) {
+            int ownerId = plugin.getPlayer(player.getName()).getId();
+            expressionList.eq("ownerId", ownerId);
+        }
+
+        // n: only residences in your current town.
+        if (args.hasFlag('n')) {
+            try {
+                int townId = plugin.getTown(playerLocation).getId();
+                expressionList.eq("townId", townId);
+            } catch (NullPointerException e) {
+                throw new MyResidenceException("You can only use -n flag inside towns!");
+            }
+        }
+
+        // s: only residences for sale.
+        if (args.hasFlag('s')) {
+            expressionList.eq("forSale", true);
+
+            // c: sort by price.
+            if (args.hasFlag('c')) {
+                expressionList.orderBy("price asc");
+            }
+        }
+
+        // Find exact page.
+        int page = args.getInteger(0, 1);
+        int rows = expressionList.findRowCount();
+        int index = (page - 1) * 7 + 1;
+        if (index > rows || index < 1) {
+            throw new InsufficientArgumentsException("Invalid page number!");
+        }
+        expressionList.setMaxRows(LINES_PER_PAGE);
+        expressionList.setFirstRow((page - 1) * LINES_PER_PAGE);
+
+        List<Residence> residences = expressionList.findList();
+
+        // Print results.
+        player.sendMessage(ChatColor.LIGHT_PURPLE +
+                String.format("= = = Residences [Page %s/%s] = = =", page, rows / LINES_PER_PAGE + 1));
+
+        if (args.hasFlag('s')) {
+            for (Residence residence : residences) {
+                player.sendMessage(
+                        String.format(
+                                ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Price: %s]",
+                                index,
+                                Town.toString(plugin.getTown(residence.getTownId())),
+                                residence.getName(),
+                                plugin.format(residence.getPrice())));
+                ++index;
+            }
+        } else if (args.hasFlag('o')) {
+            for (Residence residence : residences) {
+                player.sendMessage(String.format(
+                        ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Value: %s]",
+                        index,
+                        Town.toString(plugin.getTown(residence.getTownId())),
+                        residence.getName(),
+                        plugin.format(residence.getValue())));
+                ++index;
+            }
+        } else {
+            for (Residence residence : residences) {
+                player.sendMessage(String.format(
+                        ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Owner: %s]",
+                        index,
+                        Town.toString(plugin.getTown(residence.getTownId())),
+                        residence.getName(),
+                        plugin.getOwner(residence)));
+                ++index;
+            }
+        }
     }
 }

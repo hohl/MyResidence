@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.co.hohl.myresidence.listener;
+package at.co.hohl.myresidence.bukkit;
 
 import com.nijikokun.register.payment.Methods;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -30,15 +30,15 @@ import org.bukkit.event.server.ServerListener;
  */
 public class EconomyPluginListener extends ServerListener {
     /** Plugin instance which holds the Register Library. */
-    private MyResidencePlugin plugin;
+    private MyResidenceAPI api;
 
     /**
      * Creates a new EconomyPluginListener.
      *
-     * @param plugin the plugin which holds the instance.
+     * @param api the plugin which holds the instance.
      */
-    public EconomyPluginListener(MyResidencePlugin plugin) {
-        this.plugin = plugin;
+    public EconomyPluginListener(final MyResidenceAPI api) {
+        this.api = api;
     }
 
     /**
@@ -49,12 +49,12 @@ public class EconomyPluginListener extends ServerListener {
     @Override
     public void onPluginDisable(PluginDisableEvent event) {
         // Check to see if the plugin that's being disabled is the one we are using
-        Methods methods = plugin.getMethods();
+        Methods methods = api.getMethods();
         if (methods != null && methods.hasMethod()) {
             Boolean check = methods.checkDisabled(event.getPlugin());
 
             if (check) {
-                plugin.info("Payment method was disabled. No longer accepting payments.");
+                api.info("Payment method was disabled. No longer accepting payments.");
             }
         }
     }
@@ -67,11 +67,11 @@ public class EconomyPluginListener extends ServerListener {
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
         // Create new methods if there didn't exists anyone.
-        Methods methods = plugin.getMethods();
+        Methods methods = api.getMethods();
 
         // Check to see if we need a payment method
         if (!methods.hasMethod() && methods.setMethod(event.getPlugin())) {
-            plugin.info(String.format("Payment method found (%s %s)", methods.getMethod().getName(),
+            api.info(String.format("Payment method found (%s %s)", methods.getMethod().getName(),
                     methods.getMethod().getVersion()));
         }
     }
