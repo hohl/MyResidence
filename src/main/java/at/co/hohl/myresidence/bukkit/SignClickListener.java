@@ -18,11 +18,15 @@
 
 package at.co.hohl.myresidence.bukkit;
 
+import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import org.bukkit.block.Sign;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
  * Listener for listening if player clicked a sign.
@@ -31,7 +35,7 @@ import org.bukkit.event.player.PlayerListener;
  */
 public class SignClickListener extends PlayerListener {
     /** Plugin which holds the instance. */
-    private final MyResidenceAPI plugin;
+    private final MyResidence plugin;
 
     /**
      * Creates a new SignClickListener.
@@ -49,7 +53,8 @@ public class SignClickListener extends PlayerListener {
      */
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!(event.getClickedBlock().getState() instanceof Sign)) {
+        if ((event.isCancelled()) || (event.getAction() != Action.LEFT_CLICK_BLOCK) ||
+                !(event.getClickedBlock().getState() instanceof Sign)) {
             return;
         }
 
@@ -60,14 +65,27 @@ public class SignClickListener extends PlayerListener {
         if (Session.Activator.SELECT_SIGN.equals(playerSession.getTaskActivator())) {
             playerSession.getTask().run();
             playerSession.setTaskActivator(null);
-        } else if (sign.getLine(0).equals("[" + plugin.getConfiguration().getString("sign.title", "Residence") + "]")) {
+        } else if (sign.getLine(0).equals(plugin.getConfiguration(sign.getWorld()).getSignTitle())) {
             Residence residence = plugin.getResidence(sign);
             residence.sendInformation(plugin, event.getPlayer());
         } else {
             playerSession.setSelectedSign(null);
         }
+    }
 
-        // ToDo: Implement a auto remove selection (sign) after some time.
-        // ToDo: Implement a auto remove session after some time.
+    @Override
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+
+        Session playerSession = plugin.getSession(event.getPlayer());
+        playerSession.setSelectedSign(null);
+    }
+
+    @Override
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.removeSession(event.getPlayer());
+        plugin.info("Removed session of %s.", event.getPlayer());
     }
 }

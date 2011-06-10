@@ -32,6 +32,8 @@ import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -129,11 +131,21 @@ public class ResidenceCommands {
             throws NoResidenceSelectedException {
         // Get residence.
         final Residence residenceToRemove = session.getSelectedResidence();
+        final ResidenceSign residenceSign = plugin.getResidenceSign(residenceToRemove);
+        final ResidenceArea residenceArea = plugin.getResidenceArea(residenceToRemove);
+        World signWorld = player.getServer().getWorld(residenceSign.getWorld());
+        final Sign sign = (Sign) signWorld.getBlockAt(
+                new Location(signWorld, residenceSign.getX(), residenceSign.getY(), residenceSign.getZ())).getState();
 
         // Create task to confirm.
         session.setTask(new Runnable() {
             public void run() {
+                for (int index = 0; index < 4; ++index) {
+                    sign.setLine(index, "");
+                }
                 plugin.getDatabase().delete(residenceToRemove);
+                plugin.getDatabase().delete(residenceArea);
+                plugin.getDatabase().delete(residenceSign);
                 player.sendMessage(ChatColor.DARK_GREEN + "Residence removed!");
             }
         });
@@ -284,6 +296,9 @@ public class ResidenceCommands {
         int page = args.getInteger(0, 1);
         int rows = expressionList.findRowCount();
         int index = (page - 1) * 7 + 1;
+        if (rows == 0) {
+            throw new MyResidenceException("No search results found!");
+        }
         if (index > rows || index < 1) {
             throw new InsufficientArgumentsException("Invalid page number!");
         }

@@ -158,6 +158,16 @@ public class MyResidencePlugin extends MyResidenceAPI {
         }
     }
 
+    /** @return the name of the implementation of MyResidence. */
+    public String getName() {
+        return getDescription().getName();
+    }
+
+    /** @return the version of the implementation of MyResidence. */
+    public String getVersion() {
+        return getDescription().getName();
+    }
+
     /** Setups the listeners for the plugin. */
     private void setupListeners() {
         PluginManager pluginManager = getServer().getPluginManager();
@@ -175,6 +185,8 @@ public class MyResidencePlugin extends MyResidenceAPI {
         // Listen for player clicking on signs.
         SignClickListener signClickListener = new SignClickListener(this);
         pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, signClickListener, Event.Priority.Normal, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_MOVE, signClickListener, Event.Priority.Lowest, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, signClickListener, Event.Priority.Normal, this);
     }
 
     /** Setups the commands. */

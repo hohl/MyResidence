@@ -311,6 +311,15 @@ public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
         return sessionMap.get(player);
     }
 
+    /**
+     * Removes the session of the passed player.
+     *
+     * @param player the player who's session should be removed.
+     */
+    public void removeSession(Player player) {
+        sessionMap.remove(sessionMap.get(player));
+    }
+
     /** @return all available payment methods. */
     public Methods getMethods() {
         return methods;

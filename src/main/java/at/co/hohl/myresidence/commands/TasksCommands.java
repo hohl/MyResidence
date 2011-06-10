@@ -30,7 +30,7 @@ import org.bukkit.entity.Player;
  *
  * @author Michael Hohl
  */
-public class TaskCommands {
+public class TasksCommands {
     @Command(
             aliases = {"confirm", "y"},
             desc = "Confirms a task",

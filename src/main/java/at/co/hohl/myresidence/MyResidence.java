@@ -173,6 +173,13 @@ public interface MyResidence {
      */
     Session getSession(Player player);
 
+    /**
+     * Removes the session of the passed player.
+     *
+     * @param player the player who's session should be removed.
+     */
+    void removeSession(Player player);
+
     /** @return the database. */
     EbeanServer getDatabase();
 
@@ -193,6 +200,12 @@ public interface MyResidence {
      * @return the main configuration for the plugin.
      */
     Configuration getConfiguration(World world);
+
+    /** @return the name of the implementation of MyResidence. */
+    String getName();
+
+    /** @return the version of the implementation of MyResidence. */
+    String getVersion();
 
     /**
      * Formats the passed amount of money to a localized string.

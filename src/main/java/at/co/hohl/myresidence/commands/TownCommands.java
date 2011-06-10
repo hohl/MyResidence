@@ -20,14 +20,17 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
+import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
 import at.co.hohl.myresidence.exceptions.NotEnoughMoneyException;
 import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import at.co.hohl.myresidence.storage.persistent.TownChunk;
+import com.nijikokun.register.payment.Method;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -129,12 +132,29 @@ public class TownCommands {
     @Command(
             aliases = {"list"},
             desc = "List available towns",
-            min = 0,
             max = 0,
             flags = "mi"
     )
     @CommandPermissions({"myresidence.town.list"})
     public static void list(CommandContext args, MyResidence plugin, Player player, Session session) {
+    }
+
+    @Command(
+            aliases = {"money"},
+            desc = "Balance of town account",
+            max = 0
+    )
+    public static void money(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws PermissionsDeniedException, NoTownSelectedException {
+        Town selectedTown = session.getSelectedTown();
+
+        // Check if player is major.
+        if (!session.hasMajorRights(selectedTown)) {
+            throw new PermissionsDeniedException("You are not the major of the selected town!");
+        }
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Town Account Balance: " +
+                ChatColor.GREEN + plugin.format(selectedTown.getMoney()));
     }
 
     @Command(
@@ -145,7 +165,36 @@ public class TownCommands {
             max = 2
     )
     @CommandPermissions({"myresidence.town.major.pay"})
-    public static void pay(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void pay(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws MyResidenceException, InsufficientArgumentsException {
+        Town selectedTown = session.getSelectedTown();
+        Method payment = plugin.getMethods().getMethod();
+        Method.MethodAccount account = payment.getAccount(args.getString(0));
+        double amount = args.getDouble(1);
+
+        // Check if player is major.
+        if (!session.hasMajorRights(selectedTown)) {
+            throw new PermissionsDeniedException("You are not the major of the selected town!");
+        }
+
+        // Does account exist?
+        if (account == null) {
+            throw new MyResidenceException(ChatColor.RED + "Account " + ChatColor.DARK_RED + args.getString(0) +
+                    ChatColor.RED + " does not exist!");
+        }
+
+        // Is passed amount of money greater than 0?
+        if (amount <= 0.0) {
+            throw new InsufficientArgumentsException("You can not send an amount smaller than 0!");
+        }
+
+        selectedTown.subtractMoney(amount);
+        account.add(amount);
+        plugin.getDatabase().save(selectedTown);
+
+        player.sendMessage(String.format("%s%s%s send to %s%s%s!",
+                ChatColor.GREEN, args.getString(0), ChatColor.DARK_GREEN,
+                ChatColor.GREEN, payment.format(amount), ChatColor.DARK_GREEN));
     }
 
     @Command(
@@ -156,6 +205,33 @@ public class TownCommands {
             max = 1
     )
     @CommandPermissions({"myresidence.town.major.grant"})
-    public static void grant(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void grant(CommandContext args, MyResidence plugin, Player player, Session session)
+            throws MyResidenceException, InsufficientArgumentsException {
+        Town selectedTown = session.getSelectedTown();
+        Method payment = plugin.getMethods().getMethod();
+        Method.MethodAccount account = payment.getAccount(player.getName());
+        double amount = args.getDouble(0);
+
+        // Check if player is major.
+        if (!session.hasMajorRights(selectedTown)) {
+            throw new PermissionsDeniedException("You are not the major of the selected town!");
+        }
+
+        // Does account exist?
+        if (account == null) {
+            throw new MyResidenceException("You do not own a bank account!");
+        }
+
+        // Has enough money?
+        if (!account.hasEnough(amount)) {
+            throw new InsufficientArgumentsException("You can not grant more money than you own!");
+        }
+
+        selectedTown.addMoney(amount);
+        account.subtract(amount);
+        plugin.getDatabase().save(selectedTown);
+
+        player.sendMessage(String.format("%s%s%s send to town account!",
+                ChatColor.GREEN, payment.format(amount), ChatColor.DARK_GREEN));
     }
 }

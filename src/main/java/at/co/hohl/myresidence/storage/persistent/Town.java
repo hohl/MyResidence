@@ -48,6 +48,14 @@ public class Town {
     public Town() {
     }
 
+    public void addMoney(double amount) {
+        setMoney(getMoney() + amount);
+    }
+
+    public void subtractMoney(double amount) {
+        setMoney(getMoney() - amount);
+    }
+
     public static String toString(Town town) {
         if (town == null) {
             return "Wildness";

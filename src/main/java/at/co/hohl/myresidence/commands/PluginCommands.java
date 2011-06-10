@@ -22,36 +22,39 @@ import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.storage.Session;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.NestedCommand;
+import com.sk89q.minecraft.util.commands.CommandPermissions;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
- * Base node for all commands.
+ * Commands to handle the plugin.
  *
  * @author Michael Hohl
  */
-public class GeneralCommands {
+public class PluginCommands {
     @Command(
-            aliases = {"res", "residence"},
-            desc = "Commands to manage residences"
+            aliases = {"reload"},
+            desc = "Reloads the MyResidence plugin",
+            max = 0
     )
-    @NestedCommand({ResidenceCommands.class})
-    public static void residence(CommandContext args, MyResidence plugin, Player player, Session session) {
+    @CommandPermissions({"myresidence.reload"})
+    public static void reload(final CommandContext args,
+                              final MyResidence plugin,
+                              final Player player,
+                              final Session session) {
+        plugin.getServer().reload();
+        player.sendMessage(ChatColor.DARK_GREEN + "Configuration reloaded!");
     }
 
     @Command(
-            aliases = {"town"},
-            desc = "Commands to manage towns"
+            aliases = {"version", "ver"},
+            desc = "Returns MyResidence version",
+            max = 0
     )
-    @NestedCommand({TownCommands.class})
-    public static void town(CommandContext args, MyResidence plugin, Player player, Session session) {
-    }
-
-    @Command(
-            aliases = {"task", "tasks"},
-            desc = "Confirms or cancels tasks"
-    )
-    @NestedCommand({TasksCommands.class})
-    public static void tasks(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void version(final CommandContext args,
+                               final MyResidence plugin,
+                               final Player player,
+                               final Session session) {
+        player.sendMessage(String.format("%s version %s", plugin.getName(), plugin.getVersion()));
     }
 }
