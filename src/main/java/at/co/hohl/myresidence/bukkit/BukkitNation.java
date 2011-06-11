@@ -18,44 +18,38 @@
 
 package at.co.hohl.myresidence.bukkit;
 
-import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
-import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
+import com.avaje.ebean.EbeanServer;
 import com.nijikokun.register.payment.Method;
-import com.nijikokun.register.payment.Methods;
-import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.util.StringUtil;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
- * API implementation of MyResidence.
+ * MyResidence Nation implementation for Bukkit.
  *
  * @author Michael Hohl
  */
-public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
-    /** Logger used by this plugin. */
-    protected Logger logger;
+public class BukkitNation implements Nation {
+    /** The MyResidencePlugin which holds the Nation. */
+    private final MyResidencePlugin plugin;
 
-    /** Payment methods. */
-    protected Methods methods;
-
-    /** WorldEdit plugin. */
-    private WorldEditPlugin worldEdit;
-
-    /** Session Map used by this player. */
-    private Map<Player, Session> sessionMap = new HashMap<Player, Session>();
+    /**
+     * Creates a new Nation for the passed plugin.
+     *
+     * @param plugin the plugin to create the nation.
+     */
+    public BukkitNation(MyResidencePlugin plugin) {
+        this.plugin = plugin;
+    }
 
     /**
      * Updates the sign linked to passed Residence.
@@ -63,14 +57,14 @@ public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
      * @param residence Residence to update.
      */
     public void updateResidenceSign(Residence residence) throws ResidenceSignMissingException {
-        Method payment = getMethods().getMethod();
+        Method payment = plugin.getPaymentMethods().getMethod();
 
         ResidenceSign residenceSign = getDatabase().find(ResidenceSign.class)
                 .where()
                 .eq("residenceId", residence.getId())
                 .findUnique();
 
-        World world = getServer().getWorld(residenceSign.getWorld());
+        World world = plugin.getServer().getWorld(residenceSign.getWorld());
         Block signBlock = world.getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
 
         if (!(signBlock.getState() instanceof Sign)) {
@@ -78,11 +72,11 @@ public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
         }
 
         Sign sign = (Sign) signBlock.getState();
-        sign.setLine(0, "[" + getConfiguration().getString("sign.title", "Residence") + "]");
+        sign.setLine(0, "[" + plugin.getConfiguration().getString("sign.title", "Residence") + "]");
         sign.setLine(1, StringUtil.trimLength(residence.getName(), 16));
         if (residence.isForSale()) {
             sign.setLine(2, ChatColor.YELLOW +
-                    StringUtil.trimLength(getConfiguration().getString("sign.saletext", "FOR SALE!"), 14));
+                    StringUtil.trimLength(plugin.getConfiguration().getString("sign.saletext", "FOR SALE!"), 14));
             if (payment == null) {
                 sign.setLine(3,
                         ChatColor.YELLOW + StringUtil.trimLength(String.format("%.2f", residence.getPrice()), 14));
@@ -259,7 +253,7 @@ public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
             player.setName(name);
             getDatabase().save(player);
 
-            info("created database entry for player %s.", name);
+            plugin.info("Created database entry for player %s.", name);
         }
 
         return player;
@@ -286,6 +280,20 @@ public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
     }
 
     /**
+     * Saves any changes to towns or residences.
+     *
+     * @param object the object of the town or residence to save.
+     */
+    public void save(Object object) {
+        plugin.getDatabase().save(object);
+    }
+
+    /** @return the database which holds all information about towns and residences. */
+    public EbeanServer getDatabase() {
+        return plugin.getDatabase();
+    }
+
+    /**
      * Returns the PlayerData of the owner of the passed Residence.
      *
      * @param residence the Residence.
@@ -293,96 +301,5 @@ public abstract class MyResidenceAPI extends JavaPlugin implements MyResidence {
      */
     public PlayerData getOwner(Residence residence) {
         return getPlayer(residence.getOwnerId());
-    }
-
-    /**
-     * Returns the session for the passed player.
-     *
-     * @param player the player to look for the session.
-     * @return the found or create session.
-     */
-    public Session getSession(Player player) {
-        if (!sessionMap.containsKey(player)) {
-            sessionMap.put(player, new Session(this, player));
-
-            info("session created for %s.", player.getName());
-        }
-
-        return sessionMap.get(player);
-    }
-
-    /**
-     * Removes the session of the passed player.
-     *
-     * @param player the player who's session should be removed.
-     */
-    public void removeSession(Player player) {
-        sessionMap.remove(sessionMap.get(player));
-    }
-
-    /** @return all available payment methods. */
-    public Methods getMethods() {
-        return methods;
-    }
-
-    /** @return handler for the permissions. */
-    public PermissionsResolver getPermissionsResolver() {
-        return worldEdit.getPermissionsResolver();
-    }
-
-    /** @return world edit plugin. */
-    public WorldEditPlugin getWorldEdit() {
-        return worldEdit;
-    }
-
-    public void setWorldEdit(WorldEditPlugin worldEdit) {
-        this.worldEdit = worldEdit;
-    }
-
-    /**
-     * Formats the passed amount of money to a localized string.
-     *
-     * @param money the amount of money.
-     * @return a string for the amount of money.
-     */
-    public String format(double money) {
-        Method payment = getMethods().getMethod();
-
-        if (payment == null) {
-            return String.format("%.2f", money);
-        } else {
-            return payment.format(money);
-        }
-    }
-
-    /**
-     * Logs an message with the level info.
-     *
-     * @param message the message to log.
-     */
-    public void info(String message, Object... args) {
-        String formattedMessage = String.format(message, args);
-        logger.info(String.format("[%s] %s", getDescription().getName(), formattedMessage));
-    }
-
-    /**
-     * Logs an message with the level warning.
-     *
-     * @param message the message to log.
-     */
-    public void warning(String message, Object... args) {
-        String formattedMessage = String.format(message, args);
-        logger.warning(String.format("[%s] %s", getDescription().getName(), formattedMessage));
-    }
-
-    /**
-     * Logs an message with the level severe.
-     *
-     * @param message the message to log.
-     */
-    public void severe(String message, Object... args) {
-
-        String formattedMessage = String.format(message, args);
-        logger.severe(String.format("[%s] %s", getDescription().getName(), formattedMessage));
     }
 }

@@ -18,14 +18,20 @@
 
 package at.co.hohl.myresidence.bukkit;
 
+import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.SessionManager;
 import at.co.hohl.myresidence.commands.GeneralCommands;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Configuration;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
+import com.nijikokun.register.payment.Method;
 import com.nijikokun.register.payment.Methods;
+import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.minecraft.util.commands.*;
 import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -34,6 +40,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.persistence.PersistenceException;
 import java.io.File;
@@ -41,24 +48,41 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
- * Bukkit plugin which allows to manage residences and towns.
+ * Implementation of MyResidence as a bukkit plugin.
  *
  * @author Michael Home
  */
-public class MyResidencePlugin extends MyResidenceAPI {
+public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     /** Manager for all commands bound to this plugin. */
     private CommandsManager<Player> commands;
 
     /** Maps loaded configuration to worlds. */
     private Map<String, Configuration> configurationMap = new HashMap<String, Configuration>();
 
+    /** SessionManager used by this plugin. */
+    private SessionManager sessionManager;
+
+    /** Nation holded by this plugin. */
+    private Nation nation;
+
+    /** Logger used by this plugin. */
+    private Logger logger;
+
+    /** Payment methods. */
+    private Methods methods;
+
+    /** WorldEdit plugin. */
+    private WorldEditPlugin worldEdit;
+
     /** Called on enabling this plugin. */
     public void onEnable() {
         logger = getServer().getLogger();
-
         methods = new Methods();
+        nation = new BukkitNation(this);
+        sessionManager = new SessionManager(this, nation);
 
         setupDatabase();
         setupListeners();
@@ -88,7 +112,7 @@ public class MyResidencePlugin extends MyResidenceAPI {
         }
 
         Player player = (Player) sender;
-        Session session = getSession(player);
+        Session session = sessionManager.get(player);
 
         try {
             long start = System.currentTimeMillis();
@@ -98,7 +122,7 @@ public class MyResidencePlugin extends MyResidenceAPI {
             System.arraycopy(args, 0, commandLine, 1, args.length);
 
             try {
-                commands.execute(commandLine, player, this, player, session);
+                commands.execute(commandLine, player, this, this, player, session);
             } catch (CommandPermissionsException e) {
                 player.sendMessage(ChatColor.RED + "You don't have permission to do this.");
             } catch (MissingNestedCommandException e) {
@@ -158,6 +182,35 @@ public class MyResidencePlugin extends MyResidenceAPI {
         }
     }
 
+    /** @return the collection of towns and residences. */
+    public Nation getNation() {
+        return nation;
+    }
+
+    /** @return the SessionManager used by this MyResidence implementation. */
+    public SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
+    /** @return all available payment methods. */
+    public Methods getPaymentMethods() {
+        return methods;
+    }
+
+    /** @return handler for the permissions. */
+    public PermissionsResolver getPermissionsResolver() {
+        return worldEdit.getPermissionsResolver();
+    }
+
+    /** @return world edit plugin. */
+    public WorldEditPlugin getWorldEdit() {
+        return worldEdit;
+    }
+
+    public void setWorldEdit(WorldEditPlugin worldEdit) {
+        this.worldEdit = worldEdit;
+    }
+
     /** @return the name of the implementation of MyResidence. */
     public String getName() {
         return getDescription().getName();
@@ -166,6 +219,58 @@ public class MyResidencePlugin extends MyResidenceAPI {
     /** @return the version of the implementation of MyResidence. */
     public String getVersion() {
         return getDescription().getName();
+    }
+
+    /** @return the website of the implementation of MyResidence. */
+    public String getWebsite() {
+        return getDescription().getWebsite();
+    }
+
+    /**
+     * Formats the passed amount of money to a localized string.
+     *
+     * @param money the amount of money.
+     * @return a string for the amount of money.
+     */
+    public String format(double money) {
+        Method payment = getPaymentMethods().getMethod();
+
+        if (payment == null) {
+            return String.format("%.2f", money);
+        } else {
+            return payment.format(money);
+        }
+    }
+
+    /**
+     * Logs an message with the level info.
+     *
+     * @param message the message to log.
+     */
+    public void info(String message, Object... args) {
+        String formattedMessage = String.format(message, args);
+        logger.info(String.format("[%s] %s", getDescription().getName(), formattedMessage));
+    }
+
+    /**
+     * Logs an message with the level warning.
+     *
+     * @param message the message to log.
+     */
+    public void warning(String message, Object... args) {
+        String formattedMessage = String.format(message, args);
+        logger.warning(String.format("[%s] %s", getDescription().getName(), formattedMessage));
+    }
+
+    /**
+     * Logs an message with the level severe.
+     *
+     * @param message the message to log.
+     */
+    public void severe(String message, Object... args) {
+
+        String formattedMessage = String.format(message, args);
+        logger.severe(String.format("[%s] %s", getDescription().getName(), formattedMessage));
     }
 
     /** Setups the listeners for the plugin. */

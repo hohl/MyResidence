@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.storage.Session;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
@@ -36,7 +37,11 @@ public class TasksCommands {
             desc = "Confirms a task",
             max = 0
     )
-    public static void confirm(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void confirm(final CommandContext args,
+                               final MyResidence plugin,
+                               final Nation nation,
+                               final Player player,
+                               final Session session) {
         if (session.getTaskActivator() == Session.Activator.CONFIRM_COMMAND) {
             session.getTask().run();
             session.setTaskActivator(null);
@@ -50,7 +55,11 @@ public class TasksCommands {
             desc = "Cancels a task",
             max = 0
     )
-    public static void cancel(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void cancel(final CommandContext args,
+                              final MyResidence plugin,
+                              final Nation nation,
+                              final Player player,
+                              final Session session) {
         if (session.getTaskActivator() != null) {
             session.setTaskActivator(null);
 

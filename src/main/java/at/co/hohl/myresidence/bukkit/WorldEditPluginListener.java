@@ -30,15 +30,15 @@ import org.bukkit.event.server.ServerListener;
  */
 public class WorldEditPluginListener extends ServerListener {
     /** Plugin which holds the instance. */
-    private final MyResidenceAPI impl;
+    private final MyResidencePlugin plugin;
 
     /**
      * Creates a new WorldEditPluginListener.
      *
      * @param plugin the api which holds the instance.
      */
-    public WorldEditPluginListener(final MyResidenceAPI plugin) {
-        this.impl = plugin;
+    public WorldEditPluginListener(final MyResidencePlugin plugin) {
+        this.plugin = plugin;
     }
 
     /**
@@ -48,10 +48,10 @@ public class WorldEditPluginListener extends ServerListener {
      */
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
-        if (impl.getWorldEdit() == null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
-            impl.setWorldEdit((WorldEditPlugin) event.getPlugin());
+        if (plugin.getWorldEdit() == null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
+            plugin.setWorldEdit((WorldEditPlugin) event.getPlugin());
 
-            impl.info("WorldEdit plugin connected!");
+            plugin.info("WorldEdit plugin connected!");
         }
     }
 
@@ -62,10 +62,10 @@ public class WorldEditPluginListener extends ServerListener {
      */
     @Override
     public void onPluginDisable(PluginDisableEvent event) {
-        if (impl.getWorldEdit() != null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
-            impl.setWorldEdit(null);
+        if (plugin.getWorldEdit() != null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
+            plugin.setWorldEdit(null);
 
-            impl.info("WorldEdit plugin detached!");
+            plugin.info("WorldEdit plugin detached!");
         }
     }
 }

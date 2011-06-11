@@ -18,176 +18,31 @@
 
 package at.co.hohl.myresidence;
 
-import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.Configuration;
-import at.co.hohl.myresidence.storage.Session;
-import at.co.hohl.myresidence.storage.persistent.*;
-import com.avaje.ebean.EbeanServer;
 import com.nijikokun.register.payment.Methods;
 import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
-import org.bukkit.block.Sign;
-import org.bukkit.entity.Player;
 
 /**
- * Represents main interface for MyResidence.
+ * Represents main interface for MyResidence. Get the interface by looking up the 'MyResidence' plugin on the Bukkit
+ * server.
+ * <p/>
+ * If you are an plugin developer, which wants to link into MyResidence, also look at {@see
+ * at.co.hohl.myresidence.Nation} for handling towns and residences.
  *
  * @author Michael Hohl
  */
 public interface MyResidence {
-    /**
-     * Updates the sign linked to passed Residence.
-     *
-     * @param residence Residence to update.
-     */
-    void updateResidenceSign(Residence residence) throws ResidenceSignMissingException;
+    /** @return the collection of towns and residences. */
+    Nation getNation();
 
-    /**
-     * Returns the residence at the passed location
-     *
-     * @param location the location to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(Location location);
-
-    /**
-     * Returns the residence with the passed id.
-     *
-     * @param id the id of the residence to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(int id);
-
-    /**
-     * Returns the residence with the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(String name);
-
-    /**
-     * Returns the residence by the passed sign.
-     *
-     * @param sign the sign to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(Sign sign);
-
-    /**
-     * Returns the area of the Residence.
-     *
-     * @param residence the Residence.
-     * @return the area of the Residence.
-     */
-    ResidenceArea getResidenceArea(Residence residence);
-
-    /**
-     * Returns the area of the Residence
-     *
-     * @param id the id of the Residence.
-     * @return the area of the Residence with the passed id.
-     */
-    ResidenceArea getResidenceArea(int id);
-
-    /**
-     * Returns the sign of the Residence
-     *
-     * @param residence the Residence.
-     * @return the sign of the passed Residence.
-     */
-    ResidenceSign getResidenceSign(Residence residence);
-
-    /**
-     * Returns the sign of the Residence.
-     *
-     * @param id the id of the Residence.
-     * @return the sign of the Residence with the passed id.
-     */
-    ResidenceSign getResidenceSign(int id);
-
-    /**
-     * Returns the town with the passed id.
-     *
-     * @param id the id of the town to look for.
-     * @return the founded town or null.
-     */
-    Town getTown(int id);
-
-    /**
-     * Returns the town with the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded town or null.
-     */
-    Town getTown(String name);
-
-    /**
-     * Returns the town at the passed location.
-     *
-     * @param location the location to look for.
-     * @return the founded town or null.
-     */
-    Town getTown(Location location);
-
-    /**
-     * Returns the player with the passed id.
-     *
-     * @param id the id of the player to look for.
-     * @return the founded player or null.
-     */
-    PlayerData getPlayer(int id);
-
-    /**
-     * Returns the player data for the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded player or null.
-     */
-    PlayerData getPlayer(String name);
-
-    /**
-     * Returns the PlayerData of the owner of the passed Residence.
-     *
-     * @param residence the Residence.
-     * @return PlayerData of the owner.
-     */
-    PlayerData getOwner(Residence residence);
-
-    /**
-     * Returns the major of the passed Town.
-     *
-     * @param town the Town.
-     * @return PlayerData of the major.
-     */
-    PlayerData getMajor(Town town);
-
-    /**
-     * Returns the session for the passed player.
-     *
-     * @param player the player to look for the session.
-     * @return the found or create session.
-     */
-    Session getSession(Player player);
-
-    /**
-     * Removes the session of the passed player.
-     *
-     * @param player the player who's session should be removed.
-     */
-    void removeSession(Player player);
-
-    /** @return the database. */
-    EbeanServer getDatabase();
-
-    /** @return the server instance, which holds the MyResidence plugin. */
-    Server getServer();
+    /** @return the SessionManager used by this MyResidence implementation. */
+    SessionManager getSessionManager();
 
     /** @return all available payment methods. */
-    Methods getMethods();
+    Methods getPaymentMethods();
 
     /** @return handler for the permissions. */
     PermissionsResolver getPermissionsResolver();
@@ -206,6 +61,12 @@ public interface MyResidence {
 
     /** @return the version of the implementation of MyResidence. */
     String getVersion();
+
+    /** @return the website of the implementation of MyResidence. */
+    String getWebsite();
+
+    /** @return the server instance, which holds the MyResidence plugin. */
+    Server getServer();
 
     /**
      * Formats the passed amount of money to a localized string.

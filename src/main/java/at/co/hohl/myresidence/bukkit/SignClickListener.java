@@ -42,7 +42,7 @@ public class SignClickListener extends PlayerListener {
      *
      * @param plugin the plugin which holds the instance.
      */
-    public SignClickListener(MyResidenceAPI plugin) {
+    public SignClickListener(MyResidence plugin) {
         this.plugin = plugin;
     }
 
@@ -58,7 +58,7 @@ public class SignClickListener extends PlayerListener {
             return;
         }
 
-        Session playerSession = plugin.getSession(event.getPlayer());
+        Session playerSession = plugin.getSessionManager().get(event.getPlayer());
         Sign sign = (Sign) event.getClickedBlock().getState();
         playerSession.setSelectedSign(sign);
 
@@ -66,7 +66,7 @@ public class SignClickListener extends PlayerListener {
             playerSession.getTask().run();
             playerSession.setTaskActivator(null);
         } else if (sign.getLine(0).equals(plugin.getConfiguration(sign.getWorld()).getSignTitle())) {
-            Residence residence = plugin.getResidence(sign);
+            Residence residence = plugin.getNation().getResidence(sign);
             residence.sendInformation(plugin, event.getPlayer());
         } else {
             playerSession.setSelectedSign(null);
@@ -79,13 +79,13 @@ public class SignClickListener extends PlayerListener {
             return;
         }
 
-        Session playerSession = plugin.getSession(event.getPlayer());
+        Session playerSession = plugin.getSessionManager().get(event.getPlayer());
         playerSession.setSelectedSign(null);
     }
 
     @Override
     public void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.removeSession(event.getPlayer());
+        plugin.getSessionManager().close(event.getPlayer());
         plugin.info("Removed session of %s.", event.getPlayer());
     }
 }

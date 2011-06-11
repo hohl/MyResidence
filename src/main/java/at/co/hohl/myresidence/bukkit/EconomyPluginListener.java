@@ -50,7 +50,7 @@ public class EconomyPluginListener extends ServerListener {
     @Override
     public void onPluginDisable(PluginDisableEvent event) {
         // Check to see if the plugin that's being disabled is the one we are using
-        Methods methods = plugin.getMethods();
+        Methods methods = plugin.getPaymentMethods();
         if (methods != null && methods.hasMethod()) {
             Boolean check = methods.checkDisabled(event.getPlugin());
 
@@ -68,7 +68,7 @@ public class EconomyPluginListener extends ServerListener {
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
         // Create new methods if there didn't exists anyone.
-        Methods methods = plugin.getMethods();
+        Methods methods = plugin.getPaymentMethods();
 
         // Check to see if we need a payment method
         if (!methods.hasMethod() && methods.setMethod(event.getPlugin())) {

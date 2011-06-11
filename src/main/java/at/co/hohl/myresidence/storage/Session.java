@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.storage;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.NoResidenceSelectedException;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
 import at.co.hohl.myresidence.storage.persistent.Residence;
@@ -46,6 +47,9 @@ public class Session {
     /** The plugin which holds the session. */
     private final MyResidence plugin;
 
+    /** The nation which contains all the towns and residences. */
+    private final Nation nation;
+
     /** Is flag set, player want to get debug information. */
     private boolean debugger;
 
@@ -65,10 +69,12 @@ public class Session {
      * Creates a new Session for the passed player.
      *
      * @param plugin the plugin which holds the session.
+     * @param nation the nation which contains all the towns and residences.
      * @param player the player who should own the session.
      */
-    public Session(MyResidence plugin, Player player) {
+    public Session(MyResidence plugin, Nation nation, Player player) {
         this.plugin = plugin;
+        this.nation = nation;
         this.player = player;
     }
 
@@ -104,7 +110,7 @@ public class Session {
 
     /** @return id of the player. */
     public int getPlayerId() {
-        return plugin.getPlayer(player.getName()).getId();
+        return nation.getPlayer(player.getName()).getId();
     }
 
     /**
@@ -116,10 +122,10 @@ public class Session {
      *          thrown when the player don't have a selection.
      */
     public Residence getSelectedResidence() throws NoResidenceSelectedException {
-        Residence residence = plugin.getResidence(player.getLocation());
+        Residence residence = nation.getResidence(player.getLocation());
 
         if (residence == null && getSelectedSign() != null) {
-            residence = plugin.getResidence(getSelectedSign());
+            residence = nation.getResidence(getSelectedSign());
         }
 
         if (residence == null) {
@@ -153,7 +159,7 @@ public class Session {
 
             throw new NoTownSelectedException();
         } else {
-            return plugin.getTown(selectedTownId);
+            return nation.getTown(selectedTownId);
         }
     }
 

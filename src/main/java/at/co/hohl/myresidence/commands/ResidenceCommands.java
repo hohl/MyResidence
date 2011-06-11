@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
@@ -58,6 +59,7 @@ public class ResidenceCommands {
     @CommandPermissions({"myresidence.town.major.create"})
     public static void create(final CommandContext args,
                               final MyResidence plugin,
+                              final Nation nation,
                               final Player player,
                               final Session session)
             throws IncompleteRegionException, MyResidenceException {
@@ -75,7 +77,7 @@ public class ResidenceCommands {
         }
 
         // If player wants to create a residence in town, he must be inside a town too!
-        final Town town = plugin.getTown(player.getLocation());
+        final Town town = nation.getTown(player.getLocation());
         if (!buildInWildness && town == null) {
             throw new MyResidenceException("You can not create a residence outside the town!");
         }
@@ -103,7 +105,7 @@ public class ResidenceCommands {
                     sign.setResidenceId(residence.getId());
                     plugin.getDatabase().save(sign);
 
-                    plugin.updateResidenceSign(residence);
+                    nation.updateResidenceSign(residence);
 
                     player.sendMessage(ChatColor.DARK_GREEN + "Residence '" + residence.getName() + "' created!");
                 } catch (MyResidenceException e) {
@@ -126,13 +128,14 @@ public class ResidenceCommands {
     @CommandPermissions({"myresidence.town.major.remove"})
     public static void remove(final CommandContext args,
                               final MyResidence plugin,
+                              final Nation nation,
                               final Player player,
                               final Session session)
             throws NoResidenceSelectedException {
         // Get residence.
         final Residence residenceToRemove = session.getSelectedResidence();
-        final ResidenceSign residenceSign = plugin.getResidenceSign(residenceToRemove);
-        final ResidenceArea residenceArea = plugin.getResidenceArea(residenceToRemove);
+        final ResidenceSign residenceSign = nation.getResidenceSign(residenceToRemove);
+        final ResidenceArea residenceArea = nation.getResidenceArea(residenceToRemove);
         World signWorld = player.getServer().getWorld(residenceSign.getWorld());
         final Sign sign = (Sign) signWorld.getBlockAt(
                 new Location(signWorld, residenceSign.getX(), residenceSign.getY(), residenceSign.getZ())).getState();
@@ -163,10 +166,14 @@ public class ResidenceCommands {
             max = 0
     )
     @CommandPermissions({"myresidence.residence.buy"})
-    public static void buy(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void buy(final CommandContext args,
+                           final MyResidence plugin,
+                           final Nation nation,
+                           final Player player,
+                           final Session session)
             throws MyResidenceException {
         Residence residence = session.getSelectedResidence();
-        Method payment = plugin.getMethods().getMethod();
+        Method payment = plugin.getPaymentMethods().getMethod();
 
         if (!residence.isForSale()) {
             throw new MyResidenceException("Residence is not for sell!");
@@ -181,16 +188,16 @@ public class ResidenceCommands {
         if (!playerAccount.hasEnough(price)) {
             throw new NotEnoughMoneyException();
         }
-        Method.MethodAccount ownerAccount = payment.getAccount(plugin.getOwner(residence).getName());
+        Method.MethodAccount ownerAccount = payment.getAccount(nation.getOwner(residence).getName());
         playerAccount.subtract(price);
         ownerAccount.add(price);
 
-        Player oldOwner = plugin.getServer().getPlayer(plugin.getPlayer(residence.getOwnerId()).getName());
-        residence.setOwnerId(plugin.getPlayer(player.getName()).getId());
+        Player oldOwner = plugin.getServer().getPlayer(nation.getPlayer(residence.getOwnerId()).getName());
+        residence.setOwnerId(nation.getPlayer(player.getName()).getId());
         residence.setForSale(false);
         plugin.getDatabase().save(residence);
 
-        plugin.updateResidenceSign(residence);
+        nation.updateResidenceSign(residence);
 
         player.sendMessage(ChatColor.DARK_GREEN + "You have successfully bought the residence!");
         if (oldOwner != null && oldOwner.isOnline()) {
@@ -209,11 +216,15 @@ public class ResidenceCommands {
             max = 1
     )
     @CommandPermissions({"myresidence.residence.sell"})
-    public static void sell(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void sell(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session)
             throws MyResidenceException {
         Residence residence = session.getSelectedResidence();
 
-        PlayerData residenceOwner = plugin.getOwner(residence);
+        PlayerData residenceOwner = nation.getOwner(residence);
         if (!(player.getName().equals(residenceOwner.getName()))) {
             throw new NotOwnException();
         }
@@ -229,7 +240,7 @@ public class ResidenceCommands {
 
         plugin.getDatabase().save(residence);
 
-        plugin.updateResidenceSign(residence);
+        nation.updateResidenceSign(residence);
     }
 
     @Command(
@@ -238,7 +249,11 @@ public class ResidenceCommands {
             max = 0
     )
     @CommandPermissions({"myresidence.residence.info"})
-    public static void info(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void info(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session)
             throws NoResidenceSelectedException {
         Residence residence = session.getSelectedResidence();
         residence.sendInformation(plugin, player);
@@ -253,7 +268,11 @@ public class ResidenceCommands {
             flags = "cnosv"
     )
     @CommandPermissions({"myresidence.residence.list"})
-    public static void list(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void list(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session)
             throws MyResidenceException, InsufficientArgumentsException {
         Location playerLocation = player.getLocation();
 
@@ -268,14 +287,14 @@ public class ResidenceCommands {
 
         // o: only residences you own.
         if (args.hasFlag('o')) {
-            int ownerId = plugin.getPlayer(player.getName()).getId();
+            int ownerId = nation.getPlayer(player.getName()).getId();
             expressionList.eq("ownerId", ownerId);
         }
 
         // n: only residences in your current town.
         if (args.hasFlag('n')) {
             try {
-                int townId = plugin.getTown(playerLocation).getId();
+                int townId = nation.getTown(playerLocation).getId();
                 expressionList.eq("townId", townId);
             } catch (NullPointerException e) {
                 throw new MyResidenceException("You can only use -n flag inside towns!");
@@ -317,7 +336,7 @@ public class ResidenceCommands {
                         String.format(
                                 ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Price: %s]",
                                 index,
-                                Town.toString(plugin.getTown(residence.getTownId())),
+                                Town.toString(nation.getTown(residence.getTownId())),
                                 residence.getName(),
                                 plugin.format(residence.getPrice())));
                 ++index;
@@ -327,7 +346,7 @@ public class ResidenceCommands {
                 player.sendMessage(String.format(
                         ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Value: %s]",
                         index,
-                        Town.toString(plugin.getTown(residence.getTownId())),
+                        Town.toString(nation.getTown(residence.getTownId())),
                         residence.getName(),
                         plugin.format(residence.getValue())));
                 ++index;
@@ -337,9 +356,9 @@ public class ResidenceCommands {
                 player.sendMessage(String.format(
                         ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Owner: %s]",
                         index,
-                        Town.toString(plugin.getTown(residence.getTownId())),
+                        Town.toString(nation.getTown(residence.getTownId())),
                         residence.getName(),
-                        plugin.getOwner(residence)));
+                        nation.getOwner(residence)));
                 ++index;
             }
         }

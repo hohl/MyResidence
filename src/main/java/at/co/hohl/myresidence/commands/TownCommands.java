@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
 import at.co.hohl.myresidence.exceptions.NotEnoughMoneyException;
@@ -49,10 +50,14 @@ public class TownCommands {
             flags = "w"
     )
     @CommandPermissions({"myresidence.town.found"})
-    public static void create(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void create(final CommandContext args,
+                              final MyResidence plugin,
+                              final Nation nation,
+                              final Player player,
+                              final Session session) {
         Town town = new Town();
         town.setName(args.getJoinedStrings(0));
-        town.setMajorId(plugin.getPlayer(player.getName()).getId());
+        town.setMajorId(nation.getPlayer(player.getName()).getId());
         plugin.getDatabase().save(town);
 
         player.sendMessage(ChatColor.DARK_GREEN + "Town '" + args.getJoinedStrings(0) + "' created!");
@@ -64,8 +69,12 @@ public class TownCommands {
             desc = "Selects a town",
             min = 1
     )
-    public static void select(CommandContext args, MyResidence plugin, Player player, Session session) {
-        Town townToSelect = plugin.getTown(args.getJoinedStrings(0));
+    public static void select(final CommandContext args,
+                              final MyResidence plugin,
+                              final Nation nation,
+                              final Player player,
+                              final Session session) {
+        Town townToSelect = nation.getTown(args.getJoinedStrings(0));
         session.setSelectedTown(townToSelect);
 
         player.sendMessage(ChatColor.DARK_GREEN + "Town '" + townToSelect.getName() + "' selected!");
@@ -77,7 +86,11 @@ public class TownCommands {
             max = 0
     )
     @CommandPermissions({"myresidence.town.major.expand"})
-    public static void addChunk(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void addChunk(final CommandContext args,
+                                final MyResidence plugin,
+                                final Nation nation,
+                                final Player player,
+                                final Session session)
             throws MyResidenceException {
         // Get selections.
         final Town selectedTown = session.getSelectedTown();
@@ -89,7 +102,7 @@ public class TownCommands {
         }
 
         // Check if already reserved?
-        Town currentChunkTown = plugin.getTown(player.getLocation());
+        Town currentChunkTown = nation.getTown(player.getLocation());
         if (currentChunkTown != null) {
             if (currentChunkTown.getId() == selectedTown.getId()) {
                 throw new MyResidenceException("Town already owns this chunk!");
@@ -121,7 +134,11 @@ public class TownCommands {
             max = 0
     )
     @CommandPermissions({"myresidence.town.major.expand"})
-    public static void addSelection(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void addSelection(final CommandContext args,
+                                    final MyResidence plugin,
+                                    final Nation nation,
+                                    final Player player,
+                                    final Session session) {
 
     }
 
@@ -131,7 +148,11 @@ public class TownCommands {
             max = 0
     )
     @CommandPermissions({"myresidence.town.info"})
-    public static void info(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void info(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) {
     }
 
     @Command(
@@ -141,7 +162,11 @@ public class TownCommands {
             flags = "mi"
     )
     @CommandPermissions({"myresidence.town.list"})
-    public static void list(CommandContext args, MyResidence plugin, Player player, Session session) {
+    public static void list(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) {
     }
 
     @Command(
@@ -149,7 +174,11 @@ public class TownCommands {
             desc = "Balance of town account",
             max = 0
     )
-    public static void money(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void money(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session)
             throws PermissionsDeniedException, NoTownSelectedException {
         Town selectedTown = session.getSelectedTown();
 
@@ -170,10 +199,14 @@ public class TownCommands {
             max = 2
     )
     @CommandPermissions({"myresidence.town.major.pay"})
-    public static void pay(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void pay(final CommandContext args,
+                           final MyResidence plugin,
+                           final Nation nation,
+                           final Player player,
+                           final Session session)
             throws MyResidenceException, InsufficientArgumentsException {
         Town selectedTown = session.getSelectedTown();
-        Method payment = plugin.getMethods().getMethod();
+        Method payment = plugin.getPaymentMethods().getMethod();
         Method.MethodAccount account = payment.getAccount(args.getString(0));
         double amount = args.getDouble(1);
 
@@ -210,10 +243,14 @@ public class TownCommands {
             max = 1
     )
     @CommandPermissions({"myresidence.town.major.grant"})
-    public static void grant(CommandContext args, MyResidence plugin, Player player, Session session)
+    public static void grant(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session)
             throws MyResidenceException, InsufficientArgumentsException {
         Town selectedTown = session.getSelectedTown();
-        Method payment = plugin.getMethods().getMethod();
+        Method payment = plugin.getPaymentMethods().getMethod();
         Method.MethodAccount account = payment.getAccount(player.getName());
         double amount = args.getDouble(0);
 

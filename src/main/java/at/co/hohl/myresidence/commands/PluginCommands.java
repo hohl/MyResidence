@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.storage.Session;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
@@ -40,10 +41,11 @@ public class PluginCommands {
     @CommandPermissions({"myresidence.reload"})
     public static void reload(final CommandContext args,
                               final MyResidence plugin,
+                              final Nation nation,
                               final Player player,
                               final Session session) {
         plugin.getServer().reload();
-        player.sendMessage(ChatColor.DARK_GREEN + "Configuration reloaded!");
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Configuration reloaded!");
     }
 
     @Command(
@@ -53,9 +55,11 @@ public class PluginCommands {
     )
     public static void version(final CommandContext args,
                                final MyResidence plugin,
+                               final Nation nation,
                                final Player player,
                                final Session session) {
-        player.sendMessage(String.format("%s version %s", plugin.getName(), plugin.getVersion()));
+        player.sendMessage(ChatColor.GOLD + String.format("%s version %s", plugin.getName(), plugin.getVersion()));
+        player.sendMessage(ChatColor.GOLD + plugin.getWebsite());
     }
 
     @Command(
@@ -65,6 +69,7 @@ public class PluginCommands {
     )
     public static void debug(final CommandContext args,
                              final MyResidence plugin,
+                             final Nation nation,
                              final Player player,
                              final Session session) {
         session.setDebugger(true);
