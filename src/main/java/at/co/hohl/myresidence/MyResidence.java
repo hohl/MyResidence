@@ -24,8 +24,10 @@ import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.plugin.PluginDescriptionFile;
 
 /**
+ * <p/>
  * Represents main interface for MyResidence. Get the interface by looking up the 'MyResidence' plugin on the Bukkit
  * server.
  * <p/>
@@ -38,6 +40,12 @@ public interface MyResidence {
     /** @return the collection of towns and residences. */
     Nation getNation();
 
+    /**
+     * @param world the world to get configuration.
+     * @return the main configuration for the plugin.
+     */
+    Configuration getConfiguration(World world);
+
     /** @return the SessionManager used by this MyResidence implementation. */
     SessionManager getSessionManager();
 
@@ -49,24 +57,6 @@ public interface MyResidence {
 
     /** @return world edit plugin. */
     WorldEditPlugin getWorldEdit();
-
-    /**
-     * @param world the world to get configuration.
-     * @return the main configuration for the plugin.
-     */
-    Configuration getConfiguration(World world);
-
-    /** @return the name of the implementation of MyResidence. */
-    String getName();
-
-    /** @return the version of the implementation of MyResidence. */
-    String getVersion();
-
-    /** @return the website of the implementation of MyResidence. */
-    String getWebsite();
-
-    /** @return the server instance, which holds the MyResidence plugin. */
-    Server getServer();
 
     /**
      * Formats the passed amount of money to a localized string.
@@ -96,4 +86,10 @@ public interface MyResidence {
      * @param message the message to log.
      */
     void severe(String message, Object... args);
+
+    /** @return the description of the implementation of MyResidence. */
+    PluginDescriptionFile getDescription();
+
+    /** @return the server, which holds the implementation of MyResidence. */
+    Server getServer();
 }

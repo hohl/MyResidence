@@ -211,21 +211,6 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         this.worldEdit = worldEdit;
     }
 
-    /** @return the name of the implementation of MyResidence. */
-    public String getName() {
-        return getDescription().getName();
-    }
-
-    /** @return the version of the implementation of MyResidence. */
-    public String getVersion() {
-        return getDescription().getName();
-    }
-
-    /** @return the website of the implementation of MyResidence. */
-    public String getWebsite() {
-        return getDescription().getWebsite();
-    }
-
     /**
      * Formats the passed amount of money to a localized string.
      *

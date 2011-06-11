@@ -58,8 +58,14 @@ public class PluginCommands {
                                final Nation nation,
                                final Player player,
                                final Session session) {
-        player.sendMessage(ChatColor.GOLD + String.format("%s version %s", plugin.getName(), plugin.getVersion()));
-        player.sendMessage(ChatColor.GOLD + plugin.getWebsite());
+
+        player.sendMessage(ChatColor.GOLD +
+                String.format("%s version %s",
+                        plugin.getDescription().getName(),
+                        plugin.getDescription().getVersion()));
+
+        player.sendMessage(ChatColor.GOLD +
+                plugin.getDescription().getWebsite());
     }
 
     @Command(
@@ -72,6 +78,7 @@ public class PluginCommands {
                              final Nation nation,
                              final Player player,
                              final Session session) {
+
         session.setDebugger(true);
         player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
     }
