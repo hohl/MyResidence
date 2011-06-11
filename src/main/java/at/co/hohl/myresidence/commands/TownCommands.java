@@ -89,8 +89,13 @@ public class TownCommands {
         }
 
         // Check if already reserved?
-        if (plugin.getTown(player.getLocation()) != null) {
-            throw new MyResidenceException("This chunk is already bought by another town!");
+        Town currentChunkTown = plugin.getTown(player.getLocation());
+        if (currentChunkTown != null) {
+            if (currentChunkTown.getId() == selectedTown.getId()) {
+                throw new MyResidenceException("Town already owns this chunk!");
+            } else {
+                throw new MyResidenceException("This chunk is already bought by another town!");
+            }
         }
 
         // Check money.
@@ -112,7 +117,7 @@ public class TownCommands {
 
     @Command(
             aliases = {"addselection", "selection"},
-            desc = "Adds your current chunk to the selected town",
+            desc = "Adds the chunks of the selection to the town",
             max = 0
     )
     @CommandPermissions({"myresidence.town.major.expand"})

@@ -10,3 +10,10 @@ commands:
     town:
         description: Manage your town.
         usage: /<command> <arguments...>
+    task:
+        description: Confirm or canceling tasks.
+        usage: /<command> confirm|cancel
+    myresidence:
+        aliases: [myres]
+        description: Used to manage the MyResidence plugin.
+        usage: /<command> <arguments...>
