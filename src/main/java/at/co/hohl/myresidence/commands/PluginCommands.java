@@ -57,4 +57,17 @@ public class PluginCommands {
                                final Session session) {
         player.sendMessage(String.format("%s version %s", plugin.getName(), plugin.getVersion()));
     }
+
+    @Command(
+            aliases = {"debug"},
+            desc = "Sends you more detailed debug information",
+            max = 0
+    )
+    public static void debug(final CommandContext args,
+                             final MyResidence plugin,
+                             final Player player,
+                             final Session session) {
+        session.setDebugger(true);
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
+    }
 }

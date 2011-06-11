@@ -48,10 +48,18 @@ public class GeneralCommands {
     }
 
     @Command(
-            aliases = {"task", "tasks"},
+            aliases = {"task"},
             desc = "Confirms or cancels tasks"
     )
     @NestedCommand({TasksCommands.class})
     public static void tasks(CommandContext args, MyResidence plugin, Player player, Session session) {
+    }
+
+    @Command(
+            aliases = {"myres", "myresidence"},
+            desc = "Manages the MyResidence plugin"
+    )
+    @NestedCommand({PluginCommands.class})
+    public static void plugin(CommandContext args, MyResidence plugin, Player player, Session session) {
     }
 }
