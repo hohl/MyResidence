@@ -1,5 +1,5 @@
 MyResidence
-Copyright (c) 2010, 2011 sk89q <http://www.hohl.co.at>
+Copyright (c) 2011, Michael Hohl <http://www.hohl.co.at>
 Licensed under the GNU General Public License v3
 
 Introduction

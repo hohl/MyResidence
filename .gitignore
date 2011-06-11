@@ -6,3 +6,4 @@ workspace.xml
 qaplug_profiles.xml
 .idea/*
 target/*
+true
