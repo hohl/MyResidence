@@ -110,7 +110,7 @@ public class Session {
 
     /** @return id of the player. */
     public int getPlayerId() {
-        return nation.getPlayer(player.getName()).getId();
+        return nation.getInhabitant(player.getName()).getId();
     }
 
     /**
@@ -151,7 +151,7 @@ public class Session {
      */
     public Town getSelectedTown() throws NoTownSelectedException {
         if (selectedTownId == -1) {
-            List<Town> towns = plugin.getDatabase().find(Town.class).where().eq("majorId", getPlayerId()).findList();
+            List<Town> towns = nation.getDatabase().find(Town.class).where().eq("majorId", getPlayerId()).findList();
             if (towns.size() == 1) {
                 selectedTownId = towns.get(0).getId();
                 return towns.get(0);

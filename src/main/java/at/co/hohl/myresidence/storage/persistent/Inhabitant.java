@@ -20,62 +20,29 @@ package at.co.hohl.myresidence.storage.persistent;
 
 import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
-import com.avaje.ebean.validation.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import javax.persistence.UniqueConstraint;
 
 /**
- * Represents a town.
+ * Represents a player.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_towns")
-public class Town {
+@Table(name = "res_inhabitants", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+public class Inhabitant {
     @Id
     private int id;
 
     @NotEmpty
-    @Length(max = 32)
+    @Length(max = 16)
     private String name;
 
-    @NotNull
-    private int majorId;
-
-    @NotNull
-    private Date foundedAt;
-
-    private double money = 0;
-
-    /** Creates a new town. */
-    public Town() {
-    }
-
-    public void addMoney(double amount) {
-        setMoney(getMoney() + amount);
-    }
-
-    public void subtractMoney(double amount) {
-        setMoney(getMoney() - amount);
-    }
-
-    public static String toString(Town town) {
-        if (town == null) {
-            return "Wildness";
-        } else {
-            return town.toString();
-        }
-    }
-
-    public Date getFoundedAt() {
-        return foundedAt;
-    }
-
-    public void setFoundedAt(Date foundedAt) {
-        this.foundedAt = foundedAt;
+    /** Creates a new player data. */
+    public Inhabitant() {
     }
 
     public int getId() {
@@ -84,22 +51,6 @@ public class Town {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getMajorId() {
-        return majorId;
-    }
-
-    public void setMajorId(int majorId) {
-        this.majorId = majorId;
-    }
-
-    public double getMoney() {
-        return money;
-    }
-
-    public void setMoney(double money) {
-        this.money = money;
     }
 
     public String getName() {

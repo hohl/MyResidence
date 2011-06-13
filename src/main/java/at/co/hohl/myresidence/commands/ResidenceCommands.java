@@ -28,6 +28,7 @@ import com.nijikokun.register.payment.Method;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldedit.commands.InsufficientArgumentsException;
@@ -78,12 +79,13 @@ public class ResidenceCommands {
 
         // If player wants to create a residence in town, he must be inside a town too!
         final Town town = nation.getTown(player.getLocation());
-        if (!buildInWildness && town == null) {
-            throw new MyResidenceException("You can not create a residence outside the town!");
+        if (!buildInWildness) {
+            if (town == null) {
+                throw new MyResidenceException("You can not create a residence outside the town!");
+            } else if (!nation.hasChunks(town, selection.getWorld(), selection.getRegionSelector().getRegion())) {
+                throw new MyResidenceException("Town does not own the chunks, where you want to create the residence!");
+            }
         }
-
-        // Start creating the residence.
-
 
         // Create task, which gets executed after selecting a sign.
         session.setTask(new Runnable() {
@@ -95,15 +97,15 @@ public class ResidenceCommands {
                     if (!buildInWildness) {
                         residence.setTownId(town.getId());
                     }
-                    plugin.getDatabase().save(residence);
+                    nation.getDatabase().save(residence);
 
                     final ResidenceArea area = new ResidenceArea(selection);
                     area.setResidenceId(residence.getId());
-                    plugin.getDatabase().save(area);
+                    nation.getDatabase().save(area);
 
                     ResidenceSign sign = new ResidenceSign(session.getSelectedSign());
                     sign.setResidenceId(residence.getId());
-                    plugin.getDatabase().save(sign);
+                    nation.getDatabase().save(sign);
 
                     nation.updateResidenceSign(residence);
 
@@ -146,9 +148,9 @@ public class ResidenceCommands {
                 for (int index = 0; index < 4; ++index) {
                     sign.setLine(index, "");
                 }
-                plugin.getDatabase().delete(residenceToRemove);
-                plugin.getDatabase().delete(residenceArea);
-                plugin.getDatabase().delete(residenceSign);
+                nation.getDatabase().delete(residenceToRemove);
+                nation.getDatabase().delete(residenceArea);
+                nation.getDatabase().delete(residenceSign);
                 player.sendMessage(ChatColor.DARK_GREEN + "Residence removed!");
             }
         });
@@ -192,10 +194,10 @@ public class ResidenceCommands {
         playerAccount.subtract(price);
         ownerAccount.add(price);
 
-        Player oldOwner = plugin.getServer().getPlayer(nation.getPlayer(residence.getOwnerId()).getName());
-        residence.setOwnerId(nation.getPlayer(player.getName()).getId());
+        Player oldOwner = plugin.getServer().getPlayer(nation.getInhabitant(residence.getOwnerId()).getName());
+        residence.setOwnerId(nation.getInhabitant(player.getName()).getId());
         residence.setForSale(false);
-        plugin.getDatabase().save(residence);
+        nation.getDatabase().save(residence);
 
         nation.updateResidenceSign(residence);
 
@@ -224,7 +226,7 @@ public class ResidenceCommands {
             throws MyResidenceException {
         Residence residence = session.getSelectedResidence();
 
-        PlayerData residenceOwner = nation.getOwner(residence);
+        Inhabitant residenceOwner = nation.getOwner(residence);
         if (!(player.getName().equals(residenceOwner.getName()))) {
             throw new NotOwnException();
         }
@@ -238,7 +240,7 @@ public class ResidenceCommands {
 
         player.sendMessage(ChatColor.DARK_GREEN + "Your residence is available for sale now!");
 
-        plugin.getDatabase().save(residence);
+        nation.getDatabase().save(residence);
 
         nation.updateResidenceSign(residence);
     }
@@ -254,9 +256,9 @@ public class ResidenceCommands {
                             final Nation nation,
                             final Player player,
                             final Session session)
-            throws NoResidenceSelectedException {
+            throws MyResidenceException {
         Residence residence = session.getSelectedResidence();
-        residence.sendInformation(plugin, player);
+        nation.sendInformation(player, residence);
     }
 
     @Command(
@@ -276,7 +278,7 @@ public class ResidenceCommands {
             throws MyResidenceException, InsufficientArgumentsException {
         Location playerLocation = player.getLocation();
 
-        ExpressionList expressionList = plugin.getDatabase().find(Residence.class).where();
+        ExpressionList expressionList = nation.getDatabase().find(Residence.class).where();
 
         // v: sort by value.
         if (args.hasFlag('v')) {
@@ -287,7 +289,7 @@ public class ResidenceCommands {
 
         // o: only residences you own.
         if (args.hasFlag('o')) {
-            int ownerId = nation.getPlayer(player.getName()).getId();
+            int ownerId = nation.getInhabitant(player.getName()).getId();
             expressionList.eq("ownerId", ownerId);
         }
 
@@ -362,5 +364,17 @@ public class ResidenceCommands {
                 ++index;
             }
         }
+    }
+
+    @Command(
+            aliases = {"flag", "f"},
+            desc = "Manage flags of the residences"
+    )
+    @NestedCommand({ResidenceFlagCommands.class})
+    public static void flags(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) {
     }
 }

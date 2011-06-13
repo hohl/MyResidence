@@ -21,20 +21,16 @@ package at.co.hohl.myresidence.commands;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
-import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
-import at.co.hohl.myresidence.exceptions.NotEnoughMoneyException;
-import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
-import at.co.hohl.myresidence.storage.persistent.TownChunk;
-import com.nijikokun.register.payment.Method;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.worldedit.commands.InsufficientArgumentsException;
+import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
+
+import java.util.Date;
 
 /**
  * Command for managing towns.
@@ -57,8 +53,9 @@ public class TownCommands {
                               final Session session) {
         Town town = new Town();
         town.setName(args.getJoinedStrings(0));
-        town.setMajorId(nation.getPlayer(player.getName()).getId());
-        plugin.getDatabase().save(town);
+        town.setMajorId(nation.getInhabitant(player.getName()).getId());
+        town.setFoundedAt(new Date());
+        nation.getDatabase().save(town);
 
         player.sendMessage(ChatColor.DARK_GREEN + "Town '" + args.getJoinedStrings(0) + "' created!");
     }
@@ -81,68 +78,6 @@ public class TownCommands {
     }
 
     @Command(
-            aliases = {"addchunk", "chunk", "c"},
-            desc = "Adds your current chunk to the selected town",
-            max = 0
-    )
-    @CommandPermissions({"myresidence.town.major.expand"})
-    public static void addChunk(final CommandContext args,
-                                final MyResidence plugin,
-                                final Nation nation,
-                                final Player player,
-                                final Session session)
-            throws MyResidenceException {
-        // Get selections.
-        final Town selectedTown = session.getSelectedTown();
-        final Chunk playerChunk = player.getLocation().getBlock().getChunk();
-
-        // Check if player is major.
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of the selected town!");
-        }
-
-        // Check if already reserved?
-        Town currentChunkTown = nation.getTown(player.getLocation());
-        if (currentChunkTown != null) {
-            if (currentChunkTown.getId() == selectedTown.getId()) {
-                throw new MyResidenceException("Town already owns this chunk!");
-            } else {
-                throw new MyResidenceException("This chunk is already bought by another town!");
-            }
-        }
-
-        // Check money.
-        double chunkCost = plugin.getConfiguration(player.getWorld()).getChunkCost();
-        double townMoney = selectedTown.getMoney();
-        if (townMoney < chunkCost) {
-            throw new NotEnoughMoneyException("The town has not enough money!");
-        } else {
-            selectedTown.setMoney(townMoney - chunkCost);
-        }
-
-        // Reserve new chunk.
-        TownChunk townChunk = new TownChunk(selectedTown, playerChunk);
-        plugin.getDatabase().save(townChunk);
-
-        player.sendMessage(ChatColor.DARK_GREEN + "Town bought chunk for " + ChatColor.GREEN +
-                plugin.format(chunkCost) + ChatColor.DARK_GREEN + ".");
-    }
-
-    @Command(
-            aliases = {"addselection", "selection"},
-            desc = "Adds the chunks of the selection to the town",
-            max = 0
-    )
-    @CommandPermissions({"myresidence.town.major.expand"})
-    public static void addSelection(final CommandContext args,
-                                    final MyResidence plugin,
-                                    final Nation nation,
-                                    final Player player,
-                                    final Session session) {
-
-    }
-
-    @Command(
             aliases = {"info", "i"},
             desc = "Returns information about the selected town",
             max = 0
@@ -152,16 +87,16 @@ public class TownCommands {
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
-                            final Session session) {
+                            final Session session) throws MyResidenceException {
+        Town selectedTown = session.getSelectedTown();
+        nation.sendInformation(player, selectedTown);
     }
 
     @Command(
             aliases = {"list"},
-            desc = "List available towns",
-            max = 0,
-            flags = "mi"
+            desc = "Lists available towns"
     )
-    @CommandPermissions({"myresidence.town.list"})
+    @NestedCommand({TownListCommands.class})
     public static void list(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
@@ -170,110 +105,38 @@ public class TownCommands {
     }
 
     @Command(
-            aliases = {"money"},
-            desc = "Balance of town account",
-            max = 0
+            aliases = {"account"},
+            desc = "Manage the bank account of the town"
     )
-    public static void money(final CommandContext args,
-                             final MyResidence plugin,
-                             final Nation nation,
-                             final Player player,
-                             final Session session)
-            throws PermissionsDeniedException, NoTownSelectedException {
-        Town selectedTown = session.getSelectedTown();
-
-        // Check if player is major.
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of the selected town!");
-        }
-
-        player.sendMessage(ChatColor.DARK_GREEN + "Town Account Balance: " +
-                ChatColor.GREEN + plugin.format(selectedTown.getMoney()));
+    @NestedCommand({TownAccountCommands.class})
+    public static void account(final CommandContext args,
+                               final MyResidence plugin,
+                               final Nation nation,
+                               final Player player,
+                               final Session session) {
     }
 
     @Command(
-            aliases = {"pay"},
-            usage = "<account> <amount>",
-            desc = "Pays money to an economy account",
-            min = 2,
-            max = 2
+            aliases = {"claim", "c"},
+            desc = "Claims chunks and expands the town"
     )
-    @CommandPermissions({"myresidence.town.major.pay"})
-    public static void pay(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session)
-            throws MyResidenceException, InsufficientArgumentsException {
-        Town selectedTown = session.getSelectedTown();
-        Method payment = plugin.getPaymentMethods().getMethod();
-        Method.MethodAccount account = payment.getAccount(args.getString(0));
-        double amount = args.getDouble(1);
-
-        // Check if player is major.
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of the selected town!");
-        }
-
-        // Does account exist?
-        if (account == null) {
-            throw new MyResidenceException(ChatColor.RED + "Account " + ChatColor.DARK_RED + args.getString(0) +
-                    ChatColor.RED + " does not exist!");
-        }
-
-        // Is passed amount of money greater than 0?
-        if (amount <= 0.0) {
-            throw new InsufficientArgumentsException("You can not send an amount smaller than 0!");
-        }
-
-        selectedTown.subtractMoney(amount);
-        account.add(amount);
-        plugin.getDatabase().save(selectedTown);
-
-        player.sendMessage(String.format("%s%s%s send to %s%s%s!",
-                ChatColor.GREEN, args.getString(0), ChatColor.DARK_GREEN,
-                ChatColor.GREEN, payment.format(amount), ChatColor.DARK_GREEN));
-    }
-
-    @Command(
-            aliases = {"grant"},
-            usage = "<amount>",
-            desc = "Grants money to town account",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.town.major.grant"})
-    public static void grant(final CommandContext args,
+    @NestedCommand({TownClaimCommands.class})
+    public static void claim(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,
                              final Player player,
-                             final Session session)
-            throws MyResidenceException, InsufficientArgumentsException {
-        Town selectedTown = session.getSelectedTown();
-        Method payment = plugin.getPaymentMethods().getMethod();
-        Method.MethodAccount account = payment.getAccount(player.getName());
-        double amount = args.getDouble(0);
+                             final Session session) {
+    }
 
-        // Check if player is major.
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of the selected town!");
-        }
-
-        // Does account exist?
-        if (account == null) {
-            throw new MyResidenceException("You do not own a bank account!");
-        }
-
-        // Has enough money?
-        if (!account.hasEnough(amount)) {
-            throw new InsufficientArgumentsException("You can not grant more money than you own!");
-        }
-
-        selectedTown.addMoney(amount);
-        account.subtract(amount);
-        plugin.getDatabase().save(selectedTown);
-
-        player.sendMessage(String.format("%s%s%s send to town account!",
-                ChatColor.GREEN, payment.format(amount), ChatColor.DARK_GREEN));
+    @Command(
+            aliases = {"flag", "f"},
+            desc = "Manage flags of the town"
+    )
+    @NestedCommand({TownFlagCommands.class})
+    public static void flags(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) {
     }
 }

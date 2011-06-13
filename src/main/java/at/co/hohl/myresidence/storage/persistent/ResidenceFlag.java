@@ -18,31 +18,46 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
-import com.avaje.ebean.validation.Length;
-import com.avaje.ebean.validation.NotEmpty;
+import com.avaje.ebean.validation.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
- * Represents a player.
+ * Represents a flag for a Residence. For example to set, that everybody can build on the residence.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_players", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class PlayerData {
+@Table(name = "res_residenceflags")
+public class ResidenceFlag {
+    /** All type of town flags. */
+    public enum Type {
+        PUBLIC,
+        LOCAL,
+        ALLOW_PVP
+    }
+
     @Id
     private int id;
 
-    @NotEmpty
-    @Length(max = 16)
-    private String name;
+    @NotNull
+    private int residenceId;
 
-    /** Creates a new player data. */
-    public PlayerData() {
+    @NotNull
+    private Type flag;
+
+    /** Creates a new ResidenceFlag */
+    public ResidenceFlag() {
+    }
+
+    public Type getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Type flag) {
+        this.flag = flag;
     }
 
     public int getId() {
@@ -53,16 +68,11 @@ public class PlayerData {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public int getResidenceId() {
+        return residenceId;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return getName();
+    public void setResidenceId(int residenceId) {
+        this.residenceId = residenceId;
     }
 }

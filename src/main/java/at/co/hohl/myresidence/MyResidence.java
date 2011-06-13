@@ -31,7 +31,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
  * Represents main interface for MyResidence. Get the interface by looking up the 'MyResidence' plugin on the Bukkit
  * server.
  * <p/>
- * If you are an plugin developer, which wants to link into MyResidence, also look at {@see
+ * If you are an plugin developer, which wants to hook into MyResidence, also look at {@see
  * at.co.hohl.myresidence.Nation} for handling towns and residences.
  *
  * @author Michael Hohl

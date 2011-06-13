@@ -122,7 +122,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
             System.arraycopy(args, 0, commandLine, 1, args.length);
 
             try {
-                commands.execute(commandLine, player, this, this, player, session);
+                commands.execute(commandLine, player, this, nation, player, session);
             } catch (CommandPermissionsException e) {
                 player.sendMessage(ChatColor.RED + "You don't have permission to do this.");
             } catch (MissingNestedCommandException e) {
@@ -137,7 +137,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
             } finally {
                 if (session.isDebugger()) {
                     long time = System.currentTimeMillis() - start;
-                    player.sendMessage(String.format("%s %f's elapsed.", ChatColor.LIGHT_PURPLE, time));
+                    player.sendMessage(String.format("%s%d milliseconds elapsed.", ChatColor.LIGHT_PURPLE, time));
                 }
             }
         } catch (NumberFormatException e) {
@@ -273,7 +273,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, economyPluginListener, Event.Priority.Monitor, this);
 
         // Listen for player clicking on signs.
-        SignClickListener signClickListener = new SignClickListener(this);
+        SignClickListener signClickListener = new SignClickListener(this, nation);
         pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, signClickListener, Event.Priority.Normal, this);
         pluginManager.registerEvent(Event.Type.PLAYER_MOVE, signClickListener, Event.Priority.Lowest, this);
         pluginManager.registerEvent(Event.Type.PLAYER_QUIT, signClickListener, Event.Priority.Normal, this);
@@ -296,26 +296,30 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         try {
             getDatabase().find(Residence.class).findRowCount();
             getDatabase().find(Town.class).findRowCount();
+            getDatabase().find(Inhabitant.class).findRowCount();
             getDatabase().find(ResidenceArea.class).findRowCount();
             getDatabase().find(ResidenceSign.class).findRowCount();
-            getDatabase().find(PlayerData.class).findRowCount();
+            getDatabase().find(ResidenceFlag.class).findRowCount();
             getDatabase().find(TownChunk.class).findRowCount();
+            getDatabase().find(TownFlag.class).findRowCount();
         } catch (PersistenceException ex) {
             info("Installing database due to first time usage!");
             installDDL();
         }
     }
 
-    /** @return all daos of this plugins. */
+    /** @return all DAOs of this plugin. */
     @Override
     public List<Class<?>> getDatabaseClasses() {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(Residence.class);
         list.add(Town.class);
+        list.add(Inhabitant.class);
         list.add(ResidenceArea.class);
         list.add(ResidenceSign.class);
-        list.add(PlayerData.class);
+        list.add(ResidenceFlag.class);
         list.add(TownChunk.class);
+        list.add(TownFlag.class);
         return list;
     }
 }

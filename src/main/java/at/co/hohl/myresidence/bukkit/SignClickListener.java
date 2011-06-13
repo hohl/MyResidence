@@ -19,6 +19,8 @@
 package at.co.hohl.myresidence.bukkit;
 
 import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import org.bukkit.block.Sign;
@@ -37,13 +39,18 @@ public class SignClickListener extends PlayerListener {
     /** Plugin which holds the instance. */
     private final MyResidence plugin;
 
+    /** The nation which holds all the towns and residences. */
+    private final Nation nation;
+
     /**
      * Creates a new SignClickListener.
      *
      * @param plugin the plugin which holds the instance.
+     * @param nation the nation which holds all the towns and residences.
      */
-    public SignClickListener(MyResidence plugin) {
+    public SignClickListener(MyResidence plugin, Nation nation) {
         this.plugin = plugin;
+        this.nation = nation;
     }
 
     /**
@@ -67,7 +74,11 @@ public class SignClickListener extends PlayerListener {
             playerSession.setTaskActivator(null);
         } else if (sign.getLine(0).equals(plugin.getConfiguration(sign.getWorld()).getSignTitle())) {
             Residence residence = plugin.getNation().getResidence(sign);
-            residence.sendInformation(plugin, event.getPlayer());
+            try {
+                nation.sendInformation(event.getPlayer(), residence);
+            } catch (MyResidenceException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             playerSession.setSelectedSign(null);
         }

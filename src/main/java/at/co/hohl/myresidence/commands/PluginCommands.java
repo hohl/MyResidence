@@ -44,8 +44,10 @@ public class PluginCommands {
                               final Nation nation,
                               final Player player,
                               final Session session) {
+
         plugin.getServer().reload();
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Configuration reloaded!");
+
     }
 
     @Command(
@@ -66,6 +68,7 @@ public class PluginCommands {
 
         player.sendMessage(ChatColor.GOLD +
                 plugin.getDescription().getWebsite());
+
     }
 
     @Command(
@@ -81,5 +84,6 @@ public class PluginCommands {
 
         session.setDebugger(true);
         player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
+
     }
 }

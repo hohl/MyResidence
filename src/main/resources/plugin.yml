@@ -1,7 +1,10 @@
 name: MyResidence
+version: ${project.version}
+website: http://www.github.com/hohl/MyResidence
+
 main: at.co.hohl.myresidence.bukkit.MyResidencePlugin
-version: "${project.version}"
 database: true
+
 commands:
     residence:
         aliases: [res]

@@ -18,8 +18,6 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
-import com.avaje.ebean.validation.Length;
-import com.avaje.ebean.validation.NotEmpty;
 import com.avaje.ebean.validation.NotNull;
 
 import javax.persistence.Entity;
@@ -27,42 +25,38 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * DAO used for storing information about residences.
+ * Represents a list of flags for all towns.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_residences")
-public class Residence {
+@Table(name = "res_townflags")
+public class TownFlag {
+    /** All type of town flags. */
+    public enum Type {
+        INHABITANTS_CAN_BUILD,
+        ALLOW_PVP
+    }
+
     @Id
     private int id;
 
-    private int townId = -1;
-
-    @NotEmpty
-    @Length(max = 32)
-    private String name;
-
-    private int ownerId = -1;
+    @NotNull
+    private int townId;
 
     @NotNull
-    private double value = 0.00f;
+    private Type flag;
 
-    @NotNull
-    private double price = 0.00f;
-
-    private boolean forSale = false;
-
-    /** Creates a new Residence. */
-    public Residence() {
+    /** Creates a new TownFlag. */
+    public TownFlag() {
     }
 
-    public boolean isForSale() {
-        return forSale;
+    public Type getFlag() {
+        return flag;
     }
 
-    public void setForSale(boolean forSale) {
-        this.forSale = forSale;
+    public void setFlag(Type flag) {
+        this.flag = flag;
     }
 
     public int getId() {
@@ -73,43 +67,11 @@ public class Residence {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(int ownerId) {
-        this.ownerId = ownerId;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
     public int getTownId() {
         return townId;
     }
 
     public void setTownId(int townId) {
         this.townId = townId;
-    }
-
-    public double getValue() {
-        return value;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
     }
 }
