@@ -42,8 +42,7 @@ public class TownCommands {
             aliases = {"found", "create"},
             usage = "<name>",
             desc = "Creates a new town",
-            min = 1,
-            flags = "w"
+            min = 1
     )
     @CommandPermissions({"myresidence.town.found"})
     public static void create(final CommandContext args,

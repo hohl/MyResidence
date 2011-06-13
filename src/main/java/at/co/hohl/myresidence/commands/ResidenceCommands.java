@@ -52,12 +52,11 @@ public class ResidenceCommands {
     @Command(
             aliases = {"create", "c"},
             usage = "<name>",
-            desc = "Creates a new residence with passed name. " +
-                    "(For creating residences in wildness 'myresidence.residence.wildness' is needed)",
+            desc = "Creates a new residence with passed name",
             min = 1,
             flags = "w"
     )
-    @CommandPermissions({"myresidence.town.major.create"})
+    @CommandPermissions({"myresidence.town.major.create", "myresidence.residence.wildness"})
     public static void create(final CommandContext args,
                               final MyResidence plugin,
                               final Nation nation,
@@ -71,10 +70,12 @@ public class ResidenceCommands {
             throw new IncompleteRegionException();
         }
 
-        // If player wants to create residences in wildness, he needs enough rights!
+        // Check if player has enough right.
         final boolean buildInWildness = args.hasFlag('w');
         if (buildInWildness && !session.hasPermission("myresidence.residence.wildness")) {
             throw new PermissionsDeniedException("You are not allowed to create a residence in wildness!");
+        } else if (!session.hasPermission("myresidence.town.major.create")) {
+            throw new PermissionsDeniedException("Your are not allowed to create residences inside towns!");
         }
 
         // If player wants to create a residence in town, he must be inside a town too!
@@ -127,13 +128,13 @@ public class ResidenceCommands {
             desc = "Removes a residence",
             max = 0
     )
-    @CommandPermissions({"myresidence.town.major.remove"})
+    @CommandPermissions({"myresidence.residence.remove"})
     public static void remove(final CommandContext args,
                               final MyResidence plugin,
                               final Nation nation,
                               final Player player,
                               final Session session)
-            throws NoResidenceSelectedException {
+            throws NoResidenceSelectedException, PermissionsDeniedException {
         // Get residence.
         final Residence residenceToRemove = session.getSelectedResidence();
         final ResidenceSign residenceSign = nation.getResidenceSign(residenceToRemove);
@@ -141,6 +142,10 @@ public class ResidenceCommands {
         World signWorld = player.getServer().getWorld(residenceSign.getWorld());
         final Sign sign = (Sign) signWorld.getBlockAt(
                 new Location(signWorld, residenceSign.getX(), residenceSign.getY(), residenceSign.getZ())).getState();
+
+        if (residenceToRemove.getOwnerId() != session.getPlayerId() && !session.hasPermission("myresidence.admin")) {
+            throw new PermissionsDeniedException("Only the owner of the residence can remove it!");
+        }
 
         // Create task to confirm.
         session.setTask(new Runnable() {
@@ -178,7 +183,7 @@ public class ResidenceCommands {
         Method payment = plugin.getPaymentMethods().getMethod();
 
         if (!residence.isForSale()) {
-            throw new MyResidenceException("Residence is not for sell!");
+            throw new MyResidenceException("The owner does not sell this residence!");
         }
 
         if (payment == null) {
