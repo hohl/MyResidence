@@ -18,31 +18,28 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
-import com.avaje.ebean.validation.Length;
-import com.avaje.ebean.validation.NotEmpty;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
- * Represents a player.
+ * Represents a member of a residence.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_inhabitants", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class Inhabitant implements Comparable<Inhabitant> {
+@Table(name = "res_members")
+public class ResidenceMember {
     @Id
     private int id;
 
-    @NotEmpty
-    @Length(max = 16)
-    private String name;
+    @Id
+    private int residenceId;
 
-    /** Creates a new player data. */
-    public Inhabitant() {
+    @Id
+    private int inhabitantId;
+
+    public ResidenceMember() {
     }
 
     public int getId() {
@@ -53,20 +50,19 @@ public class Inhabitant implements Comparable<Inhabitant> {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public int getInhabitantId() {
+        return inhabitantId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setInhabitantId(int inhabitantId) {
+        this.inhabitantId = inhabitantId;
     }
 
-    public int compareTo(Inhabitant inhabitant) {
-        return getName().compareTo(inhabitant.getName());
+    public int getResidenceId() {
+        return residenceId;
     }
 
-    @Override
-    public String toString() {
-        return getName();
+    public void setResidenceId(int residenceId) {
+        this.residenceId = residenceId;
     }
 }

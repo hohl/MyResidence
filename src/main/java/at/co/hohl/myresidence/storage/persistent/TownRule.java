@@ -18,31 +18,31 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
-import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
+import com.sun.istack.internal.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
- * Represents a player.
+ * Every entry represents a rule for a town.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_inhabitants", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class Inhabitant implements Comparable<Inhabitant> {
+@Table(name = "res_rules")
+public class TownRule {
     @Id
     private int id;
 
-    @NotEmpty
-    @Length(max = 16)
-    private String name;
+    @NotNull
+    private int townId;
 
-    /** Creates a new player data. */
-    public Inhabitant() {
+    @NotEmpty
+    private String message;
+
+    public TownRule() {
     }
 
     public int getId() {
@@ -53,20 +53,19 @@ public class Inhabitant implements Comparable<Inhabitant> {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getMessage() {
+        return message;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public int compareTo(Inhabitant inhabitant) {
-        return getName().compareTo(inhabitant.getName());
+    public int getTownId() {
+        return townId;
     }
 
-    @Override
-    public String toString() {
-        return getName();
+    public void setTownId(int townId) {
+        this.townId = townId;
     }
 }

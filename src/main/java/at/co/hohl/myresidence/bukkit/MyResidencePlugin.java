@@ -318,8 +318,10 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         list.add(ResidenceArea.class);
         list.add(ResidenceSign.class);
         list.add(ResidenceFlag.class);
+        list.add(ResidenceMember.class);
         list.add(TownChunk.class);
         list.add(TownFlag.class);
+        list.add(TownRule.class);
         return list;
     }
 }

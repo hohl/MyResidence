@@ -224,6 +224,60 @@ public interface Nation {
     void removeFlag(Residence residence, ResidenceFlag.Type flag);
 
     /**
+     * Adds a single rule.
+     *
+     * @param town the town the rule should be for.
+     * @param rule the rule to create.
+     */
+    void addRule(Town town, String rule);
+
+    /**
+     * Removes a rule, which is like the passed string.
+     *
+     * @param town the town, where the rule should get removed.
+     * @param rule the rule message.
+     */
+    void removeRule(Town town, String rule) throws MyResidenceException;
+
+    /**
+     * Gets all rules for the town.
+     *
+     * @param town the town to look up the rules.
+     */
+    List<String> getRules(Town town);
+
+    /**
+     * Adds a member.
+     *
+     * @param residence  the residence where the inhabitant should become member.
+     * @param inhabitant the inhabitant, which should become member.
+     */
+    void addMember(Residence residence, Inhabitant inhabitant);
+
+    /**
+     * Removes an inhabitant from the residence membership.
+     *
+     * @param residence  the residence.
+     * @param inhabitant the inhabitant.
+     */
+    void removeMember(Residence residence, Inhabitant inhabitant) throws MyResidenceException;
+
+    /**
+     * Returns all members of the residence.
+     *
+     * @param residence the residence.
+     */
+    List<Inhabitant> getMembers(Residence residence);
+
+    /**
+     * Checks if the inhabitant is member or owner.
+     *
+     * @param residence  the residence.
+     * @param inhabitant the inhabitant.
+     */
+    boolean isMember(Residence residence, Inhabitant inhabitant);
+
+    /**
      * Checks if the passed chunk is free.
      *
      * @param chunk the chunk to check.

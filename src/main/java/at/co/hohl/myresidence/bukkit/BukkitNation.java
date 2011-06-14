@@ -35,10 +35,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.PersistenceException;
+import java.util.*;
 
 /**
  * MyResidence Nation implementation for Bukkit.
@@ -460,6 +458,127 @@ public class BukkitNation implements Nation {
                         .where()
                         .eq("residenceId", residence.getId())
                         .eq("flag", flag).findList());
+    }
+
+    /**
+     * Adds a member.
+     *
+     * @param residence  the residence where the inhabitant should become member.
+     * @param inhabitant the inhabitant, which should become member.
+     */
+    public void addMember(Residence residence, Inhabitant inhabitant) {
+        ResidenceMember membership = new ResidenceMember();
+        membership.setInhabitantId(inhabitant.getId());
+        membership.setResidenceId(residence.getId());
+        getDatabase().save(membership);
+    }
+
+    /**
+     * Adds a single rule.
+     *
+     * @param town the town the rule should be for.
+     * @param rule the rule to create.
+     */
+    public void addRule(Town town, String rule) {
+        TownRule townRule = new TownRule();
+        townRule.setTownId(town.getId());
+        townRule.setMessage(rule);
+        getDatabase().save(townRule);
+    }
+
+    /**
+     * Removes a rule, which is like the passed string.
+     *
+     * @param town the town, where the rule should get removed.
+     * @param rule the rule message.
+     */
+    public void removeRule(Town town, String rule) throws MyResidenceException {
+        try {
+            TownRule townRule = getDatabase().find(TownRule.class).where()
+                    .ilike("message", "%" + rule + "%")
+                    .eq("townId", town.getId())
+                    .findUnique();
+
+            getDatabase().delete(townRule);
+        } catch (PersistenceException e) {
+            throw new MyResidenceException("Rule not found!");
+        }
+    }
+
+    /**
+     * Gets all rules for the town.
+     *
+     * @param town the town to look up the rules.
+     */
+    public List<String> getRules(Town town) {
+        List<TownRule> rules = getDatabase().find(TownRule.class)
+                .where()
+                .eq("townId", town.getId())
+                .orderBy("message ASC")
+                .findList();
+
+        List<String> ruleLines = new LinkedList<String>();
+        for (TownRule rule : rules) {
+            ruleLines.add(rule.getMessage());
+        }
+
+        return ruleLines;
+    }
+
+    /**
+     * Removes an inhabitant from the residence membership.
+     *
+     * @param residence  the residence.
+     * @param inhabitant the inhabitant.
+     */
+    public void removeMember(Residence residence, Inhabitant inhabitant) throws MyResidenceException {
+        List<ResidenceMember> foundedMembers = getDatabase().find(ResidenceMember.class)
+                .where()
+                .eq("residenceId", residence.getId())
+                .eq("inhabitantId", inhabitant.getId())
+                .findList();
+
+        if (foundedMembers.size() > 0) {
+            getDatabase().delete(foundedMembers);
+        } else {
+            throw new MyResidenceException("Inhabitant is not a member of that residence!");
+        }
+    }
+
+    /**
+     * Returns all members of the residence.
+     *
+     * @param residence the residence.
+     */
+    public List<Inhabitant> getMembers(Residence residence) {
+        List<ResidenceMember> foundedMembers = getDatabase().find(ResidenceMember.class)
+                .where()
+                .eq("residenceId", residence.getId())
+                .findList();
+
+        List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
+        for (ResidenceMember member : foundedMembers) {
+            inhabitants.add(getInhabitant(member.getInhabitantId()));
+        }
+
+        Collections.sort(inhabitants);
+
+        return inhabitants;
+    }
+
+    /**
+     * Checks if the inhabitant is member or owner.
+     *
+     * @param residence  the residence.
+     * @param inhabitant the inhabitant.
+     */
+    public boolean isMember(Residence residence, Inhabitant inhabitant) {
+        return residence.getOwnerId() == inhabitant.getId() ||
+                getDatabase().find(ResidenceMember.class)
+                        .where()
+                        .eq("residenceId", residence.getId())
+                        .eq("inhabitantId", inhabitant.getId())
+                        .findRowCount() > 0;
     }
 
     /**

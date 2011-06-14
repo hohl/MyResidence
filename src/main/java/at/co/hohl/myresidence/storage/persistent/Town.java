@@ -50,6 +50,8 @@ public class Town {
 
     private double money = 0;
 
+    private double tax = 0;
+
     /** Creates a new town. */
     public Town() {
     }
