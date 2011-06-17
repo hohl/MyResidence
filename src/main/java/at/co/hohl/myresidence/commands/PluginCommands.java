@@ -82,8 +82,13 @@ public class PluginCommands {
                              final Player player,
                              final Session session) {
 
-        session.setDebugger(true);
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
+        if (!session.isDebugger()) {
+            session.setDebugger(true);
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
+        } else {
+            session.setDebugger(false);
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "You will not receive debug information anymore!");
+        }
 
     }
 }
