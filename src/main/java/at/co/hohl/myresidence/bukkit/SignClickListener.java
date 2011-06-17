@@ -27,7 +27,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -82,16 +81,6 @@ public class SignClickListener extends PlayerListener {
         } else {
             playerSession.setSelectedSign(null);
         }
-    }
-
-    @Override
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
-
-        Session playerSession = plugin.getSessionManager().get(event.getPlayer());
-        playerSession.setSelectedSign(null);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class ResidenceMemberCommands {
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.residence.member.manage"})
+    @CommandPermissions({"myresidence.residence.member"})
     public static void add(final CommandContext args,
                            final MyResidence plugin,
                            final Nation nation,
@@ -73,7 +73,7 @@ public class ResidenceMemberCommands {
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.residence.member.manage"})
+    @CommandPermissions({"myresidence.residence.member"})
     public static void remove(final CommandContext args,
                               final MyResidence plugin,
                               final Nation nation,

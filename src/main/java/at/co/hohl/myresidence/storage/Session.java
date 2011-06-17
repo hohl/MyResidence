@@ -36,6 +36,9 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class Session {
+    // Duration, how long a selection should be stored.
+    private static final long SELECTION_DURATION = 45 * 1000;
+
     /** Activator for tasks. */
     public enum Activator {
         CONFIRM_COMMAND,
@@ -57,6 +60,9 @@ public class Session {
     /** Last clicked sign. */
     private Sign selectedSign;
 
+    /** Time, when sign is selected. */
+    private long signSelectedAt;
+
     /** Selected town. */
     private int selectedTownId = -1;
 
@@ -77,6 +83,11 @@ public class Session {
         this.plugin = plugin;
         this.nation = nation;
         this.player = player;
+    }
+
+    /** @return id of the player. */
+    public int getPlayerId() {
+        return nation.getInhabitant(player.getName()).getId();
     }
 
     /**
@@ -109,11 +120,6 @@ public class Session {
         return getPlayerId() == residence.getOwnerId() || hasPermission("myresidence.admin");
     }
 
-    /** @return id of the player. */
-    public int getPlayerId() {
-        return nation.getInhabitant(player.getName()).getId();
-    }
-
     /**
      * Returns the current selected Residence.
      *
@@ -123,10 +129,14 @@ public class Session {
      *          thrown when the player don't have a selection.
      */
     public Residence getSelectedResidence() throws NoResidenceSelectedException {
-        Residence residence = nation.getResidence(player.getLocation());
+        Residence residence;
 
-        if (residence == null && getSelectedSign() != null) {
+        if (getSelectedSign() != null && signSelectedAt + SELECTION_DURATION > System.currentTimeMillis()) {
+            signSelectedAt = System.currentTimeMillis();
+
             residence = nation.getResidence(getSelectedSign());
+        } else {
+            residence = nation.getResidence(player.getLocation());
         }
 
         if (residence == null) {
@@ -134,15 +144,7 @@ public class Session {
         }
 
         return residence;
-    }
 
-    /**
-     * Sets the selected Town.
-     *
-     * @param town the town to set selected.
-     */
-    public void setSelectedTown(Town town) {
-        selectedTownId = town.getId();
     }
 
     /**
@@ -167,6 +169,26 @@ public class Session {
         }
     }
 
+    /**
+     * Sets the selected Town.
+     *
+     * @param town the town to set selected.
+     */
+    public void setSelectedTown(Town town) {
+        selectedTownId = town.getId();
+    }
+
+    /**
+     * Sets the last selected sign.
+     *
+     * @param selectedSign the selected sign.
+     */
+    public void setSelectedSign(Sign selectedSign) {
+        this.selectedSign = selectedSign;
+
+        signSelectedAt = System.currentTimeMillis();
+    }
+
     public boolean isDebugger() {
         return debugger;
     }
@@ -177,10 +199,6 @@ public class Session {
 
     public Sign getSelectedSign() {
         return selectedSign;
-    }
-
-    public void setSelectedSign(Sign selectedSign) {
-        this.selectedSign = selectedSign;
     }
 
     public Runnable getTask() {

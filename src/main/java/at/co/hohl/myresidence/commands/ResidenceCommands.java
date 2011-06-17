@@ -121,7 +121,7 @@ public class ResidenceCommands {
             desc = "Removes a residence",
             max = 0
     )
-    @CommandPermissions({"myresidence.residence.remove"})
+    @CommandPermissions({"myresidence.town.major.remove"})
     public static void remove(final CommandContext args,
                               final MyResidence plugin,
                               final Nation nation,
@@ -321,6 +321,37 @@ public class ResidenceCommands {
     }
 
     @Command(
+            aliases = {"rename"},
+            usage = "<name>",
+            desc = "Change the name of a residence",
+            min = 1
+    )
+    @CommandPermissions({"myresidence.residence.rename"})
+    public static void rename(final CommandContext args,
+                              final MyResidence plugin,
+                              final Nation nation,
+                              final Player player,
+                              final Session session)
+            throws MyResidenceException {
+
+        Residence residence = session.getSelectedResidence();
+
+        if (!(session.hasResidenceOwnerRights(residence) ||
+                session.hasMajorRights(nation.getTown(residence.getTownId())))) {
+            throw new NotOwnException();
+        }
+
+        residence.setName(args.getJoinedStrings(0));
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Residence renamed!");
+
+        nation.getDatabase().save(residence);
+
+        nation.updateResidenceSign(residence);
+
+    }
+
+    @Command(
             aliases = {"info", "i"},
             desc = "Shows information about residences",
             usage = "[residence]"
@@ -361,6 +392,7 @@ public class ResidenceCommands {
             desc = "Manage Members of Residences"
     )
     @NestedCommand({ResidenceMemberCommands.class})
+    @CommandPermissions({"myresidence.residence.member"})
     public static void members(final CommandContext args,
                                final MyResidence plugin,
                                final Nation nation,

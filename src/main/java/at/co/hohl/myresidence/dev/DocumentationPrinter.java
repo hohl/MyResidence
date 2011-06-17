@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.dev;
 
 import at.co.hohl.myresidence.commands.GeneralCommands;
+import at.co.hohl.myresidence.commands.HomeCommands;
 import at.co.hohl.myresidence.commands.MapCommand;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
