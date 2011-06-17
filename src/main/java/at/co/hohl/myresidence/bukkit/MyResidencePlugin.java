@@ -276,8 +276,11 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         // Listen for player clicking on signs.
         SignClickListener signClickListener = new SignClickListener(this, nation);
         pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, signClickListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_MOVE, signClickListener, Event.Priority.Lowest, this);
         pluginManager.registerEvent(Event.Type.PLAYER_QUIT, signClickListener, Event.Priority.Normal, this);
+
+        // Listen for players broke signs.
+        SignBrokeListener signBrokeListener = new SignBrokeListener(this, nation);
+        pluginManager.registerEvent(Event.Type.BLOCK_BREAK, signBrokeListener, Event.Priority.Normal, this);
     }
 
     /** Setups the commands. */

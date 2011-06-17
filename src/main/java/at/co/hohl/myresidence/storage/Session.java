@@ -131,7 +131,7 @@ public class Session {
     public Residence getSelectedResidence() throws NoResidenceSelectedException {
         Residence residence;
 
-        if (getSelectedSign() != null && signSelectedAt + SELECTION_DURATION > System.currentTimeMillis()) {
+        if (selectedSign != null && signSelectedAt + SELECTION_DURATION > System.currentTimeMillis()) {
             signSelectedAt = System.currentTimeMillis();
 
             residence = nation.getResidence(getSelectedSign());

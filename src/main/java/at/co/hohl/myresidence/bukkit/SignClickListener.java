@@ -74,7 +74,7 @@ public class SignClickListener extends PlayerListener {
             playerSession.getTask().run();
             playerSession.setTaskActivator(null);
         } else if (clickedSign.getLine(0).equals(plugin.getConfiguration(clickedSign.getWorld()).getSignTitle())) {
-            Residence residence = plugin.getNation().getResidence(clickedSign);
+            Residence residence = nation.getResidence(clickedSign);
 
             try {
                 nation.sendInformation(event.getPlayer(), residence);
@@ -92,6 +92,6 @@ public class SignClickListener extends PlayerListener {
     @Override
     public void onPlayerQuit(PlayerQuitEvent event) {
         plugin.getSessionManager().close(event.getPlayer());
-        plugin.info("Removed session of %s.", event.getPlayer());
+        plugin.info("Removed session of %s.", event.getPlayer().getName());
     }
 }
