@@ -23,11 +23,13 @@ import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Residence;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Sign;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
+
 
 /**
  * Listener for listening if player clicked a sign.
@@ -59,24 +61,28 @@ public class SignClickListener extends PlayerListener {
      */
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if ((event.isCancelled()) || (event.getAction() != Action.LEFT_CLICK_BLOCK) ||
-                !(event.getClickedBlock().getState() instanceof Sign)) {
+        if (event.isCancelled() || !(event.getClickedBlock().getType().equals(Material.SIGN_POST)
+                || event.getClickedBlock().getType().equals(Material.WALL_SIGN))) {
             return;
         }
 
+        Sign clickedSign = (Sign) event.getClickedBlock().getState();
         Session playerSession = plugin.getSessionManager().get(event.getPlayer());
-        Sign sign = (Sign) event.getClickedBlock().getState();
-        playerSession.setSelectedSign(sign);
+        playerSession.setSelectedSign(clickedSign);
 
         if (Session.Activator.SELECT_SIGN.equals(playerSession.getTaskActivator())) {
             playerSession.getTask().run();
             playerSession.setTaskActivator(null);
-        } else if (sign.getLine(0).equals(plugin.getConfiguration(sign.getWorld()).getSignTitle())) {
-            Residence residence = plugin.getNation().getResidence(sign);
+        } else if (clickedSign.getLine(0).equals(plugin.getConfiguration(clickedSign.getWorld()).getSignTitle())) {
+            Residence residence = plugin.getNation().getResidence(clickedSign);
+
             try {
                 nation.sendInformation(event.getPlayer(), residence);
             } catch (MyResidenceException e) {
-                throw new RuntimeException(e);
+                Location location = event.getClickedBlock().getLocation();
+                throw new RuntimeException(String.format("Invalid residence sign at: [%s: %d, %d, %d]",
+                        location.getWorld().getName(), location.getBlockX(), location.getBlockY(),
+                        location.getBlockZ()), e);
             }
         } else {
             playerSession.setSelectedSign(null);
