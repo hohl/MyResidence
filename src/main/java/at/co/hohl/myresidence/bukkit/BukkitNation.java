@@ -134,11 +134,58 @@ public class BukkitNation implements Nation {
                         ChatColor.GRAY + "Flags: " + ChatColor.WHITE + StringUtil.joinString(flags, ", ", 0));
             }
 
+            // Retrieve members
+            List<Inhabitant> members = getMembers(residence);
+            if (members.size() > 0) {
+                player.sendMessage(
+                        ChatColor.GRAY + "Members: " + ChatColor.WHITE + StringUtil.joinString(members, ", ", 0));
+            }
+
             // Retrieve and send money values.
             player.sendMessage(ChatColor.GRAY + "Value: " + plugin.format(residence.getValue()));
             if (residence.isForSale()) {
                 player.sendMessage(ChatColor.YELLOW + "RESIDENCE FOR SALE!");
                 player.sendMessage(ChatColor.YELLOW + "Price: " + plugin.format(residence.getPrice()));
+            }
+        } else if (object instanceof Town) {
+            Town town = (Town) object;
+
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "= = = ABOUT TOWN = = =");
+
+            // Send name
+            player.sendMessage(ChatColor.GRAY + "Name: " + ChatColor.WHITE + town.getName());
+
+            // Retrieve and send major
+            player.sendMessage(ChatColor.GRAY + "Major: " + ChatColor.WHITE + getMajor(town).getName());
+
+            // Retrieve residences
+            List<Residence> residences = getResidences(town);
+            player.sendMessage(ChatColor.GRAY + "Residences: " + ChatColor.WHITE + residences.size());
+
+            // Retrieve value
+            double value = 0;
+            for (Residence residence : residences) {
+                value += residence.getValue();
+            }
+            player.sendMessage(ChatColor.GRAY + "Value: " + ChatColor.WHITE + plugin.format(value));
+
+            // Retrieve and send money values.
+            player.sendMessage(ChatColor.GRAY + "Money: " + ChatColor.WHITE + plugin.format(town.getMoney()));
+
+            // Retrieve flags
+            List<TownFlag.Type> flags = getFlags(town);
+            if (flags.size() > 0) {
+                player.sendMessage(
+                        ChatColor.GRAY + "Flags: " + ChatColor.WHITE + StringUtil.joinString(flags, ", ", 0));
+            }
+
+            // Retrieve members
+            List<String> rules = getRules(town);
+            if (rules.size() > 0) {
+                player.sendMessage(ChatColor.GRAY + "Rules:");
+                for (String line : rules) {
+                    player.sendMessage(" " + line);
+                }
             }
         } else {
             throw new MyResidenceException("Can't retrieve information about that object!");
@@ -214,6 +261,16 @@ public class BukkitNation implements Nation {
     }
 
     /**
+     * Returns all residences of that town.
+     *
+     * @param town the town to look up the residences.
+     * @return list of founded residences.
+     */
+    public List<Residence> getResidences(Town town) {
+        return getDatabase().find(Residence.class).where().eq("townId", town.getId()).findList();
+    }
+
+    /**
      * Returns the area of the Residence
      *
      * @param id the id of the Residence.
@@ -251,6 +308,45 @@ public class BukkitNation implements Nation {
      */
     public ResidenceSign getResidenceSign(Residence residence) {
         return getResidenceSign(residence.getId());
+    }
+
+    /**
+     * Returns the nearest HomePoint for the Inhabitant.
+     *
+     * @param location the location of the player.
+     * @return founded HomePoint.
+     */
+    public HomePoint getNearestHome(Inhabitant inhabitant, Location location) {
+        List<HomePoint> home = getDatabase().find(HomePoint.class).where()
+                .eq("inhabitantId", inhabitant.getId())
+                .eq("world", location.getWorld().getName())
+                .orderBy(String.format("(x-%d)+(y-%d)+(z-%d) ASC"))
+                .findList();
+
+        if (home.size() > 0) {
+            return home.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the HomePoint of the residence.
+     *
+     * @param residence the residence to check.
+     * @return founded or created HomePoint
+     */
+    public HomePoint getResidenceHome(Residence residence) {
+        HomePoint home = getDatabase().find(HomePoint.class).where()
+                .eq("residenceId", residence.getId())
+                .findUnique();
+
+        if (home == null) {
+            home = new HomePoint();
+            home.setResidenceId(residence.getId());
+        }
+
+        return home;
     }
 
     /**
@@ -301,7 +397,7 @@ public class BukkitNation implements Nation {
      * @return the founded player or null.
      */
     public Inhabitant getInhabitant(String name) {
-        Inhabitant player = getDatabase().find(Inhabitant.class).where().ieq("name", name).findUnique();
+        Inhabitant player = getDatabase().find(Inhabitant.class).where().ilike("name", "%" + name + "%").findUnique();
 
         if (player == null) {
             player = new Inhabitant();
@@ -331,7 +427,59 @@ public class BukkitNation implements Nation {
      * @return PlayerData of the major.
      */
     public Inhabitant getMajor(Town town) {
-        return getInhabitant(town.getMajorId());
+        Major major = getDatabase().find(Major.class)
+                .where()
+                .eq("townId", town.getId())
+                .eq("hidden", false)
+                .findUnique();
+
+        if (major != null) {
+            return getInhabitant(major.getInhabitantId());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets a new major.
+     *
+     * @param town       the town where the new major should be set.
+     * @param inhabitant the inhabitant to become the major.
+     * @param co         there could be multiple co major, which has the same rights, but not mentioned as the major.
+     */
+    public void setMajor(Town town, Inhabitant inhabitant, boolean co) {
+        Major major = new Major();
+        major.setHidden(co);
+        major.setInhabitantId(inhabitant.getId());
+        major.setTownId(town.getId());
+
+        if (!co) {
+            Major oldMajor = getDatabase().find(Major.class).where()
+                    .eq("townId", town.getId())
+                    .eq("hidden", false)
+                    .findUnique();
+
+            if (oldMajor != null) {
+                getDatabase().delete(oldMajor);
+            }
+        }
+
+        getDatabase().save(major);
+    }
+
+    /**
+     * Checks if the passed player is a major of the town.
+     *
+     * @param town       the town where to check if the player is major.
+     * @param inhabitant the inhabitant to check if he is major.
+     * @return true, if the inhabitant is a major.
+     */
+    public boolean isMajor(Town town, Inhabitant inhabitant) {
+        return getDatabase().find(Major.class)
+                .where()
+                .eq("townId", town.getId())
+                .eq("inhabitantId", inhabitant.getId())
+                .findRowCount() > 0;
     }
 
     /**
@@ -470,6 +618,7 @@ public class BukkitNation implements Nation {
         ResidenceMember membership = new ResidenceMember();
         membership.setInhabitantId(inhabitant.getId());
         membership.setResidenceId(residence.getId());
+
         getDatabase().save(membership);
     }
 
@@ -483,6 +632,7 @@ public class BukkitNation implements Nation {
         TownRule townRule = new TownRule();
         townRule.setTownId(town.getId());
         townRule.setMessage(rule);
+
         getDatabase().save(townRule);
     }
 
@@ -574,11 +724,26 @@ public class BukkitNation implements Nation {
      */
     public boolean isMember(Residence residence, Inhabitant inhabitant) {
         return residence.getOwnerId() == inhabitant.getId() ||
-                getDatabase().find(ResidenceMember.class)
-                        .where()
+                getDatabase().find(ResidenceMember.class).where()
                         .eq("residenceId", residence.getId())
                         .eq("inhabitantId", inhabitant.getId())
                         .findRowCount() > 0;
+    }
+
+    /**
+     * Checks if the inhabitant is a member of the town.
+     *
+     * @param town       the town check.
+     * @param inhabitant the inhabitant to check.
+     * @return true, if the inhabitant is a member.
+     */
+    public boolean isMember(Town town, Inhabitant inhabitant) {
+        boolean ownsResidences = getDatabase().find(Residence.class).where()
+                .eq("inhabitantId", inhabitant.getId())
+                .eq("townId", town.getId())
+                .findRowCount() > 0;
+
+        return ownsResidences || isMajor(town, inhabitant);
     }
 
     /**

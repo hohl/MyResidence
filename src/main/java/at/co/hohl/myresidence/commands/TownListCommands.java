@@ -150,6 +150,5 @@ public class TownListCommands {
                             plugin.format(town.getMoney())));
             ++index;
         }
-
     }
 }

@@ -22,6 +22,7 @@ import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.SessionManager;
 import at.co.hohl.myresidence.commands.GeneralCommands;
+import at.co.hohl.myresidence.commands.MapCommand;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Configuration;
 import at.co.hohl.myresidence.storage.Session;
@@ -289,19 +290,26 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         };
 
         commands.register(GeneralCommands.class);
+        commands.register(MapCommand.class);
+        // commands.register(HomeCommands.class);
     }
 
     /** Creates needed databases. */
     private void setupDatabase() {
         try {
+            info("test databases for MyResidence...");
             getDatabase().find(Residence.class).findRowCount();
             getDatabase().find(Town.class).findRowCount();
             getDatabase().find(Inhabitant.class).findRowCount();
+            getDatabase().find(Major.class).findRowCount();
             getDatabase().find(ResidenceArea.class).findRowCount();
             getDatabase().find(ResidenceSign.class).findRowCount();
             getDatabase().find(ResidenceFlag.class).findRowCount();
+            getDatabase().find(ResidenceMember.class).findRowCount();
             getDatabase().find(TownChunk.class).findRowCount();
             getDatabase().find(TownFlag.class).findRowCount();
+            getDatabase().find(TownRule.class).findRowCount();
+            info("databases ready!");
         } catch (PersistenceException ex) {
             info("Installing database due to first time usage!");
             installDDL();
@@ -314,7 +322,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(Residence.class);
         list.add(Town.class);
+        list.add(HomePoint.class);
         list.add(Inhabitant.class);
+        list.add(Major.class);
         list.add(ResidenceArea.class);
         list.add(ResidenceSign.class);
         list.add(ResidenceFlag.class);

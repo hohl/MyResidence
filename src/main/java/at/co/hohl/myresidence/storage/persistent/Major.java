@@ -25,24 +25,23 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Represents a member of a residence.
+ * Represents a major of a town.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_members")
-public class ResidenceMember {
+@Table(name = "res_majors")
+public class Major {
     @Id
     private int id;
 
     @NotNull
-    private int residenceId;
-
-    @NotNull
     private int inhabitantId;
 
-    public ResidenceMember() {
-    }
+    @NotNull
+    private int townId;
+
+    private boolean hidden;
 
     public int getId() {
         return id;
@@ -60,11 +59,19 @@ public class ResidenceMember {
         this.inhabitantId = inhabitantId;
     }
 
-    public int getResidenceId() {
-        return residenceId;
+    public int getTownId() {
+        return townId;
     }
 
-    public void setResidenceId(int residenceId) {
-        this.residenceId = residenceId;
+    public void setTownId(int townId) {
+        this.townId = townId;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

@@ -20,6 +20,7 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.bukkit.DummyChunk;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.NotEnoughMoneyException;
 import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
@@ -33,11 +34,7 @@ import com.sk89q.worldedit.Vector2D;
 import com.sk89q.worldedit.regions.Region;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 /**
@@ -118,35 +115,7 @@ public class TownClaimCommands {
         // Count chunks to bought.
         int numberOfChunksToBought = 0;
         for (final Vector2D chunk : selectedRegion.getChunks()) {
-            Chunk selectedChunk = new Chunk() {
-                public int getX() {
-                    return chunk.getBlockX();
-                }
-
-                public int getZ() {
-                    return chunk.getBlockZ();
-                }
-
-                public World getWorld() {
-                    return selectedWorld;
-                }
-
-                public Block getBlock(int i, int i1, int i2) {
-                    return null;
-                }
-
-                public ChunkSnapshot getChunkSnapshot() {
-                    return null;
-                }
-
-                public Entity[] getEntities() {
-                    return new Entity[0];
-                }
-
-                public BlockState[] getTileEntities() {
-                    return new BlockState[0];
-                }
-            };
+            Chunk selectedChunk = new DummyChunk(selectedWorld, chunk.getBlockX(), chunk.getBlockZ());
 
             if (nation.isChunkFree(selectedChunk)) {
                 numberOfChunksToBought++;

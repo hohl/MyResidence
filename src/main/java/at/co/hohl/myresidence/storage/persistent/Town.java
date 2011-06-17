@@ -43,9 +43,6 @@ public class Town {
     private String name;
 
     @NotNull
-    private int majorId;
-
-    @NotNull
     private Date foundedAt;
 
     private double money = 0;
@@ -88,14 +85,6 @@ public class Town {
         this.id = id;
     }
 
-    public int getMajorId() {
-        return majorId;
-    }
-
-    public void setMajorId(int majorId) {
-        this.majorId = majorId;
-    }
-
     public double getMoney() {
         return money;
     }
@@ -110,6 +99,14 @@ public class Town {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public double getTax() {
+        return tax;
+    }
+
+    public void setTax(double tax) {
+        this.tax = tax;
     }
 
     @Override

@@ -20,3 +20,6 @@ commands:
         aliases: [myres]
         description: Used to manage the MyResidence plugin.
         usage: /<command> <arguments...>
+    map:
+        description: Displays the town map.
+        usage: /<command>

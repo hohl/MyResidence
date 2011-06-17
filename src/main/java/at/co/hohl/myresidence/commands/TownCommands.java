@@ -31,6 +31,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Command for managing towns.
@@ -52,9 +53,10 @@ public class TownCommands {
                               final Session session) {
         Town town = new Town();
         town.setName(args.getJoinedStrings(0));
-        town.setMajorId(nation.getInhabitant(player.getName()).getId());
         town.setFoundedAt(new Date());
         nation.getDatabase().save(town);
+
+        nation.setMajor(town, nation.getInhabitant(session.getPlayerId()), false);
 
         player.sendMessage(ChatColor.DARK_GREEN + "Town '" + args.getJoinedStrings(0) + "' created!");
     }
@@ -79,16 +81,55 @@ public class TownCommands {
     @Command(
             aliases = {"info", "i"},
             desc = "Returns information about the selected town",
-            max = 0
+            usage = "[town]"
     )
-    @CommandPermissions({"myresidence.town.info"})
     public static void info(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
                             final Session session) throws MyResidenceException {
-        Town selectedTown = session.getSelectedTown();
+        Town selectedTown;
+
+        if (args.argsLength() == 0) {
+            selectedTown = session.getSelectedTown();
+        } else {
+            selectedTown = nation.getTown(args.getJoinedStrings(0));
+        }
+
         nation.sendInformation(player, selectedTown);
+    }
+
+    @Command(
+            aliases = {"rules", "¤"},
+            desc = "Shows the rules of the town",
+            max = 0
+    )
+    public static void rules(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) throws MyResidenceException {
+        Town townAtCurrentLocation = nation.getTown(player.getLocation());
+
+        List<String> rules = nation.getRules(townAtCurrentLocation);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "= = = " + townAtCurrentLocation.getName() + " = = =");
+        for (String line : rules) {
+            player.sendMessage(line);
+        }
+    }
+
+    @Command(
+            aliases = {"rule"},
+            desc = "Manage rules of the selected town"
+    )
+    @NestedCommand({TownRuleCommands.class})
+    @CommandPermissions({"myresidence.town.major.rules"})
+    public static void rule(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) {
     }
 
     @Command(
@@ -108,6 +149,7 @@ public class TownCommands {
             desc = "Manage the bank account of the town"
     )
     @NestedCommand({TownAccountCommands.class})
+    @CommandPermissions({"myresidence.town.major.account"})
     public static void account(final CommandContext args,
                                final MyResidence plugin,
                                final Nation nation,
@@ -120,6 +162,7 @@ public class TownCommands {
             desc = "Claims chunks and expands the town"
     )
     @NestedCommand({TownClaimCommands.class})
+    @CommandPermissions({"myresidence.town.major.expand"})
     public static void claim(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,
@@ -132,6 +175,7 @@ public class TownCommands {
             desc = "Manage flags of the town"
     )
     @NestedCommand({TownFlagCommands.class})
+    @CommandPermissions({"myresidence.town.major.flag"})
     public static void flags(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,

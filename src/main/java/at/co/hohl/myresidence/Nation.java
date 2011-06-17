@@ -70,6 +70,14 @@ public interface Nation {
     Residence getResidence(Sign sign);
 
     /**
+     * Returns all residences of that town.
+     *
+     * @param town the town to look up the residences.
+     * @return list of founded residences.
+     */
+    List<Residence> getResidences(Town town);
+
+    /**
      * Returns the area of the Residence.
      *
      * @param residence the Residence.
@@ -100,6 +108,22 @@ public interface Nation {
      * @return the sign of the Residence with the passed id.
      */
     ResidenceSign getResidenceSign(int id);
+
+    /**
+     * Returns the HomePoint of the residence.
+     *
+     * @param residence the residence to check.
+     * @return founded or created HomePoint
+     */
+    HomePoint getResidenceHome(Residence residence);
+
+    /**
+     * Returns the nearest HomePoint for the Inhabitant.
+     *
+     * @param location the location of the player.
+     * @return founded HomePoint.
+     */
+    HomePoint getNearestHome(Inhabitant inhabitant, Location location);
 
     /**
      * Returns the town with the passed id.
@@ -156,6 +180,24 @@ public interface Nation {
      * @return PlayerData of the major.
      */
     Inhabitant getMajor(Town town);
+
+    /**
+     * Sets a new major.
+     *
+     * @param town       the town where the new major should be set.
+     * @param inhabitant the inhabitant to become the major.
+     * @param co         there could be multiple co major, which has the same rights, but not mentioned as the major.
+     */
+    void setMajor(Town town, Inhabitant inhabitant, boolean co);
+
+    /**
+     * Checks if the passed player is a major of the town.
+     *
+     * @param town       the town where to check if the player is major.
+     * @param inhabitant the inhabitant to check if he is major.
+     * @return true, if the inhabitant is a major.
+     */
+    boolean isMajor(Town town, Inhabitant inhabitant);
 
     /**
      * Checks if the passed Town has the flag set.
@@ -276,6 +318,15 @@ public interface Nation {
      * @param inhabitant the inhabitant.
      */
     boolean isMember(Residence residence, Inhabitant inhabitant);
+
+    /**
+     * Checks if the inhabitant is a member of the town.
+     *
+     * @param town       the town check.
+     * @param inhabitant the inhabitant to check.
+     * @return true, if the inhabitant is a member.
+     */
+    boolean isMember(Town town, Inhabitant inhabitant);
 
     /**
      * Checks if the passed chunk is free.

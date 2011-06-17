@@ -23,7 +23,6 @@ import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
-import com.avaje.ebean.ExpressionList;
 import com.nijikokun.register.payment.Method;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
@@ -31,14 +30,11 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.selections.Selection;
-import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 /**
  * Command for managing residences.
@@ -46,9 +42,6 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class ResidenceCommands {
-    /** Maximum numbers of line per page. */
-    private static final int LINES_PER_PAGE = 7;
-
     @Command(
             aliases = {"create", "c"},
             usage = "<name>",
@@ -143,7 +136,7 @@ public class ResidenceCommands {
         final Sign sign = (Sign) signWorld.getBlockAt(
                 new Location(signWorld, residenceSign.getX(), residenceSign.getY(), residenceSign.getZ())).getState();
 
-        if (residenceToRemove.getOwnerId() != session.getPlayerId() && !session.hasPermission("myresidence.admin")) {
+        if (!session.hasResidenceOwnerRights(residenceToRemove)) {
             throw new PermissionsDeniedException("Only the owner of the residence can remove it!");
         }
 
@@ -231,8 +224,7 @@ public class ResidenceCommands {
             throws MyResidenceException {
         Residence residence = session.getSelectedResidence();
 
-        Inhabitant residenceOwner = nation.getOwner(residence);
-        if (!(player.getName().equals(residenceOwner.getName()))) {
+        if (!session.hasResidenceOwnerRights(residence)) {
             throw new NotOwnException();
         }
 
@@ -251,9 +243,87 @@ public class ResidenceCommands {
     }
 
     @Command(
+            aliases = {"give", "transfer", "grant"},
+            usage = "<player>",
+            desc = "Transfers the residence to an owner",
+            min = 1,
+            max = 1
+    )
+    @CommandPermissions({"myresidence.residence.give"})
+    public static void give(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session)
+            throws MyResidenceException {
+        Residence residence = session.getSelectedResidence();
+        if (!session.hasResidenceOwnerRights(residence)) {
+            throw new NotOwnException();
+        }
+
+        Inhabitant inhabitant = nation.getInhabitant(args.getString(0));
+        if (inhabitant == null) {
+            throw new PlayerNotFoundException();
+        }
+
+        residence.setOwnerId(inhabitant.getId());
+
+        // Save and update sign!
+        nation.save(residence);
+        nation.updateResidenceSign(residence);
+
+        player.sendMessage(ChatColor.GREEN + residence.getName() +
+                ChatColor.DARK_GREEN + " transferred to" +
+                ChatColor.GREEN + inhabitant.getName() +
+                ChatColor.DARK_GREEN + ".");
+
+        // Notify player, if online.
+        Player playerWhichGotTheResidence = player.getServer().getPlayer(inhabitant.getName());
+        if (playerWhichGotTheResidence != null && playerWhichGotTheResidence.isOnline()) {
+            playerWhichGotTheResidence.sendMessage(ChatColor.GREEN + player.getDisplayName() +
+                    ChatColor.DARK_GREEN + " transferred you the residence '" +
+                    ChatColor.GREEN + residence.getName() +
+                    ChatColor.DARK_GREEN + "'!");
+        }
+    }
+
+    @Command(
+            aliases = {"value"},
+            usage = "<amount>",
+            desc = "Sets the value of a residence",
+            min = 1,
+            max = 1
+    )
+    @CommandPermissions({"myresidence.residence.value"})
+    public static void value(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session)
+            throws MyResidenceException {
+
+        Residence residence = session.getSelectedResidence();
+
+        if (!(session.hasResidenceOwnerRights(residence) ||
+                session.hasMajorRights(nation.getTown(residence.getTownId())))) {
+            throw new NotOwnException();
+        }
+
+        double value = args.getDouble(0, residence.getValue());
+        residence.setValue(value);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Value has been set!");
+
+        nation.getDatabase().save(residence);
+
+        nation.updateResidenceSign(residence);
+
+    }
+
+    @Command(
             aliases = {"info", "i"},
-            desc = "Returns information about residence",
-            max = 0
+            desc = "Shows information about residences",
+            usage = "[residence]"
     )
     @CommandPermissions({"myresidence.residence.info"})
     public static void info(final CommandContext args,
@@ -262,120 +332,48 @@ public class ResidenceCommands {
                             final Player player,
                             final Session session)
             throws MyResidenceException {
-        Residence residence = session.getSelectedResidence();
+        Residence residence;
+
+        if (args.argsLength() == 0) {
+            residence = session.getSelectedResidence();
+        } else {
+            residence = nation.getResidence(args.getJoinedStrings(0));
+        }
+
         nation.sendInformation(player, residence);
     }
 
     @Command(
             aliases = {"list", "l"},
-            usage = "[page]",
-            desc = "List residences. " +
-                    "(c: cheapest, n: nearest, o: residences you own, s: residences for sale, v: most expensive)",
-            max = 1,
-            flags = "cnosv"
+            desc = "List & Search Residences"
     )
+    @NestedCommand({ResidenceListCommands.class})
     @CommandPermissions({"myresidence.residence.list"})
     public static void list(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
-                            final Session session)
-            throws MyResidenceException, InsufficientArgumentsException {
-        Location playerLocation = player.getLocation();
+                            final Session session) {
+    }
 
-        ExpressionList expressionList = nation.getDatabase().find(Residence.class).where();
-
-        // v: sort by value.
-        if (args.hasFlag('v')) {
-            expressionList.orderBy("value desc");
-        } else {
-            expressionList.orderBy("name asc");
-        }
-
-        // o: only residences you own.
-        if (args.hasFlag('o')) {
-            int ownerId = nation.getInhabitant(player.getName()).getId();
-            expressionList.eq("ownerId", ownerId);
-        }
-
-        // n: only residences in your current town.
-        if (args.hasFlag('n')) {
-            try {
-                int townId = nation.getTown(playerLocation).getId();
-                expressionList.eq("townId", townId);
-            } catch (NullPointerException e) {
-                throw new MyResidenceException("You can only use -n flag inside towns!");
-            }
-        }
-
-        // s: only residences for sale.
-        if (args.hasFlag('s')) {
-            expressionList.eq("forSale", true);
-
-            // c: sort by price.
-            if (args.hasFlag('c')) {
-                expressionList.orderBy("price asc");
-            }
-        }
-
-        // Find exact page.
-        int page = args.getInteger(0, 1);
-        int rows = expressionList.findRowCount();
-        int index = (page - 1) * 7 + 1;
-        if (rows == 0) {
-            throw new MyResidenceException("No search results found!");
-        }
-        if (index > rows || index < 1) {
-            throw new InsufficientArgumentsException("Invalid page number!");
-        }
-        expressionList.setMaxRows(LINES_PER_PAGE);
-        expressionList.setFirstRow((page - 1) * LINES_PER_PAGE);
-
-        List<Residence> residences = expressionList.findList();
-
-        // Print results.
-        player.sendMessage(ChatColor.LIGHT_PURPLE +
-                String.format("= = = Residences [Page %s/%s] = = =", page, rows / LINES_PER_PAGE + 1));
-
-        if (args.hasFlag('s')) {
-            for (Residence residence : residences) {
-                player.sendMessage(
-                        String.format(
-                                ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Price: %s]",
-                                index,
-                                Town.toString(nation.getTown(residence.getTownId())),
-                                residence.getName(),
-                                plugin.format(residence.getPrice())));
-                ++index;
-            }
-        } else if (args.hasFlag('o')) {
-            for (Residence residence : residences) {
-                player.sendMessage(String.format(
-                        ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Value: %s]",
-                        index,
-                        Town.toString(nation.getTown(residence.getTownId())),
-                        residence.getName(),
-                        plugin.format(residence.getValue())));
-                ++index;
-            }
-        } else {
-            for (Residence residence : residences) {
-                player.sendMessage(String.format(
-                        ChatColor.GRAY + "%d. %s->" + ChatColor.WHITE + " %s" + ChatColor.GRAY + " [Owner: %s]",
-                        index,
-                        Town.toString(nation.getTown(residence.getTownId())),
-                        residence.getName(),
-                        nation.getOwner(residence)));
-                ++index;
-            }
-        }
+    @Command(
+            aliases = {"member", "members"},
+            desc = "Manage Members of Residences"
+    )
+    @NestedCommand({ResidenceMemberCommands.class})
+    public static void members(final CommandContext args,
+                               final MyResidence plugin,
+                               final Nation nation,
+                               final Player player,
+                               final Session session) {
     }
 
     @Command(
             aliases = {"flag", "f"},
-            desc = "Manage flags of the residences"
+            desc = "Manage Flags of Residences"
     )
     @NestedCommand({ResidenceFlagCommands.class})
+    @CommandPermissions({"myresidence.town.major.flag"})
     public static void flags(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,

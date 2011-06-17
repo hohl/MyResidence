@@ -22,6 +22,7 @@ import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.NoResidenceSelectedException;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
+import at.co.hohl.myresidence.storage.persistent.Major;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import org.bukkit.block.Sign;
@@ -95,7 +96,7 @@ public class Session {
      * @return true, if the session has enough rights.
      */
     public boolean hasMajorRights(Town town) {
-        return getPlayerId() == town.getMajorId() || hasPermission("myresidence.admin");
+        return nation.isMajor(town, nation.getInhabitant(getPlayerId())) || hasPermission("myresidence.admin");
     }
 
     /**
@@ -151,10 +152,13 @@ public class Session {
      */
     public Town getSelectedTown() throws NoTownSelectedException {
         if (selectedTownId == -1) {
-            List<Town> towns = nation.getDatabase().find(Town.class).where().eq("majorId", getPlayerId()).findList();
-            if (towns.size() == 1) {
-                selectedTownId = towns.get(0).getId();
-                return towns.get(0);
+            List<Major> majorities = nation.getDatabase().find(Major.class).where()
+                    .eq("inhabitantId", getPlayerId())
+                    .findList();
+
+            if (majorities.size() == 1) {
+                selectedTownId = majorities.get(0).getTownId();
+                return nation.getTown(majorities.get(0).getTownId());
             }
 
             throw new NoTownSelectedException();

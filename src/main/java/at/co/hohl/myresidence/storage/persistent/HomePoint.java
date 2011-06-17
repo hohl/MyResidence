@@ -18,31 +18,39 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
-import com.avaje.ebean.validation.NotNull;
+import com.avaje.ebean.validation.Length;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Represents a member of a residence.
+ * Warp point per residence.
  *
  * @author Michael Hohl
  */
 @Entity
-@Table(name = "res_members")
-public class ResidenceMember {
+@Table(name = "res_homes")
+public class HomePoint {
     @Id
     private int id;
 
-    @NotNull
     private int residenceId;
 
-    @NotNull
     private int inhabitantId;
 
-    public ResidenceMember() {
-    }
+    @Length(max = 32)
+    private String world;
+
+    private double x;
+
+    private int y;
+
+    private double z;
+
+    private float yaw;
+
+    private float pitch;
 
     public int getId() {
         return id;
@@ -60,11 +68,59 @@ public class ResidenceMember {
         this.inhabitantId = inhabitantId;
     }
 
+    public float getPitch() {
+        return pitch;
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
     public int getResidenceId() {
         return residenceId;
     }
 
     public void setResidenceId(int residenceId) {
         this.residenceId = residenceId;
+    }
+
+    public String getWorld() {
+        return world;
+    }
+
+    public void setWorld(String world) {
+        this.world = world;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
     }
 }

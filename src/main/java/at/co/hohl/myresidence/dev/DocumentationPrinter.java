@@ -19,6 +19,7 @@
 package at.co.hohl.myresidence.dev;
 
 import at.co.hohl.myresidence.commands.GeneralCommands;
+import at.co.hohl.myresidence.commands.MapCommand;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
@@ -49,6 +50,8 @@ public class DocumentationPrinter {
         List<Class<?>> classes = new ArrayList<Class<?>>();
 
         classes.add(GeneralCommands.class);
+        classes.add(MapCommand.class);
+        classes.add(HomeCommands.class);
 
         return classes;
     }

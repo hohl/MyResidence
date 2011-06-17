@@ -21,6 +21,7 @@ package at.co.hohl.myresidence.commands;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
+import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import at.co.hohl.myresidence.storage.persistent.TownFlag;
@@ -49,9 +50,14 @@ public class TownFlagCommands {
                            final MyResidence plugin,
                            final Nation nation,
                            final Player player,
-                           final Session session) throws NoTownSelectedException {
+                           final Session session) throws NoTownSelectedException, PermissionsDeniedException {
+        Town selectedTown = session.getSelectedTown();
+
+        if (!session.hasMajorRights(selectedTown)) {
+            throw new PermissionsDeniedException("You are not the major of this town!");
+        }
+
         try {
-            Town selectedTown = session.getSelectedTown();
             TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
             nation.setFlag(selectedTown, flag);
 
@@ -77,10 +83,15 @@ public class TownFlagCommands {
                               final MyResidence plugin,
                               final Nation nation,
                               final Player player,
-                              final Session session) throws NoTownSelectedException {
+                              final Session session) throws NoTownSelectedException, PermissionsDeniedException {
+        Town selectedTown = session.getSelectedTown();
+
+        if (!session.hasMajorRights(selectedTown)) {
+            throw new PermissionsDeniedException("You are not the major of this town!");
+        }
 
         try {
-            Town selectedTown = session.getSelectedTown();
+
             TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
             nation.removeFlag(selectedTown, flag);
 

@@ -36,6 +36,8 @@ public class ResidenceFlag {
     public enum Type {
         PUBLIC,
         LOCAL,
+        SIGHT,
+        HIDDEN,
         ALLOW_PVP
     }
 
