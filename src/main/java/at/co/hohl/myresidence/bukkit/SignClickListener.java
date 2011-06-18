@@ -80,9 +80,10 @@ public class SignClickListener extends PlayerListener {
                 nation.sendInformation(event.getPlayer(), residence);
             } catch (MyResidenceException e) {
                 Location location = event.getClickedBlock().getLocation();
-                throw new RuntimeException(String.format("Invalid residence sign at: [%s: %d, %d, %d]",
+                plugin.severe("Invalid residence sign at: [%s: %d, %d, %d]",
                         location.getWorld().getName(), location.getBlockX(), location.getBlockY(),
-                        location.getBlockZ()), e);
+                        location.getBlockZ());
+                e.printStackTrace();
             }
         } else {
             playerSession.setSelectedSign(null);

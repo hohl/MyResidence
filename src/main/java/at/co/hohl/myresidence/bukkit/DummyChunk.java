@@ -75,6 +75,10 @@ public class DummyChunk implements Chunk {
         return null;
     }
 
+    public ChunkSnapshot getChunkSnapshot(boolean b, boolean b1, boolean b2) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public Entity[] getEntities() {
         return new Entity[0];
     }

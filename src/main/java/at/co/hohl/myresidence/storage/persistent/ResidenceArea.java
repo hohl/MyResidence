@@ -160,6 +160,9 @@ public class ResidenceArea {
 
     @Override
     public String toString() {
-        return String.format("W:%d L:%d H:%d", getHighX() - getLowX(), getHighZ() - getLowZ(), getHighY() - getLowY());
+        return String.format("W:%d L:%d H:%d",
+                getHighX() - getLowX() + 1,
+                getHighZ() - getLowZ() + 1,
+                getHighY() - getLowY() + 1);
     }
 }

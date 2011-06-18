@@ -24,6 +24,7 @@ import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 /**
@@ -89,6 +90,9 @@ public interface MyResidence {
 
     /** @return the description of the implementation of MyResidence. */
     PluginDescriptionFile getDescription();
+
+    /** @return the java plugin for Bukkit. */
+    Plugin getPlugin();
 
     /** @return the server, which holds the implementation of MyResidence. */
     Server getServer();

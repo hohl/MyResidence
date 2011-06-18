@@ -320,7 +320,8 @@ public class BukkitNation implements Nation {
         List<HomePoint> home = getDatabase().find(HomePoint.class).where()
                 .eq("inhabitantId", inhabitant.getId())
                 .eq("world", location.getWorld().getName())
-                .orderBy(String.format("abs((x-%d)+(y-%d)+(z-%d)) ASC"))
+                .orderBy(String.format("((x-%d)*(x-%d)+(z-%d)*(z-%d)) ASC",
+                        location.getBlockX(), location.getBlockX(), location.getBlockZ(), location.getBlockZ()))
                 .findList();
 
         if (home.size() > 0) {
@@ -344,6 +345,13 @@ public class BukkitNation implements Nation {
         if (home == null) {
             home = new HomePoint();
             home.setResidenceId(residence.getId());
+
+            ResidenceArea area = getResidenceArea(residence);
+            if (area != null) {
+                home.setX(area.getHighX());
+                home.setY(area.getHighY());
+                home.setZ(area.getHighZ());
+            }
         }
 
         return home;

@@ -23,3 +23,9 @@ commands:
     map:
         description: Displays the town map.
         usage: /<command>
+    home:
+        description: Teleports you to the nearest home.
+        usage: /<command>
+    sethome:
+        description: Sets the home point for the residence.
+        usage: /<command>

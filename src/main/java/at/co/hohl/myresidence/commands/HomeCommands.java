@@ -86,7 +86,7 @@ public class HomeCommands {
         }
 
         // Check if player is the owner.
-        if (currentResidence.getOwnerId() != session.getPlayerId()) {
+        if (session.hasResidenceOwnerRights(currentResidence)) {
             throw new NotOwnException();
         }
 

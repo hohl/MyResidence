@@ -29,6 +29,7 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -201,9 +202,12 @@ public class ResidenceCommands {
 
         player.sendMessage(ChatColor.DARK_GREEN + "You have successfully bought the residence!");
         if (oldOwner != null && oldOwner.isOnline()) {
-            oldOwner.sendMessage(ChatColor.DARK_GREEN + "Your residence was sold for " +
+            oldOwner.sendMessage(ChatColor.DARK_GREEN + "Your residence " +
+                    ChatColor.YELLOW + residence.getName() +
+                    ChatColor.DARK_GREEN + " was sold for " +
                     ChatColor.YELLOW + plugin.format(price) +
-                    ChatColor.DARK_GREEN + " to " + ChatColor.YELLOW + oldOwner.getName() +
+                    ChatColor.DARK_GREEN + " to " +
+                    ChatColor.YELLOW + player.getName() +
                     ChatColor.DARK_GREEN + ".");
         }
     }
@@ -273,7 +277,7 @@ public class ResidenceCommands {
         nation.updateResidenceSign(residence);
 
         player.sendMessage(ChatColor.GREEN + residence.getName() +
-                ChatColor.DARK_GREEN + " transferred to" +
+                ChatColor.DARK_GREEN + " transferred to " +
                 ChatColor.GREEN + inhabitant.getName() +
                 ChatColor.DARK_GREEN + ".");
 
@@ -285,6 +289,28 @@ public class ResidenceCommands {
                     ChatColor.GREEN + residence.getName() +
                     ChatColor.DARK_GREEN + "'!");
         }
+    }
+
+    @Command(
+            aliases = {"area"},
+            desc = "Selects the residence area with WorldEdit",
+            max = 0
+    )
+    public static void area(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session)
+            throws MyResidenceException {
+        ResidenceArea area = nation.getResidenceArea(session.getSelectedResidence());
+
+        World world = player.getServer().getWorld(area.getWorld());
+        Location edge1 = new Location(world, area.getLowX(), area.getLowY(), area.getLowZ());
+        Location edge2 = new Location(world, area.getHighX(), area.getHighY(), area.getHighZ());
+        Selection selection = new CuboidSelection(world, edge1, edge2);
+        plugin.getWorldEdit().setSelection(player, selection);
+
+        player.sendMessage(ChatColor.DARK_GREEN + "Residence area selected with WorldEdit!");
     }
 
     @Command(

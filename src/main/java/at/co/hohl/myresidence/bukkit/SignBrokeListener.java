@@ -20,6 +20,7 @@ package at.co.hohl.myresidence.bukkit;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -60,17 +61,27 @@ public class SignBrokeListener extends BlockListener {
             return;
         }
 
-        Sign clickedSign = (Sign) event.getBlock().getState();
+        final Sign clickedSign = (Sign) event.getBlock().getState();
         if (!plugin.getConfiguration(event.getBlock().getWorld()).getSignTitle().equals(clickedSign.getLine(0))) {
             return;
         }
 
-        Residence residence = nation.getResidence(clickedSign);
+        final Residence residence = nation.getResidence(clickedSign);
         if (residence == null) {
             return;
         }
 
         event.getPlayer().sendMessage(ChatColor.RED + "You can not destroy a residence sign!");
         event.setCancelled(true);
+
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin.getPlugin(), new Runnable() {
+                    public void run() {
+                        try {
+                            nation.updateResidenceSign(residence);
+                        } catch (ResidenceSignMissingException e) {
+                            throw new RuntimeException("Residence sign missing after on sign break.", e);
+                        }
+                    }
+                }, 20);
     }
 }
