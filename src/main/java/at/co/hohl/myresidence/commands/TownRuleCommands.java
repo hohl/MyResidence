@@ -54,7 +54,7 @@ public class TownRuleCommands {
             throw new PermissionsDeniedException("You are not the major of this town!");
         }
 
-        nation.addRule(selectedTown, args.getJoinedStrings(0));
+        nation.getRuleManager(selectedTown).addRule(args.getJoinedStrings(0));
 
         player.sendMessage(ChatColor.DARK_GREEN + "Added new line to the rules of " +
                 ChatColor.GREEN + selectedTown.getName() +
@@ -75,7 +75,7 @@ public class TownRuleCommands {
             throws MyResidenceException {
         Town selectedTown = session.getSelectedTown();
 
-        nation.removeRule(selectedTown, args.getJoinedStrings(0));
+        nation.getRuleManager(selectedTown).removeRule(args.getJoinedStrings(0));
 
         player.sendMessage(ChatColor.DARK_GREEN + "Removed a line from the rules of " +
                 ChatColor.GREEN + selectedTown.getName() +

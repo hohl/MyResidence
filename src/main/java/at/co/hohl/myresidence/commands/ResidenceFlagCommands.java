@@ -53,7 +53,7 @@ public class ResidenceFlagCommands {
         try {
             Residence selectedResidence = session.getSelectedResidence();
             ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
-            nation.setFlag(selectedResidence, flag);
+            nation.getFlagManager(selectedResidence).setFlag(flag);
 
             player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
                     ChatColor.GREEN + flag +
@@ -82,7 +82,7 @@ public class ResidenceFlagCommands {
         try {
             Residence selectedResidence = session.getSelectedResidence();
             ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
-            nation.removeFlag(selectedResidence, flag);
+            nation.getFlagManager(selectedResidence).removeFlag(flag);
 
             player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
                     ChatColor.GREEN + flag +

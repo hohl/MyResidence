@@ -111,7 +111,7 @@ public class TownCommands {
                              final Session session) throws MyResidenceException {
         Town townAtCurrentLocation = nation.getTown(player.getLocation());
 
-        List<String> rules = nation.getRules(townAtCurrentLocation);
+        List<String> rules = nation.getRuleManager(townAtCurrentLocation).getRules();
 
         player.sendMessage(ChatColor.DARK_GREEN + "= = = " + townAtCurrentLocation.getName() + " = = =");
         for (String line : rules) {

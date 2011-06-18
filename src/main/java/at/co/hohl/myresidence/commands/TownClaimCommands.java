@@ -20,7 +20,6 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.bukkit.DummyChunk;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.NotEnoughMoneyException;
 import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
@@ -115,7 +114,7 @@ public class TownClaimCommands {
         // Count chunks to bought.
         int numberOfChunksToBought = 0;
         for (final Vector2D chunk : selectedRegion.getChunks()) {
-            Chunk selectedChunk = new DummyChunk(selectedWorld, chunk.getBlockX(), chunk.getBlockZ());
+            Chunk selectedChunk = selectedWorld.getChunkAt(chunk.getBlockX(), chunk.getBlockZ());
 
             if (nation.isChunkFree(selectedChunk)) {
                 numberOfChunksToBought++;

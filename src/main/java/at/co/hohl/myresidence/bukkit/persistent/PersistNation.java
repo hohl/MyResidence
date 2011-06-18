@@ -16,9 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.co.hohl.myresidence.bukkit;
+package at.co.hohl.myresidence.bukkit.persistent;
 
+import at.co.hohl.myresidence.FlagManager;
+import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.RuleManager;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.*;
@@ -35,7 +38,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import javax.persistence.PersistenceException;
 import java.util.*;
 
 /**
@@ -43,16 +45,16 @@ import java.util.*;
  *
  * @author Michael Hohl
  */
-public class BukkitNation implements Nation {
+public class PersistNation implements Nation {
     /** The MyResidencePlugin which holds the Nation. */
-    private final MyResidencePlugin plugin;
+    private final MyResidence plugin;
 
     /**
      * Creates a new Nation for the passed plugin.
      *
      * @param plugin the plugin to create the nation.
      */
-    public BukkitNation(MyResidencePlugin plugin) {
+    public PersistNation(MyResidence plugin) {
         this.plugin = plugin;
     }
 
@@ -128,7 +130,7 @@ public class BukkitNation implements Nation {
             player.sendMessage(ChatColor.GRAY + "Size: " + ChatColor.WHITE + getResidenceArea(residence));
 
             // Retrieve flags
-            List<ResidenceFlag.Type> flags = getFlags(residence);
+            List<ResidenceFlag.Type> flags = getFlagManager(residence).getFlags();
             if (flags.size() > 0) {
                 player.sendMessage(
                         ChatColor.GRAY + "Flags: " + ChatColor.WHITE + StringUtil.joinString(flags, ", ", 0));
@@ -173,14 +175,14 @@ public class BukkitNation implements Nation {
             player.sendMessage(ChatColor.GRAY + "Money: " + ChatColor.WHITE + plugin.format(town.getMoney()));
 
             // Retrieve flags
-            List<TownFlag.Type> flags = getFlags(town);
+            List<TownFlag.Type> flags = getFlagManager(town).getFlags();
             if (flags.size() > 0) {
                 player.sendMessage(
                         ChatColor.GRAY + "Flags: " + ChatColor.WHITE + StringUtil.joinString(flags, ", ", 0));
             }
 
             // Retrieve members
-            List<String> rules = getRules(town);
+            List<String> rules = getRuleManager(town).getRules();
             if (rules.size() > 0) {
                 player.sendMessage(ChatColor.GRAY + "Rules:");
                 for (String line : rules) {
@@ -271,33 +273,13 @@ public class BukkitNation implements Nation {
     }
 
     /**
-     * Returns the area of the Residence
-     *
-     * @param id the id of the Residence.
-     * @return the area of the Residence with the passed id.
-     */
-    public ResidenceArea getResidenceArea(int id) {
-        return getDatabase().find(ResidenceArea.class).where().idEq(id).findUnique();
-    }
-
-    /**
      * Returns the area of the Residence.
      *
      * @param residence the Residence.
      * @return the area of the Residence.
      */
     public ResidenceArea getResidenceArea(Residence residence) {
-        return getResidenceArea(residence.getId());
-    }
-
-    /**
-     * Returns the sign of the Residence.
-     *
-     * @param id the id of the Residence.
-     * @return the sign of the Residence with the passed id.
-     */
-    public ResidenceSign getResidenceSign(int id) {
-        return getDatabase().find(ResidenceSign.class).where().idEq(id).findUnique();
+        return getDatabase().find(ResidenceArea.class).where().idEq(residence.getId()).findUnique();
     }
 
     /**
@@ -307,7 +289,7 @@ public class BukkitNation implements Nation {
      * @return the sign of the passed Residence.
      */
     public ResidenceSign getResidenceSign(Residence residence) {
-        return getResidenceSign(residence.getId());
+        return getDatabase().find(ResidenceSign.class).where().idEq(residence.getId()).findUnique();
     }
 
     /**
@@ -491,132 +473,6 @@ public class BukkitNation implements Nation {
     }
 
     /**
-     * Returns all flags of a residence.
-     *
-     * @param residence the residence to check.
-     * @return all flags set for the residence.
-     */
-    public List<ResidenceFlag.Type> getFlags(Residence residence) {
-        List<ResidenceFlag> residenceFlags = getDatabase().find(ResidenceFlag.class)
-                .where()
-                .eq("residenceId", residence.getId()).findList();
-
-        List<ResidenceFlag.Type> flagTypes = new LinkedList<ResidenceFlag.Type>();
-        for (ResidenceFlag flag : residenceFlags) {
-            flagTypes.add(flag.getFlag());
-        }
-
-        return flagTypes;
-    }
-
-    /**
-     * Returns all flags of a town.
-     *
-     * @param town the town to check.
-     * @return the flags set for the town.
-     */
-    public List<TownFlag.Type> getFlags(Town town) {
-        List<TownFlag> residenceFlags = getDatabase().find(TownFlag.class)
-                .where()
-                .eq("townId", town.getId()).findList();
-
-        List<TownFlag.Type> flagTypes = new LinkedList<TownFlag.Type>();
-        for (TownFlag flag : residenceFlags) {
-            flagTypes.add(flag.getFlag());
-        }
-
-        return flagTypes;
-    }
-
-    /**
-     * Checks if the passed Residence has the flag set.
-     *
-     * @param residence residence to check.
-     * @param flag      flag to check.
-     * @return true, if the flag is set.
-     */
-    public boolean hasFlag(Residence residence, ResidenceFlag.Type flag) {
-        return getDatabase().find(ResidenceFlag.class)
-                .where()
-                .eq("residenceId", residence.getId())
-                .eq("flag", flag)
-                .findRowCount() > 0;
-    }
-
-    /**
-     * Checks if the passed Town has the flag set.
-     *
-     * @param town town to check.
-     * @param flag flag to check.
-     * @return true, if the flag is set.
-     */
-    public boolean hasFlag(Town town, TownFlag.Type flag) {
-        return getDatabase().find(TownFlag.class)
-                .where()
-                .eq("townId", town.getId())
-                .eq("flag", flag)
-                .findRowCount() > 0;
-    }
-
-    /**
-     * Sets the passed flag.
-     *
-     * @param town town to set the flag.
-     * @param flag the flag to set.
-     */
-    public void setFlag(Town town, TownFlag.Type flag) {
-        if (!hasFlag(town, flag)) {
-            TownFlag townFlag = new TownFlag();
-            townFlag.setTownId(town.getId());
-            townFlag.setFlag(flag);
-            getDatabase().save(townFlag);
-        }
-    }
-
-    /**
-     * Remove the passed flag.
-     *
-     * @param town town to remove the flag.
-     * @param flag the flag to remove.
-     */
-    public void removeFlag(Town town, TownFlag.Type flag) {
-        getDatabase().delete(
-                getDatabase().find(TownFlag.class)
-                        .where()
-                        .eq("townId", town.getId())
-                        .eq("flag", flag).findList());
-    }
-
-    /**
-     * Sets the passed flag.
-     *
-     * @param residence residence to set the flag.
-     * @param flag      the flag to set.
-     */
-    public void setFlag(Residence residence, ResidenceFlag.Type flag) {
-        if (!hasFlag(residence, flag)) {
-            ResidenceFlag residenceFlag = new ResidenceFlag();
-            residenceFlag.setResidenceId(residence.getId());
-            residenceFlag.setFlag(flag);
-            getDatabase().save(residenceFlag);
-        }
-    }
-
-    /**
-     * Removes the passed flag.
-     *
-     * @param residence residence to remove the flag.
-     * @param flag      the flag to remove.
-     */
-    public void removeFlag(Residence residence, ResidenceFlag.Type flag) {
-        getDatabase().delete(
-                getDatabase().find(ResidenceFlag.class)
-                        .where()
-                        .eq("residenceId", residence.getId())
-                        .eq("flag", flag).findList());
-    }
-
-    /**
      * Adds a member.
      *
      * @param residence  the residence where the inhabitant should become member.
@@ -628,59 +484,6 @@ public class BukkitNation implements Nation {
         membership.setResidenceId(residence.getId());
 
         getDatabase().save(membership);
-    }
-
-    /**
-     * Adds a single rule.
-     *
-     * @param town the town the rule should be for.
-     * @param rule the rule to create.
-     */
-    public void addRule(Town town, String rule) {
-        TownRule townRule = new TownRule();
-        townRule.setTownId(town.getId());
-        townRule.setMessage(rule);
-
-        getDatabase().save(townRule);
-    }
-
-    /**
-     * Removes a rule, which is like the passed string.
-     *
-     * @param town the town, where the rule should get removed.
-     * @param rule the rule message.
-     */
-    public void removeRule(Town town, String rule) throws MyResidenceException {
-        try {
-            TownRule townRule = getDatabase().find(TownRule.class).where()
-                    .ilike("message", "%" + rule + "%")
-                    .eq("townId", town.getId())
-                    .findUnique();
-
-            getDatabase().delete(townRule);
-        } catch (PersistenceException e) {
-            throw new MyResidenceException("Rule not found!");
-        }
-    }
-
-    /**
-     * Gets all rules for the town.
-     *
-     * @param town the town to look up the rules.
-     */
-    public List<String> getRules(Town town) {
-        List<TownRule> rules = getDatabase().find(TownRule.class)
-                .where()
-                .eq("townId", town.getId())
-                .orderBy("message ASC")
-                .findList();
-
-        List<String> ruleLines = new LinkedList<String>();
-        for (TownRule rule : rules) {
-            ruleLines.add(rule.getMessage());
-        }
-
-        return ruleLines;
     }
 
     /**
@@ -871,6 +674,36 @@ public class BukkitNation implements Nation {
         getDatabase().save(changedTownChunks);
 
         return changedTownChunks.size();
+    }
+
+    /**
+     * Returns a manager for the rules of the town.
+     *
+     * @param town the town to manage.
+     * @return the rule manager for the town.
+     */
+    public RuleManager getRuleManager(Town town) {
+        return new PersistRuleManager(this, town);
+    }
+
+    /**
+     * Returns a manager for the flags of the residence.
+     *
+     * @param residence the residence to manage.
+     * @return the manager for the flags.
+     */
+    public FlagManager<ResidenceFlag.Type> getFlagManager(Residence residence) {
+        return new PersistResidenceFlagManager(this, residence);
+    }
+
+    /**
+     * Returns a manager for the flags of the town.
+     *
+     * @param town the town to manage.
+     * @return the manager for the flags.
+     */
+    public FlagManager<TownFlag.Type> getFlagManager(Town town) {
+        return new PersistTownFlagManager(this, town);
     }
 
     /**

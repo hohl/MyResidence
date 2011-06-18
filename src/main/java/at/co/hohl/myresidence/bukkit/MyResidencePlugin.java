@@ -21,6 +21,11 @@ package at.co.hohl.myresidence.bukkit;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.SessionManager;
+import at.co.hohl.myresidence.bukkit.listener.EconomyPluginListener;
+import at.co.hohl.myresidence.bukkit.listener.SignBrokeListener;
+import at.co.hohl.myresidence.bukkit.listener.SignClickListener;
+import at.co.hohl.myresidence.bukkit.listener.WorldEditPluginListener;
+import at.co.hohl.myresidence.bukkit.persistent.PersistNation;
 import at.co.hohl.myresidence.commands.GeneralCommands;
 import at.co.hohl.myresidence.commands.HomeCommands;
 import at.co.hohl.myresidence.commands.MapCommand;
@@ -41,7 +46,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -84,7 +88,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     public void onEnable() {
         logger = getServer().getLogger();
         methods = new Methods();
-        nation = new BukkitNation(this);
+        nation = new PersistNation(this);
         sessionManager = new SessionManager(this, nation);
 
         setupDatabase();
@@ -203,11 +207,6 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     /** @return handler for the permissions. */
     public PermissionsResolver getPermissionsResolver() {
         return worldEdit.getPermissionsResolver();
-    }
-
-    /** @return the java plugin for Bukkit. */
-    public Plugin getPlugin() {
-        return this;
     }
 
     /** @return world edit plugin. */

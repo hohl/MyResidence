@@ -20,7 +20,6 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.bukkit.DummyChunk;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import com.sk89q.minecraft.util.commands.Command;
@@ -60,7 +59,7 @@ public class MapCommand {
         for (int indexZ = chunkZstart; indexZ <= chunkZend; ++indexZ) {
             StringBuilder line = new StringBuilder();
             for (int indexX = chunkXstart; indexX <= chunkXend; ++indexX) {
-                Chunk chunk = new DummyChunk(playerChunk.getWorld(), indexX, indexZ);
+                Chunk chunk = playerChunk.getWorld().getChunkAt(indexX, indexZ);
 
                 if (chunk.getX() == playerChunk.getX() && chunk.getZ() == playerChunk.getZ()) {
                     line.append(ChatColor.WHITE);

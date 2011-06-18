@@ -37,7 +37,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
  *
  * @author Michael Hohl
  */
-public interface MyResidence {
+public interface MyResidence extends Plugin {
     /** @return the collection of towns and residences. */
     Nation getNation();
 
@@ -90,9 +90,6 @@ public interface MyResidence {
 
     /** @return the description of the implementation of MyResidence. */
     PluginDescriptionFile getDescription();
-
-    /** @return the java plugin for Bukkit. */
-    Plugin getPlugin();
 
     /** @return the server, which holds the implementation of MyResidence. */
     Server getServer();

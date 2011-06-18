@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.co.hohl.myresidence.bukkit;
+package at.co.hohl.myresidence.bukkit.listener;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
@@ -74,7 +74,7 @@ public class SignBrokeListener extends BlockListener {
         event.getPlayer().sendMessage(ChatColor.RED + "You can not destroy a residence sign!");
         event.setCancelled(true);
 
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin.getPlugin(), new Runnable() {
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                     public void run() {
                         try {
                             nation.updateResidenceSign(residence);

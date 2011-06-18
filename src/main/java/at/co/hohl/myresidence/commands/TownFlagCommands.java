@@ -59,7 +59,7 @@ public class TownFlagCommands {
 
         try {
             TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
-            nation.setFlag(selectedTown, flag);
+            nation.getFlagManager(selectedTown).setFlag(flag);
 
             player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
                     ChatColor.GREEN + flag +
@@ -93,7 +93,7 @@ public class TownFlagCommands {
         try {
 
             TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
-            nation.removeFlag(selectedTown, flag);
+            nation.getFlagManager(selectedTown).removeFlag(flag);
 
             player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
                     ChatColor.GREEN + flag +

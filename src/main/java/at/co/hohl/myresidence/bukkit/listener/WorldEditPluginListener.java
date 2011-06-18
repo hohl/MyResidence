@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.co.hohl.myresidence.bukkit;
+package at.co.hohl.myresidence.bukkit.listener;
 
+import at.co.hohl.myresidence.bukkit.MyResidencePlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;

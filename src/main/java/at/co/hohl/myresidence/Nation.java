@@ -86,28 +86,12 @@ public interface Nation {
     ResidenceArea getResidenceArea(Residence residence);
 
     /**
-     * Returns the area of the Residence
-     *
-     * @param id the id of the Residence.
-     * @return the area of the Residence with the passed id.
-     */
-    ResidenceArea getResidenceArea(int id);
-
-    /**
      * Returns the sign of the Residence
      *
      * @param residence the Residence.
      * @return the sign of the passed Residence.
      */
     ResidenceSign getResidenceSign(Residence residence);
-
-    /**
-     * Returns the sign of the Residence.
-     *
-     * @param id the id of the Residence.
-     * @return the sign of the Residence with the passed id.
-     */
-    ResidenceSign getResidenceSign(int id);
 
     /**
      * Returns the HomePoint of the residence.
@@ -200,95 +184,6 @@ public interface Nation {
     boolean isMajor(Town town, Inhabitant inhabitant);
 
     /**
-     * Checks if the passed Town has the flag set.
-     *
-     * @param town town to check.
-     * @param flag flag to check.
-     * @return true, if the flag is set.
-     */
-    boolean hasFlag(Town town, TownFlag.Type flag);
-
-    /**
-     * Returns all flags of a town.
-     *
-     * @param town the town to check.
-     * @return the flags set for the town.
-     */
-    List<TownFlag.Type> getFlags(Town town);
-
-    /**
-     * Sets the passed flag.
-     *
-     * @param town town to set the flag.
-     * @param flag the flag to set.
-     */
-    void setFlag(Town town, TownFlag.Type flag);
-
-    /**
-     * Remove the passed flag.
-     *
-     * @param town town to remove the flag.
-     * @param flag the flag to remove.
-     */
-    void removeFlag(Town town, TownFlag.Type flag);
-
-    /**
-     * Checks if the passed Residence has the flag set.
-     *
-     * @param residence residence to check.
-     * @param flag      flag to check.
-     * @return true, if the flag is set.
-     */
-    boolean hasFlag(Residence residence, ResidenceFlag.Type flag);
-
-    /**
-     * Returns all flags of a residence.
-     *
-     * @param residence the residence to check.
-     * @return all flags set for the residence.
-     */
-    List<ResidenceFlag.Type> getFlags(Residence residence);
-
-    /**
-     * Sets the passed flag.
-     *
-     * @param residence residence to set the flag.
-     * @param flag      the flag to set.
-     */
-    void setFlag(Residence residence, ResidenceFlag.Type flag);
-
-    /**
-     * Removes the passed flag.
-     *
-     * @param residence residence to remove the flag.
-     * @param flag      the flag to remove.
-     */
-    void removeFlag(Residence residence, ResidenceFlag.Type flag);
-
-    /**
-     * Adds a single rule.
-     *
-     * @param town the town the rule should be for.
-     * @param rule the rule to create.
-     */
-    void addRule(Town town, String rule);
-
-    /**
-     * Removes a rule, which is like the passed string.
-     *
-     * @param town the town, where the rule should get removed.
-     * @param rule the rule message.
-     */
-    void removeRule(Town town, String rule) throws MyResidenceException;
-
-    /**
-     * Gets all rules for the town.
-     *
-     * @param town the town to look up the rules.
-     */
-    List<String> getRules(Town town);
-
-    /**
      * Adds a member.
      *
      * @param residence  the residence where the inhabitant should become member.
@@ -372,6 +267,30 @@ public interface Nation {
      * @return true, if the town has all the chunks.
      */
     boolean hasChunks(Town town, World world, Region region);
+
+    /**
+     * Returns a manager for the rules of the town.
+     *
+     * @param town the town to manage.
+     * @return the rule manager for the town.
+     */
+    RuleManager getRuleManager(Town town);
+
+    /**
+     * Returns a manager for the flags of the residence.
+     *
+     * @param residence the residence to manage.
+     * @return the manager for the flags.
+     */
+    FlagManager<ResidenceFlag.Type> getFlagManager(Residence residence);
+
+    /**
+     * Returns a manager for the flags of the town.
+     *
+     * @param town the town to manage.
+     * @return the manager for the flags.
+     */
+    FlagManager<TownFlag.Type> getFlagManager(Town town);
 
     /**
      * Updates the sign linked to passed Residence.
