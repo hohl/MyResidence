@@ -23,6 +23,7 @@ import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
+import at.co.hohl.utils.Chat;
 import com.nijikokun.register.payment.Method;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
@@ -105,7 +106,7 @@ public class ResidenceCommands {
 
                     nation.updateResidenceSign(residence);
 
-                    player.sendMessage(ChatColor.DARK_GREEN + "Residence '" + residence.getName() + "' created!");
+                    Chat.sendMessage(player, "&2Residence {0} created!", residence);
                 } catch (MyResidenceException e) {
                     player.sendMessage(ChatColor.RED + e.getMessage());
                 }
@@ -114,7 +115,7 @@ public class ResidenceCommands {
         session.setTaskActivator(Session.Activator.SELECT_SIGN);
 
         // Notify user about he has to select a sign.
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Please select a sign, to link it to the new Residence!");
+        Chat.sendMessage(player, "&dPlease select a sign, to link it to the new Residence!");
     }
 
     @Command(
@@ -151,15 +152,15 @@ public class ResidenceCommands {
                 nation.getDatabase().delete(residenceToRemove);
                 nation.getDatabase().delete(residenceArea);
                 nation.getDatabase().delete(residenceSign);
-                player.sendMessage(ChatColor.DARK_GREEN + "Residence removed!");
+                Chat.sendMessage(player, "&2Residence {0} removed!", residenceToRemove);
             }
         });
         session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);
 
         // Notify user about need confirmation.
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Do you really want to remove '" + ChatColor.DARK_PURPLE +
-                residenceToRemove.getName() + ChatColor.LIGHT_PURPLE + "'?");
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Use /task confirm to confirm this task!");
+        Chat.sendMessage(player, "&dDo you really want to remove &5{0}&d?", residenceToRemove);
+        Chat.sendMessage(player, "&dUse &5/task confirm&d to confirm this task!");
     }
 
     @Command(
@@ -201,15 +202,10 @@ public class ResidenceCommands {
 
         nation.updateResidenceSign(residence);
 
-        player.sendMessage(ChatColor.DARK_GREEN + "You have successfully bought the residence!");
+        Chat.sendMessage(player, "&2You have successfully bought the residence!");
         if (oldOwner != null && oldOwner.isOnline()) {
-            oldOwner.sendMessage(ChatColor.DARK_GREEN + "Your residence " +
-                    ChatColor.YELLOW + residence.getName() +
-                    ChatColor.DARK_GREEN + " was sold for " +
-                    ChatColor.YELLOW + plugin.format(price) +
-                    ChatColor.DARK_GREEN + " to " +
-                    ChatColor.YELLOW + player.getName() +
-                    ChatColor.DARK_GREEN + ".");
+            Chat.sendMessage(player, "&2Your residence was sold to &a{0}&2 for &a{1}&2.",
+                    residence, player.getName(), plugin.format(price));
         }
     }
 
@@ -240,7 +236,7 @@ public class ResidenceCommands {
             residence.setValue(price);
         }
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Your residence is available for sale now!");
+        Chat.sendMessage(player, "&3Your residence is available for sale now!");
 
         nation.getDatabase().save(residence);
 
@@ -277,18 +273,12 @@ public class ResidenceCommands {
         nation.save(residence);
         nation.updateResidenceSign(residence);
 
-        player.sendMessage(ChatColor.GREEN + residence.getName() +
-                ChatColor.DARK_GREEN + " transferred to " +
-                ChatColor.GREEN + inhabitant.getName() +
-                ChatColor.DARK_GREEN + ".");
+        Chat.sendMessage(player, "&a{0}&2 transferred to &a{1}&2.", residence, inhabitant);
 
         // Notify player, if online.
-        Player playerWhichGotTheResidence = player.getServer().getPlayer(inhabitant.getName());
-        if (playerWhichGotTheResidence != null && playerWhichGotTheResidence.isOnline()) {
-            playerWhichGotTheResidence.sendMessage(ChatColor.GREEN + player.getDisplayName() +
-                    ChatColor.DARK_GREEN + " transferred you the residence '" +
-                    ChatColor.GREEN + residence.getName() +
-                    ChatColor.DARK_GREEN + "'!");
+        Player receiver = player.getServer().getPlayer(inhabitant.getName());
+        if (receiver != null && receiver.isOnline()) {
+            Chat.sendMessage(receiver, "&a{0}&2 transferred you the residence &a{1}&2!", residence, inhabitant);
         }
     }
 
@@ -311,7 +301,7 @@ public class ResidenceCommands {
         Selection selection = new CuboidSelection(world, edge1, edge2);
         plugin.getWorldEdit().setSelection(player, selection);
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Residence area selected with WorldEdit!");
+        Chat.sendMessage(player, "&2Residence area selected with WorldEdit!");
     }
 
     @Command(
@@ -331,20 +321,16 @@ public class ResidenceCommands {
 
         Residence residence = session.getSelectedResidence();
 
-        if (!(session.hasResidenceOwnerRights(residence) ||
-                session.hasMajorRights(nation.getTown(residence.getTownId())))) {
+        if (!(session.hasResidenceOwnerRights(residence))) {
             throw new NotOwnException();
         }
 
-        double value = args.getDouble(0, residence.getValue());
-        residence.setValue(value);
-
-        player.sendMessage(ChatColor.DARK_GREEN + "Value has been set!");
-
+        residence.setValue(args.getDouble(0));
         nation.getDatabase().save(residence);
 
-        nation.updateResidenceSign(residence);
+        Chat.sendMessage(player, "&2Value has been set to &a{0}&2!", plugin.format(residence.getValue()));
 
+        nation.updateResidenceSign(residence);
     }
 
     @Command(
@@ -363,16 +349,14 @@ public class ResidenceCommands {
 
         Residence residence = session.getSelectedResidence();
 
-        if (!(session.hasResidenceOwnerRights(residence) ||
-                session.hasMajorRights(nation.getTown(residence.getTownId())))) {
+        if (!(session.hasResidenceOwnerRights(residence))) {
             throw new NotOwnException();
         }
 
         residence.setName(args.getJoinedStrings(0));
-
-        player.sendMessage(ChatColor.DARK_GREEN + "Residence renamed!");
-
         nation.getDatabase().save(residence);
+
+        Chat.sendMessage(player, "&2Residence renamed to &a{0}&2!", residence.getName());
 
         nation.updateResidenceSign(residence);
 
