@@ -318,6 +318,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
             getDatabase().find(TownChunk.class).findRowCount();
             getDatabase().find(TownFlag.class).findRowCount();
             getDatabase().find(TownRule.class).findRowCount();
+            getDatabase().find(Like.class).findRowCount();
             info("databases ready!");
         } catch (PersistenceException ex) {
             info("Installing database due to first time usage!");
@@ -341,6 +342,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         list.add(TownChunk.class);
         list.add(TownFlag.class);
         list.add(TownRule.class);
+        list.add(Like.class);
         return list;
     }
 }
