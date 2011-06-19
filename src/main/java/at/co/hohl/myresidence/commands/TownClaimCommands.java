@@ -18,6 +18,7 @@
 
 package at.co.hohl.myresidence.commands;
 
+import at.co.hohl.myresidence.ChunkManager;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
@@ -57,6 +58,8 @@ public class TownClaimCommands {
         // Get selections.
         final Town selectedTown = session.getSelectedTown();
         final Chunk playerChunk = player.getLocation().getBlock().getChunk();
+        final Vector2D chunkVector = new Vector2D(playerChunk.getX(), playerChunk.getZ());
+        final World chunkWorld = playerChunk.getWorld();
 
         // Check if player is major.
         if (!session.hasMajorRights(selectedTown)) {
@@ -64,26 +67,26 @@ public class TownClaimCommands {
         }
 
         // Check if already reserved?
-        if (!nation.isChunkFree(playerChunk)) {
-            if (nation.hasChunk(selectedTown, playerChunk)) {
+        Town chunkOwner = nation.getChunkManager().getChunkOwner(chunkWorld, chunkVector);
+        if (chunkOwner != null) {
+            if (chunkOwner.equals(selectedTown)) {
                 throw new MyResidenceException("Town already owns this chunk!");
             } else {
                 throw new MyResidenceException("This chunk is already bought by another town!");
             }
         }
 
-
         // Check money.
         double chunkCost = plugin.getConfiguration(player.getWorld()).getChunkCost();
         double townMoney = selectedTown.getMoney();
         if (townMoney < chunkCost) {
-            throw new NotEnoughMoneyException("The town has not enough money!");
+            throw new NotEnoughMoneyException(chunkCost);
         } else {
             selectedTown.subtractMoney(chunkCost);
         }
 
         // Reserve new chunk.
-        nation.addChunk(selectedTown, playerChunk);
+        nation.getChunkManager().addChunk(selectedTown, chunkWorld, chunkVector);
 
         player.sendMessage(ChatColor.DARK_GREEN + "Town bought chunk for " + ChatColor.GREEN +
                 plugin.format(chunkCost) + ChatColor.DARK_GREEN + ".");
@@ -101,6 +104,8 @@ public class TownClaimCommands {
                                       final Player player,
                                       final Session session)
             throws IncompleteRegionException, MyResidenceException {
+        ChunkManager chunkManager = nation.getChunkManager();
+
         // Get selections.
         final Town selectedTown = session.getSelectedTown();
         final World selectedWorld = plugin.getWorldEdit().getSelection(player).getWorld();
@@ -114,24 +119,24 @@ public class TownClaimCommands {
         // Count chunks to bought.
         int numberOfChunksToBought = 0;
         for (final Vector2D chunk : selectedRegion.getChunks()) {
-            Chunk selectedChunk = selectedWorld.getChunkAt(chunk.getBlockX(), chunk.getBlockZ());
-
-            if (nation.isChunkFree(selectedChunk)) {
+            Town chunkOwner = chunkManager.getChunkOwner(selectedWorld, chunk);
+            if (chunkOwner == null) {
                 numberOfChunksToBought++;
-            } else if (!nation.hasChunk(selectedTown, selectedChunk)) {
+            } else if (chunkOwner != selectedTown) {
                 throw new MyResidenceException("At least on of the chunks is already bought by another town!");
             }
         }
 
         // Check money.
         double chunkCost = plugin.getConfiguration(player.getWorld()).getChunkCost();
-        if (selectedTown.getMoney() < chunkCost * numberOfChunksToBought) {
-            throw new NotEnoughMoneyException("The town has not enough money!");
+        double cost = chunkCost * numberOfChunksToBought;
+        if (selectedTown.getMoney() < cost) {
+            throw new NotEnoughMoneyException(chunkCost * numberOfChunksToBought);
         }
 
         // Add chunks to town and then subtract the money from the town account.
-        int boughtChunks = nation.addChunks(selectedTown, selectedWorld, selectedRegion);
-        selectedTown.subtractMoney(boughtChunks * chunkCost);
+        chunkManager.addChunks(selectedTown, selectedWorld, selectedRegion.getChunks());
+        selectedTown.subtractMoney(cost);
 
         // Save and end transaction
         nation.save(selectedTown);
@@ -140,7 +145,7 @@ public class TownClaimCommands {
         player.sendMessage(ChatColor.DARK_GREEN + "Town bought " +
                 ChatColor.GREEN + numberOfChunksToBought +
                 ChatColor.DARK_GREEN + " chunks for " +
-                ChatColor.GREEN + plugin.format(boughtChunks * chunkCost) +
+                ChatColor.GREEN + plugin.format(cost) +
                 ChatColor.DARK_GREEN + ".");
     }
 }

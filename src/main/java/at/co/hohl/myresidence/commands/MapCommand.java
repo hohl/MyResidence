@@ -24,8 +24,10 @@ import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
+import com.sk89q.worldedit.Vector2D;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 /**
@@ -48,6 +50,7 @@ public class MapCommand {
                            final Player player,
                            final Session session) {
         Chunk playerChunk = player.getLocation().getBlock().getChunk();
+        World world = player.getWorld();
         Town currentTown = nation.getTown(player.getLocation());
 
         int chunkXstart = playerChunk.getX() - (MAP_ROWS / 2);
@@ -59,7 +62,7 @@ public class MapCommand {
         for (int indexZ = chunkZstart; indexZ <= chunkZend; ++indexZ) {
             StringBuilder line = new StringBuilder();
             for (int indexX = chunkXstart; indexX <= chunkXend; ++indexX) {
-                Chunk chunk = playerChunk.getWorld().getChunkAt(indexX, indexZ);
+                Vector2D chunk = new Vector2D(indexX, indexZ);
 
                 if (chunk.getX() == playerChunk.getX() && chunk.getZ() == playerChunk.getZ()) {
                     line.append(ChatColor.WHITE);
@@ -67,9 +70,10 @@ public class MapCommand {
                     line.append(ChatColor.GRAY);
                 }
 
-                if (nation.isChunkFree(chunk)) {
+                Town chunkOwner = nation.getChunkManager().getChunkOwner(world, chunk);
+                if (chunkOwner == null) {
                     line.append(" -");
-                } else if (currentTown != null && nation.hasChunk(currentTown, chunk)) {
+                } else if (chunkOwner.equals(currentTown)) {
                     line.append(" #");
                 } else {
                     line.append(ChatColor.DARK_GRAY + " #");

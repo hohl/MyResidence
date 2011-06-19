@@ -18,20 +18,14 @@
 
 package at.co.hohl.myresidence.bukkit.persistent;
 
-import at.co.hohl.myresidence.FlagManager;
-import at.co.hohl.myresidence.MyResidence;
-import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.RuleManager;
+import at.co.hohl.myresidence.*;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
 import com.nijikokun.register.payment.Method;
 import com.sk89q.util.StringUtil;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.regions.Region;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -48,6 +42,9 @@ import java.util.*;
 public class PersistNation implements Nation {
     /** The MyResidencePlugin which holds the Nation. */
     private final MyResidence plugin;
+
+    /** ChunkManager used by PersistNation. */
+    private final ChunkManager chunkManager = new PersistChunkManager(this);
 
     /**
      * Creates a new Nation for the passed plugin.
@@ -557,123 +554,9 @@ public class PersistNation implements Nation {
         return ownsResidences || isMajor(town, inhabitant);
     }
 
-    /**
-     * Adds a single chunk.
-     *
-     * @param town  the town to add the chunk.
-     * @param chunk the chunk to add.
-     */
-    public void addChunk(Town town, Chunk chunk) {
-        TownChunk townChunk = getDatabase().find(TownChunk.class)
-                .where()
-                .eq("world", chunk.getWorld().getName())
-                .eq("x", chunk.getX())
-                .eq("z", chunk.getZ())
-                .findUnique();
-
-        if (townChunk == null) {
-            townChunk = new TownChunk();
-            townChunk.setWorld(chunk.getWorld().getName());
-            townChunk.setX(chunk.getX());
-            townChunk.setZ(chunk.getZ());
-        }
-
-        townChunk.setTownId(town.getId());
-
-        getDatabase().save(townChunk);
-    }
-
-    /**
-     * Checks if the passed chunk is free.
-     *
-     * @param chunk the chunk to check.
-     * @return true, if the chunk is not used by any town.
-     */
-    public boolean isChunkFree(Chunk chunk) {
-        return getDatabase().find(TownChunk.class)
-                .where()
-                .eq("world", chunk.getWorld().getName())
-                .eq("x", chunk.getX())
-                .eq("z", chunk.getZ())
-                .findRowCount() == 0;
-    }
-
-    /**
-     * Checks if the town has the chunk.
-     *
-     * @param town  the town to check.
-     * @param chunk the chunk to check.
-     * @return true, if the town has the chunk.
-     */
-    public boolean hasChunk(Town town, Chunk chunk) {
-        return getDatabase().find(TownChunk.class)
-                .where()
-                .eq("townId", town.getId())
-                .eq("world", chunk.getWorld().getName())
-                .eq("x", chunk.getX())
-                .eq("z", chunk.getZ())
-                .findRowCount() > 0;
-    }
-
-    /**
-     * Checks if the town has all chunks in the region.
-     *
-     * @param town   the town to check.
-     * @param region the region to check.
-     * @return true, if the town has all the chunks.
-     */
-    public boolean hasChunks(Town town, World world, Region region) {
-
-        for (Vector2D chunk : region.getChunks()) {
-            if (getDatabase().find(TownChunk.class)
-                    .where()
-                    .eq("townId", town.getId())
-                    .eq("world", world.getName())
-                    .eq("x", chunk.getBlockX())
-                    .eq("z", chunk.getBlockZ())
-                    .findRowCount() == 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Adds all chunks in the passed region to the town.
-     *
-     * @param town   the town to add the chunks.
-     * @param region the region with the chunks.
-     * @return number of chunks added.
-     */
-    public int addChunks(Town town, World world, Region region) {
-
-        List<TownChunk> changedTownChunks = new LinkedList<TownChunk>();
-
-        for (Vector2D chunk : region.getChunks()) {
-            TownChunk townChunk = getDatabase().find(TownChunk.class)
-                    .where()
-                    .eq("world", world.getName())
-                    .eq("x", chunk.getBlockX())
-                    .eq("z", chunk.getBlockZ())
-                    .findUnique();
-
-            if (townChunk == null) {
-                townChunk = new TownChunk();
-                townChunk.setWorld(world.getName());
-                townChunk.setX(chunk.getBlockX());
-                townChunk.setZ(chunk.getBlockZ());
-            }
-
-            if (townChunk.getTownId() != town.getId()) {
-                townChunk.setTownId(town.getId());
-                changedTownChunks.add(townChunk);
-            }
-        }
-
-        getDatabase().save(changedTownChunks);
-
-        return changedTownChunks.size();
+    /** @return manager for the chunks. */
+    public ChunkManager getChunkManager() {
+        return chunkManager;
     }
 
     /**

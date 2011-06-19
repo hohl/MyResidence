@@ -110,6 +110,26 @@ public class Town {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Town town = (Town) o;
+
+        if (id != town.id) return false;
+        if (name != null ? !name.equals(town.name) : town.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return getName();
     }

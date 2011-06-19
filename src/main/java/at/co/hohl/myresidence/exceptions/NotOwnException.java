@@ -23,8 +23,8 @@ package at.co.hohl.myresidence.exceptions;
  *
  * @author Michael Hohl
  */
-public class NotOwnException extends MyResidenceException {
+public class NotOwnException extends PermissionsDeniedException {
     public NotOwnException() {
-        super("You do not own the Residence!");
+        super("You do not own the residence/town!");
     }
 }

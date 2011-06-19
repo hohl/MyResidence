@@ -19,16 +19,25 @@
 package at.co.hohl.myresidence.exceptions;
 
 /**
- * Thrown when try to buy something and don't own enough money.
+ * Called when a town is not found. For example, when using search function, or when claiming a region without any
+ * chunks near the region.
  *
  * @author Michael Hohl
  */
-public class NotEnoughMoneyException extends MyResidenceException {
-    public NotEnoughMoneyException(double neededAmount) {
-        super(String.format("Not enough money at bank account! Needed: %.2f", neededAmount));
+public class TownNotFoundException extends MyResidenceException {
+    public TownNotFoundException() {
+        super();
     }
 
-    public NotEnoughMoneyException(String message) {
-        super(message);
+    public TownNotFoundException(String s) {
+        super(s);
+    }
+
+    public TownNotFoundException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
+
+    public TownNotFoundException(Throwable throwable) {
+        super(throwable);
     }
 }

@@ -22,10 +22,7 @@ import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
-import com.sk89q.worldedit.regions.Region;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -223,50 +220,8 @@ public interface Nation {
      */
     boolean isMember(Town town, Inhabitant inhabitant);
 
-    /**
-     * Checks if the passed chunk is free.
-     *
-     * @param chunk the chunk to check.
-     * @return true, if the chunk is not used by any town.
-     */
-    boolean isChunkFree(Chunk chunk);
-
-    /**
-     * Checks if the town has the chunk.
-     *
-     * @param town  the town to check.
-     * @param chunk the chunk to check.
-     * @return true, if the town has the chunk.
-     */
-    boolean hasChunk(Town town, Chunk chunk);
-
-    /**
-     * Adds a single chunk.
-     *
-     * @param town  the town to add the chunk.
-     * @param chunk the chunk to add.
-     */
-    void addChunk(Town town, Chunk chunk);
-
-    /**
-     * Adds all chunks in the passed region to the town.
-     *
-     * @param town   the town to add the chunks.
-     * @param world  the world where the chunks are.
-     * @param region the region with the chunks.
-     * @return the number of chunks, which were added.
-     */
-    int addChunks(Town town, World world, Region region);
-
-    /**
-     * Checks if the town has all chunks in the region.
-     *
-     * @param town   the town to check.
-     * @param world  the world where the chunks are.
-     * @param region the region to check.
-     * @return true, if the town has all the chunks.
-     */
-    boolean hasChunks(Town town, World world, Region region);
+    /** @return manager for the chunks. */
+    ChunkManager getChunkManager();
 
     /**
      * Returns a manager for the rules of the town.

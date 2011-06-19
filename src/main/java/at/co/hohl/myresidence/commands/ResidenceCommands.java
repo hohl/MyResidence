@@ -77,7 +77,8 @@ public class ResidenceCommands {
         if (!buildInWildness) {
             if (town == null) {
                 throw new MyResidenceException("You can not create a residence outside the town!");
-            } else if (!nation.hasChunks(town, selection.getWorld(), selection.getRegionSelector().getRegion())) {
+            } else if (!nation.getChunkManager().hasChunks(town, selection.getWorld(),
+                    selection.getRegionSelector().getRegion().getChunks())) {
                 throw new MyResidenceException("Town does not own the chunks, where you want to create the residence!");
             }
         }
@@ -187,7 +188,7 @@ public class ResidenceCommands {
         Method.MethodAccount playerAccount = payment.getAccount(player.getName());
         double price = residence.getPrice();
         if (!playerAccount.hasEnough(price)) {
-            throw new NotEnoughMoneyException();
+            throw new NotEnoughMoneyException(price);
         }
         Method.MethodAccount ownerAccount = payment.getAccount(nation.getOwner(residence).getName());
         playerAccount.subtract(price);
