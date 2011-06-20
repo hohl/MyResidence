@@ -20,7 +20,7 @@ package at.co.hohl.myresidence.bukkit.listener;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
+import at.co.hohl.myresidence.event.ResidenceChangedEvent;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -74,14 +74,6 @@ public class SignBrokeListener extends BlockListener {
         event.getPlayer().sendMessage(ChatColor.RED + "You can not destroy a residence sign!");
         event.setCancelled(true);
 
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                    public void run() {
-                        try {
-                            nation.updateResidenceSign(residence);
-                        } catch (ResidenceSignMissingException e) {
-                            throw new RuntimeException("Residence sign missing after on sign break.", e);
-                        }
-                    }
-                }, 20);
+        plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
     }
 }

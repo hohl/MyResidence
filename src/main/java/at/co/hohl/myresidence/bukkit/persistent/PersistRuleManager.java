@@ -35,10 +35,10 @@ import java.util.List;
  */
 public class PersistRuleManager implements RuleManager {
     /** Nation of the town to manage. */
-    private final Nation nation;
+    protected final Nation nation;
 
     /** Town to manage. */
-    private final Town town;
+    protected final Town town;
 
     /**
      * Creates a new PersistRuleManager.

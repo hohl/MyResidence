@@ -33,10 +33,10 @@ import java.util.List;
  */
 public class PersistResidenceFlagManager implements FlagManager<ResidenceFlag.Type> {
     /** Nation which holds the residence. */
-    private final Nation nation;
+    protected final Nation nation;
 
     /** The area to manage. */
-    private final Residence residence;
+    protected final Residence residence;
 
     /**
      * Creates a new FlagManager implementation.

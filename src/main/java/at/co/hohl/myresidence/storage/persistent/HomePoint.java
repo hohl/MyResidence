@@ -37,6 +37,8 @@ public class HomePoint {
 
     private int residenceId;
 
+    // ToDo: Inhabitant id entfernen! Programmiere anstatt des nŠhesten System ein, auf letzte eingabe passierentes System.
+    // !!!: Muss sein, denn dieser Wert wird beim transferieren nicht beachtet!
     private int inhabitantId;
 
     @Length(max = 32)
@@ -60,10 +62,12 @@ public class HomePoint {
         this.id = id;
     }
 
+    @Deprecated
     public int getInhabitantId() {
         return inhabitantId;
     }
 
+    @Deprecated
     public void setInhabitantId(int inhabitantId) {
         this.inhabitantId = inhabitantId;
     }

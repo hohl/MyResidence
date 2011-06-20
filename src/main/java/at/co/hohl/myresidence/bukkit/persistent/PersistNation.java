@@ -20,19 +20,17 @@ package at.co.hohl.myresidence.bukkit.persistent;
 
 import at.co.hohl.myresidence.*;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
-import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
-import com.nijikokun.register.payment.Method;
 import com.sk89q.util.StringUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * MyResidence Nation implementation for Bukkit.
@@ -41,7 +39,7 @@ import java.util.*;
  */
 public class PersistNation implements Nation {
     /** The MyResidencePlugin which holds the Nation. */
-    private final MyResidence plugin;
+    protected final MyResidence plugin;
 
     /** ChunkManager used by PersistNation. */
     private final ChunkManager chunkManager = new PersistChunkManager(this);
@@ -56,45 +54,6 @@ public class PersistNation implements Nation {
     }
 
     /**
-     * Updates the sign linked to passed Residence.
-     *
-     * @param residence Residence to update.
-     */
-    public void updateResidenceSign(Residence residence) throws ResidenceSignMissingException {
-        Method payment = plugin.getPaymentMethods().getMethod();
-
-        ResidenceSign residenceSign = getDatabase().find(ResidenceSign.class)
-                .where()
-                .eq("residenceId", residence.getId())
-                .findUnique();
-
-        World world = plugin.getServer().getWorld(residenceSign.getWorld());
-        Block signBlock = world.getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
-
-        if (!(signBlock.getState() instanceof Sign)) {
-            throw new ResidenceSignMissingException(residence);
-        }
-
-        Sign sign = (Sign) signBlock.getState();
-        sign.setLine(0, plugin.getConfiguration(world).getSignTitle());
-        sign.setLine(1, StringUtil.trimLength(residence.getName(), 16));
-        if (residence.isForSale()) {
-            sign.setLine(2, ChatColor.YELLOW +
-                    StringUtil.trimLength(plugin.getConfiguration(world).getSignSaleText(), 14));
-            if (payment == null) {
-                sign.setLine(3,
-                        ChatColor.YELLOW + StringUtil.trimLength(String.format("%.2f", residence.getPrice()), 14));
-            } else {
-                sign.setLine(3, ChatColor.YELLOW + StringUtil.trimLength(payment.format(residence.getPrice()), 14));
-            }
-        } else {
-            sign.setLine(2, getOwner(residence).getName());
-            sign.setLine(3, "");
-        }
-        sign.update();
-    }
-
-    /**
      * Sends the passed player information about the passed object.
      *
      * @param object object to retrieve information. Could be a Residence or a Town.
@@ -102,6 +61,7 @@ public class PersistNation implements Nation {
     public void sendInformation(Player player, Object object) throws MyResidenceException {
         if (object instanceof Residence) {
             Residence residence = (Residence) object;
+            ResidenceManager manager = getResidenceManager(residence);
 
             player.sendMessage(ChatColor.LIGHT_PURPLE + "= = = ABOUT RESIDENCE = = =");
 
@@ -119,22 +79,23 @@ public class PersistNation implements Nation {
             String town = "ANY (wildness)";
             if (residence.getTownId() != -1) {
                 Town townData = getTown(residence.getTownId());
-                town = townData.toString() + " (Major: " + getMajor(townData) + ")";
+                town = townData.getName() +
+                        " (Major: " + StringUtil.joinString(getTownManager(townData).getMajors(), ", ", 0) + ")";
             }
             player.sendMessage(ChatColor.GRAY + "Town: " + ChatColor.WHITE + town);
 
             // Retrieve and send area...
-            player.sendMessage(ChatColor.GRAY + "Size: " + ChatColor.WHITE + getResidenceArea(residence));
+            player.sendMessage(ChatColor.GRAY + "Size: " + ChatColor.WHITE + manager.getArea().getArea());
 
             // Retrieve flags
-            List<ResidenceFlag.Type> flags = getFlagManager(residence).getFlags();
+            List<ResidenceFlag.Type> flags = manager.getFlags();
             if (flags.size() > 0) {
                 player.sendMessage(
                         ChatColor.GRAY + "Flags: " + ChatColor.WHITE + StringUtil.joinString(flags, ", ", 0));
             }
 
             // Retrieve members
-            List<Inhabitant> members = getMembers(residence);
+            List<Inhabitant> members = manager.getMembers();
             if (members.size() > 0) {
                 player.sendMessage(
                         ChatColor.GRAY + "Members: " + ChatColor.WHITE + StringUtil.joinString(members, ", ", 0));
@@ -148,6 +109,7 @@ public class PersistNation implements Nation {
             }
         } else if (object instanceof Town) {
             Town town = (Town) object;
+            TownManager manager = getTownManager(town);
 
             player.sendMessage(ChatColor.LIGHT_PURPLE + "= = = ABOUT TOWN = = =");
 
@@ -155,10 +117,11 @@ public class PersistNation implements Nation {
             player.sendMessage(ChatColor.GRAY + "Name: " + ChatColor.WHITE + town.getName());
 
             // Retrieve and send major
-            player.sendMessage(ChatColor.GRAY + "Major: " + ChatColor.WHITE + getMajor(town).getName());
+            player.sendMessage(ChatColor.GRAY + "Major: " +
+                    ChatColor.WHITE + StringUtil.joinString(manager.getMajors(), " ,", 0));
 
             // Retrieve residences
-            List<Residence> residences = getResidences(town);
+            List<Residence> residences = manager.getResidences();
             player.sendMessage(ChatColor.GRAY + "Residences: " + ChatColor.WHITE + residences.size());
 
             // Retrieve value
@@ -172,7 +135,7 @@ public class PersistNation implements Nation {
             player.sendMessage(ChatColor.GRAY + "Money: " + ChatColor.WHITE + plugin.format(town.getMoney()));
 
             // Retrieve flags
-            List<TownFlag.Type> flags = getFlagManager(town).getFlags();
+            List<TownFlag.Type> flags = manager.getFlags();
             if (flags.size() > 0) {
                 player.sendMessage(
                         ChatColor.GRAY + "Flags: " + ChatColor.WHITE + StringUtil.joinString(flags, ", ", 0));
@@ -270,73 +233,6 @@ public class PersistNation implements Nation {
     }
 
     /**
-     * Returns the area of the Residence.
-     *
-     * @param residence the Residence.
-     * @return the area of the Residence.
-     */
-    public ResidenceArea getResidenceArea(Residence residence) {
-        return getDatabase().find(ResidenceArea.class).where().idEq(residence.getId()).findUnique();
-    }
-
-    /**
-     * Returns the sign of the Residence
-     *
-     * @param residence the Residence.
-     * @return the sign of the passed Residence.
-     */
-    public ResidenceSign getResidenceSign(Residence residence) {
-        return getDatabase().find(ResidenceSign.class).where().idEq(residence.getId()).findUnique();
-    }
-
-    /**
-     * Returns the nearest HomePoint for the Inhabitant.
-     *
-     * @param location the location of the player.
-     * @return founded HomePoint.
-     */
-    public HomePoint getNearestHome(Inhabitant inhabitant, Location location) {
-        List<HomePoint> home = getDatabase().find(HomePoint.class).where()
-                .eq("inhabitantId", inhabitant.getId())
-                .eq("world", location.getWorld().getName())
-                .orderBy(String.format("((x-%d)*(x-%d)+(z-%d)*(z-%d)) ASC",
-                        location.getBlockX(), location.getBlockX(), location.getBlockZ(), location.getBlockZ()))
-                .findList();
-
-        if (home.size() > 0) {
-            return home.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the HomePoint of the residence.
-     *
-     * @param residence the residence to check.
-     * @return founded or created HomePoint
-     */
-    public HomePoint getResidenceHome(Residence residence) {
-        HomePoint home = getDatabase().find(HomePoint.class).where()
-                .eq("residenceId", residence.getId())
-                .findUnique();
-
-        if (home == null) {
-            home = new HomePoint();
-            home.setResidenceId(residence.getId());
-
-            ResidenceArea area = getResidenceArea(residence);
-            if (area != null) {
-                home.setX(area.getHighX());
-                home.setY(area.getHighY());
-                home.setZ(area.getHighZ());
-            }
-        }
-
-        return home;
-    }
-
-    /**
      * Returns the town with the passed id.
      *
      * @param id the id of the town to look for.
@@ -408,26 +304,6 @@ public class PersistNation implements Nation {
     }
 
     /**
-     * Returns the major of the passed Town.
-     *
-     * @param town the Town.
-     * @return PlayerData of the major.
-     */
-    public Inhabitant getMajor(Town town) {
-        Major major = getDatabase().find(Major.class)
-                .where()
-                .eq("townId", town.getId())
-                .eq("hidden", false)
-                .findUnique();
-
-        if (major != null) {
-            return getInhabitant(major.getInhabitantId());
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Sets a new major.
      *
      * @param town       the town where the new major should be set.
@@ -469,91 +345,6 @@ public class PersistNation implements Nation {
                 .findRowCount() > 0;
     }
 
-    /**
-     * Adds a member.
-     *
-     * @param residence  the residence where the inhabitant should become member.
-     * @param inhabitant the inhabitant, which should become member.
-     */
-    public void addMember(Residence residence, Inhabitant inhabitant) {
-        ResidenceMember membership = new ResidenceMember();
-        membership.setInhabitantId(inhabitant.getId());
-        membership.setResidenceId(residence.getId());
-
-        getDatabase().save(membership);
-    }
-
-    /**
-     * Removes an inhabitant from the residence membership.
-     *
-     * @param residence  the residence.
-     * @param inhabitant the inhabitant.
-     */
-    public void removeMember(Residence residence, Inhabitant inhabitant) throws MyResidenceException {
-        List<ResidenceMember> foundedMembers = getDatabase().find(ResidenceMember.class)
-                .where()
-                .eq("residenceId", residence.getId())
-                .eq("inhabitantId", inhabitant.getId())
-                .findList();
-
-        if (foundedMembers.size() > 0) {
-            getDatabase().delete(foundedMembers);
-        } else {
-            throw new MyResidenceException("Inhabitant is not a member of that residence!");
-        }
-    }
-
-    /**
-     * Returns all members of the residence.
-     *
-     * @param residence the residence.
-     */
-    public List<Inhabitant> getMembers(Residence residence) {
-        List<ResidenceMember> foundedMembers = getDatabase().find(ResidenceMember.class)
-                .where()
-                .eq("residenceId", residence.getId())
-                .findList();
-
-        List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
-        for (ResidenceMember member : foundedMembers) {
-            inhabitants.add(getInhabitant(member.getInhabitantId()));
-        }
-
-        Collections.sort(inhabitants);
-
-        return inhabitants;
-    }
-
-    /**
-     * Checks if the inhabitant is member or owner.
-     *
-     * @param residence  the residence.
-     * @param inhabitant the inhabitant.
-     */
-    public boolean isMember(Residence residence, Inhabitant inhabitant) {
-        return residence.getOwnerId() == inhabitant.getId() ||
-                getDatabase().find(ResidenceMember.class).where()
-                        .eq("residenceId", residence.getId())
-                        .eq("inhabitantId", inhabitant.getId())
-                        .findRowCount() > 0;
-    }
-
-    /**
-     * Checks if the inhabitant is a member of the town.
-     *
-     * @param town       the town check.
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is a member.
-     */
-    public boolean isMember(Town town, Inhabitant inhabitant) {
-        boolean ownsResidences = getDatabase().find(Residence.class).where()
-                .eq("inhabitantId", inhabitant.getId())
-                .eq("townId", town.getId())
-                .findRowCount() > 0;
-
-        return ownsResidences || isMajor(town, inhabitant);
-    }
-
     /** @return manager for the chunks. */
     public ChunkManager getChunkManager() {
         return chunkManager;
@@ -567,6 +358,26 @@ public class PersistNation implements Nation {
      */
     public RuleManager getRuleManager(Town town) {
         return new PersistRuleManager(this, town);
+    }
+
+    /**
+     * Returns a manager for the residence.
+     *
+     * @param residence the residence.
+     * @return the manager for the residence.
+     */
+    public ResidenceManager getResidenceManager(Residence residence) {
+        return new PersistResidenceManager(plugin, this, residence);
+    }
+
+    /**
+     * Returns a manager for the town.
+     *
+     * @param town the manager for the town.
+     * @return the town.
+     */
+    public TownManager getTownManager(Town town) {
+        return new PersistTownManager(this, town);
     }
 
     /**
@@ -601,15 +412,5 @@ public class PersistNation implements Nation {
     /** @return the database which holds all information about towns and residences. */
     public EbeanServer getDatabase() {
         return plugin.getDatabase();
-    }
-
-    /**
-     * Returns the Inhabitant of the owner of the passed Residence.
-     *
-     * @param residence the Residence.
-     * @return PlayerData of the owner.
-     */
-    public Inhabitant getOwner(Residence residence) {
-        return getInhabitant(residence.getOwnerId());
     }
 }

@@ -241,7 +241,7 @@ public class ResidenceListCommands {
             line.append(' ');
             if (showOwner) {
                 line.append('(');
-                line.append(nation.getOwner(residence));
+                line.append(nation.getInhabitant(residence.getOwnerId()));
                 line.append(") ");
             }
             line.append("[");

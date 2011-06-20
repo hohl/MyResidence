@@ -20,15 +20,14 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.ResidenceManager;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.exceptions.NotOwnException;
 import at.co.hohl.myresidence.storage.Session;
-import at.co.hohl.myresidence.storage.persistent.HomePoint;
-import at.co.hohl.myresidence.storage.persistent.Inhabitant;
 import at.co.hohl.myresidence.storage.persistent.Residence;
+import at.co.hohl.utils.Chat;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -48,7 +47,7 @@ public class HomeCommands {
                             final Nation nation,
                             final Player player,
                             final Session session) throws MyResidenceException {
-        Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
+        /*Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
         HomePoint nearestHome = nation.getNearestHome(playerInhabitant, player.getLocation());
 
         if (nearestHome != null) {
@@ -64,7 +63,7 @@ public class HomeCommands {
             player.sendMessage(ChatColor.DARK_GREEN + "Welcome Home!");
         } else {
             throw new MyResidenceException("You have no home in this world!");
-        }
+        }*/
     }
 
     @Command(
@@ -78,27 +77,21 @@ public class HomeCommands {
                                final Player player,
                                final Session session) throws MyResidenceException {
         Location playerLocation = player.getLocation();
-        Residence currentResidence = nation.getResidence(playerLocation);
+        Residence residence = nation.getResidence(player.getLocation());
 
         // Check if player is inside residence.
-        if (currentResidence == null) {
+        if (residence == null) {
             throw new MyResidenceException("You are not inside a residence!");
         }
 
         // Check if player is the owner.
-        if (session.hasResidenceOwnerRights(currentResidence)) {
+        if (session.hasResidenceOwnerRights(residence)) {
             throw new NotOwnException();
         }
 
-        HomePoint residenceHome = nation.getResidenceHome(currentResidence);
-        residenceHome.setInhabitantId(session.getPlayerId());
-        residenceHome.setX(playerLocation.getX());
-        residenceHome.setY(playerLocation.getBlockY());
-        residenceHome.setZ(playerLocation.getZ());
-        residenceHome.setYaw(playerLocation.getYaw());
-        residenceHome.setPitch(playerLocation.getPitch());
-        nation.save(residenceHome);
+        ResidenceManager manager = nation.getResidenceManager(residence);
+        manager.setHome(player.getLocation());
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Home set successfully!");
+        Chat.sendMessage(player, "&2Home set successfully for residence &a{0}&2.", residence);
     }
 }

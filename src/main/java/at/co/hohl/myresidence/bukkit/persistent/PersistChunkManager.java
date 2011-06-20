@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class PersistChunkManager implements ChunkManager {
     /** Nation which holds the residence. */
-    private final Nation nation;
+    protected final Nation nation;
 
     /**
      * Creates a new ChunkManager implementation.

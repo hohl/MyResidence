@@ -19,14 +19,11 @@
 package at.co.hohl.myresidence;
 
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
-import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 /**
  * Represents a collection of Towns and Residences.
@@ -65,46 +62,6 @@ public interface Nation {
      * @return the founded residence or null.
      */
     Residence getResidence(Sign sign);
-
-    /**
-     * Returns all residences of that town.
-     *
-     * @param town the town to look up the residences.
-     * @return list of founded residences.
-     */
-    List<Residence> getResidences(Town town);
-
-    /**
-     * Returns the area of the Residence.
-     *
-     * @param residence the Residence.
-     * @return the area of the Residence.
-     */
-    ResidenceArea getResidenceArea(Residence residence);
-
-    /**
-     * Returns the sign of the Residence
-     *
-     * @param residence the Residence.
-     * @return the sign of the passed Residence.
-     */
-    ResidenceSign getResidenceSign(Residence residence);
-
-    /**
-     * Returns the HomePoint of the residence.
-     *
-     * @param residence the residence to check.
-     * @return founded or created HomePoint
-     */
-    HomePoint getResidenceHome(Residence residence);
-
-    /**
-     * Returns the nearest HomePoint for the Inhabitant.
-     *
-     * @param location the location of the player.
-     * @return founded HomePoint.
-     */
-    HomePoint getNearestHome(Inhabitant inhabitant, Location location);
 
     /**
      * Returns the town with the passed id.
@@ -146,82 +103,24 @@ public interface Nation {
      */
     Inhabitant getInhabitant(String name);
 
-    /**
-     * Returns the Inhabitant of the owner of the passed Residence.
-     *
-     * @param residence the Residence.
-     * @return PlayerData of the owner.
-     */
-    Inhabitant getOwner(Residence residence);
-
-    /**
-     * Returns the major of the passed Town.
-     *
-     * @param town the Town.
-     * @return PlayerData of the major.
-     */
-    Inhabitant getMajor(Town town);
-
-    /**
-     * Sets a new major.
-     *
-     * @param town       the town where the new major should be set.
-     * @param inhabitant the inhabitant to become the major.
-     * @param co         there could be multiple co major, which has the same rights, but not mentioned as the major.
-     */
-    void setMajor(Town town, Inhabitant inhabitant, boolean co);
-
-    /**
-     * Checks if the passed player is a major of the town.
-     *
-     * @param town       the town where to check if the player is major.
-     * @param inhabitant the inhabitant to check if he is major.
-     * @return true, if the inhabitant is a major.
-     */
-    boolean isMajor(Town town, Inhabitant inhabitant);
-
-    /**
-     * Adds a member.
-     *
-     * @param residence  the residence where the inhabitant should become member.
-     * @param inhabitant the inhabitant, which should become member.
-     */
-    void addMember(Residence residence, Inhabitant inhabitant);
-
-    /**
-     * Removes an inhabitant from the residence membership.
-     *
-     * @param residence  the residence.
-     * @param inhabitant the inhabitant.
-     */
-    void removeMember(Residence residence, Inhabitant inhabitant) throws MyResidenceException;
-
-    /**
-     * Returns all members of the residence.
-     *
-     * @param residence the residence.
-     */
-    List<Inhabitant> getMembers(Residence residence);
-
-    /**
-     * Checks if the inhabitant is member or owner.
-     *
-     * @param residence  the residence.
-     * @param inhabitant the inhabitant.
-     */
-    boolean isMember(Residence residence, Inhabitant inhabitant);
-
-    /**
-     * Checks if the inhabitant is a member of the town.
-     *
-     * @param town       the town check.
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is a member.
-     */
-    boolean isMember(Town town, Inhabitant inhabitant);
-
     /** @return manager for the chunks. */
     ChunkManager getChunkManager();
+
+    /**
+     * Returns a manager for the residence.
+     *
+     * @param residence the residence.
+     * @return the manager for the residence.
+     */
+    ResidenceManager getResidenceManager(Residence residence);
+
+    /**
+     * Returns a manager for the town.
+     *
+     * @param town the manager for the town.
+     * @return the town.
+     */
+    TownManager getTownManager(Town town);
 
     /**
      * Returns a manager for the rules of the town.
@@ -246,14 +145,6 @@ public interface Nation {
      * @return the manager for the flags.
      */
     FlagManager<TownFlag.Type> getFlagManager(Town town);
-
-    /**
-     * Updates the sign linked to passed Residence.
-     *
-     * @param residence Residence to update.
-     * @throws ResidenceSignMissingException the sign of the Residence is missing!
-     */
-    void updateResidenceSign(Residence residence) throws ResidenceSignMissingException;
 
     /**
      * Sends the passed player information about the passed object.

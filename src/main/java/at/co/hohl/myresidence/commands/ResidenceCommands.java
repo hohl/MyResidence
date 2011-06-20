@@ -20,6 +20,9 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.event.ResidenceChangedEvent;
+import at.co.hohl.myresidence.event.ResidenceCreatedEvent;
+import at.co.hohl.myresidence.event.ResidenceRemovedEvent;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.*;
@@ -30,7 +33,6 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -87,29 +89,25 @@ public class ResidenceCommands {
         // Create task, which gets executed after selecting a sign.
         session.setTask(new Runnable() {
             public void run() {
-                try {
-                    final Residence residence = new Residence();
-                    residence.setName(args.getJoinedStrings(0));
-                    residence.setOwnerId(session.getPlayerId());
-                    if (!buildInWildness) {
-                        residence.setTownId(town.getId());
-                    }
-                    nation.getDatabase().save(residence);
-
-                    final ResidenceArea area = new ResidenceArea(selection);
-                    area.setResidenceId(residence.getId());
-                    nation.getDatabase().save(area);
-
-                    ResidenceSign sign = new ResidenceSign(session.getSelectedSign());
-                    sign.setResidenceId(residence.getId());
-                    nation.getDatabase().save(sign);
-
-                    nation.updateResidenceSign(residence);
-
-                    Chat.sendMessage(player, "&2Residence {0} created!", residence);
-                } catch (MyResidenceException e) {
-                    player.sendMessage(ChatColor.RED + e.getMessage());
+                final Residence residence = new Residence();
+                residence.setName(args.getJoinedStrings(0));
+                residence.setOwnerId(session.getPlayerId());
+                if (!buildInWildness) {
+                    residence.setTownId(town.getId());
                 }
+                nation.getDatabase().save(residence);
+
+                final ResidenceArea area = new ResidenceArea(selection);
+                area.setResidenceId(residence.getId());
+                nation.getDatabase().save(area);
+
+                ResidenceSign sign = new ResidenceSign(session.getSelectedSign());
+                sign.setResidenceId(residence.getId());
+                nation.getDatabase().save(sign);
+
+                Chat.sendMessage(player, "&2Residence {0} created!", residence);
+
+                plugin.getEventManager().callEvent(new ResidenceCreatedEvent(session, residence));
             }
         });
         session.setTaskActivator(Session.Activator.SELECT_SIGN);
@@ -133,8 +131,10 @@ public class ResidenceCommands {
             throws NoResidenceSelectedException, PermissionsDeniedException {
         // Get residence.
         final Residence residenceToRemove = session.getSelectedResidence();
-        final ResidenceSign residenceSign = nation.getResidenceSign(residenceToRemove);
-        final ResidenceArea residenceArea = nation.getResidenceArea(residenceToRemove);
+        final ResidenceArea residenceArea = nation.getDatabase().find(ResidenceArea.class).where()
+                .eq("residenceId", residenceToRemove.getId()).findUnique();
+        final ResidenceSign residenceSign = nation.getDatabase().find(ResidenceSign.class).where()
+                .eq("residenceId", residenceToRemove.getId()).findUnique();
         World signWorld = player.getServer().getWorld(residenceSign.getWorld());
         final Sign sign = (Sign) signWorld.getBlockAt(
                 new Location(signWorld, residenceSign.getX(), residenceSign.getY(), residenceSign.getZ())).getState();
@@ -146,13 +146,12 @@ public class ResidenceCommands {
         // Create task to confirm.
         session.setTask(new Runnable() {
             public void run() {
-                for (int index = 0; index < 4; ++index) {
-                    sign.setLine(index, "");
-                }
                 nation.getDatabase().delete(residenceToRemove);
                 nation.getDatabase().delete(residenceArea);
                 nation.getDatabase().delete(residenceSign);
                 Chat.sendMessage(player, "&2Residence {0} removed!", residenceToRemove);
+
+                plugin.getEventManager().callEvent(new ResidenceRemovedEvent(session, residenceToRemove));
             }
         });
         session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);
@@ -191,7 +190,7 @@ public class ResidenceCommands {
         if (!playerAccount.hasEnough(price)) {
             throw new NotEnoughMoneyException(price);
         }
-        Method.MethodAccount ownerAccount = payment.getAccount(nation.getOwner(residence).getName());
+        Method.MethodAccount ownerAccount = payment.getAccount(nation.getInhabitant(residence.getOwnerId()).getName());
         playerAccount.subtract(price);
         ownerAccount.add(price);
 
@@ -200,13 +199,13 @@ public class ResidenceCommands {
         residence.setForSale(false);
         nation.getDatabase().save(residence);
 
-        nation.updateResidenceSign(residence);
-
         Chat.sendMessage(player, "&2You have successfully bought the residence!");
         if (oldOwner != null && oldOwner.isOnline()) {
             Chat.sendMessage(player, "&2Your residence was sold to &a{0}&2 for &a{1}&2.",
                     residence, player.getName(), plugin.format(price));
         }
+
+        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
     }
 
     @Command(
@@ -235,12 +234,11 @@ public class ResidenceCommands {
         if (residence.getValue() <= 0.0) {
             residence.setValue(price);
         }
+        nation.getDatabase().save(residence);
 
         Chat.sendMessage(player, "&3Your residence is available for sale now!");
 
-        nation.getDatabase().save(residence);
-
-        nation.updateResidenceSign(residence);
+        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
     }
 
     @Command(
@@ -268,18 +266,16 @@ public class ResidenceCommands {
         }
 
         residence.setOwnerId(inhabitant.getId());
-
-        // Save and update sign!
         nation.save(residence);
-        nation.updateResidenceSign(residence);
 
         Chat.sendMessage(player, "&a{0}&2 transferred to &a{1}&2.", residence, inhabitant);
 
-        // Notify player, if online.
         Player receiver = player.getServer().getPlayer(inhabitant.getName());
         if (receiver != null && receiver.isOnline()) {
             Chat.sendMessage(receiver, "&a{0}&2 transferred you the residence &a{1}&2!", residence, inhabitant);
         }
+
+        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
     }
 
     @Command(
@@ -293,12 +289,7 @@ public class ResidenceCommands {
                             final Player player,
                             final Session session)
             throws MyResidenceException {
-        ResidenceArea area = nation.getResidenceArea(session.getSelectedResidence());
-
-        World world = player.getServer().getWorld(area.getWorld());
-        Location edge1 = new Location(world, area.getLowX(), area.getLowY(), area.getLowZ());
-        Location edge2 = new Location(world, area.getHighX(), area.getHighY(), area.getHighZ());
-        Selection selection = new CuboidSelection(world, edge1, edge2);
+        Selection selection = nation.getResidenceManager(session.getSelectedResidence()).getArea();
         plugin.getWorldEdit().setSelection(player, selection);
 
         Chat.sendMessage(player, "&2Residence area selected with WorldEdit!");
@@ -330,7 +321,7 @@ public class ResidenceCommands {
 
         Chat.sendMessage(player, "&2Value has been set to &a{0}&2!", plugin.format(residence.getValue()));
 
-        nation.updateResidenceSign(residence);
+        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
     }
 
     @Command(
@@ -358,7 +349,7 @@ public class ResidenceCommands {
 
         Chat.sendMessage(player, "&2Residence renamed to &a{0}&2!", residence.getName());
 
-        nation.updateResidenceSign(residence);
+        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
 
     }
 

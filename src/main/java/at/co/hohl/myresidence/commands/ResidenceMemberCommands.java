@@ -25,11 +25,11 @@ import at.co.hohl.myresidence.exceptions.PlayerNotFoundException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Inhabitant;
 import at.co.hohl.myresidence.storage.persistent.Residence;
+import at.co.hohl.utils.Chat;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.util.StringUtil;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -61,9 +61,9 @@ public class ResidenceMemberCommands {
             throw new PlayerNotFoundException();
         }
 
-        nation.addMember(selectedResidence, inhabitantToAdd);
+        nation.getResidenceManager(selectedResidence).addMember(inhabitantToAdd);
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Member added!");
+        Chat.sendMessage(player, "&2Member &a{0}&2 added!", inhabitantToAdd.getName());
     }
 
     @Command(
@@ -81,15 +81,15 @@ public class ResidenceMemberCommands {
                               final Session session)
             throws MyResidenceException {
         Residence selectedResidence = session.getSelectedResidence();
-        Inhabitant inhabitantToAdd = nation.getInhabitant(args.getString(0));
+        Inhabitant inhabitantToRemove = nation.getInhabitant(args.getString(0));
 
-        if (inhabitantToAdd == null) {
+        if (inhabitantToRemove == null) {
             throw new PlayerNotFoundException();
         }
 
-        nation.removeMember(selectedResidence, inhabitantToAdd);
+        nation.getResidenceManager(selectedResidence).removeMember(inhabitantToRemove);
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Member removed!");
+        Chat.sendMessage(player, "&2Member &a{0}&2 removed!", inhabitantToRemove.getName());
     }
 
     @Command(
@@ -104,11 +104,8 @@ public class ResidenceMemberCommands {
                             final Session session)
             throws MyResidenceException {
         Residence selectedResidence = session.getSelectedResidence();
-        List<Inhabitant> members = nation.getMembers(selectedResidence);
+        List<Inhabitant> members = nation.getResidenceManager(selectedResidence).getMembers();
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Members of the residence '" +
-                ChatColor.GREEN + selectedResidence.getName() +
-                ChatColor.DARK_GREEN + "': " +
-                ChatColor.GREEN + StringUtil.joinString(members, ", ", 0));
+        Chat.sendMessage(player, "&2Members of the residence: &a{0}", StringUtil.joinString(members, ", ", 0));
     }
 }

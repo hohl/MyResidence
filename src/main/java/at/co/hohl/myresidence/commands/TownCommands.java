@@ -56,7 +56,7 @@ public class TownCommands {
         town.setFoundedAt(new Date());
         nation.getDatabase().save(town);
 
-        nation.setMajor(town, nation.getInhabitant(session.getPlayerId()), false);
+        nation.getTownManager(town).addMajor(nation.getInhabitant(session.getPlayerId()));
 
         player.sendMessage(ChatColor.DARK_GREEN + "Town '" + args.getJoinedStrings(0) + "' created!");
     }

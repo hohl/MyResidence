@@ -107,7 +107,8 @@ public class Session {
      * @return true, if the session has enough rights.
      */
     public boolean hasMajorRights(Town town) {
-        return nation.isMajor(town, nation.getInhabitant(getPlayerId())) || hasPermission("myresidence.admin");
+        return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
+                hasPermission("myresidence.admin");
     }
 
     /**

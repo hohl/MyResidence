@@ -33,10 +33,10 @@ import java.util.List;
  */
 public class PersistTownFlagManager implements FlagManager<TownFlag.Type> {
     /** Nation which holds the town. */
-    private final Nation nation;
+    protected final Nation nation;
 
     /** The area to manage. */
-    private final Town town;
+    protected final Town town;
 
     /**
      * Creates a new FlagManager implementation.

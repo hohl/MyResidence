@@ -18,6 +18,7 @@
 
 package at.co.hohl.myresidence;
 
+import at.co.hohl.myresidence.event.EventManager;
 import at.co.hohl.myresidence.storage.Configuration;
 import com.nijikokun.register.payment.Methods;
 import com.sk89q.bukkit.migration.PermissionsResolver;
@@ -58,6 +59,9 @@ public interface MyResidence extends Plugin {
 
     /** @return world edit plugin. */
     WorldEditPlugin getWorldEdit();
+
+    /** @return the event manager. */
+    EventManager getEventManager();
 
     /**
      * Formats the passed amount of money to a localized string.

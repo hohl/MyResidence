@@ -21,14 +21,12 @@ package at.co.hohl.myresidence.bukkit;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.SessionManager;
-import at.co.hohl.myresidence.bukkit.listener.EconomyPluginListener;
-import at.co.hohl.myresidence.bukkit.listener.SignBrokeListener;
-import at.co.hohl.myresidence.bukkit.listener.SignClickListener;
-import at.co.hohl.myresidence.bukkit.listener.WorldEditPluginListener;
+import at.co.hohl.myresidence.bukkit.listener.*;
 import at.co.hohl.myresidence.bukkit.persistent.PersistNation;
 import at.co.hohl.myresidence.commands.GeneralCommands;
 import at.co.hohl.myresidence.commands.HomeCommands;
 import at.co.hohl.myresidence.commands.MapCommand;
+import at.co.hohl.myresidence.event.EventManager;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Configuration;
 import at.co.hohl.myresidence.storage.Session;
@@ -72,11 +70,11 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     /** SessionManager used by this plugin. */
     private SessionManager sessionManager;
 
-    /** Nation holded by this plugin. */
+    /** Nation held by this plugin. */
     private Nation nation;
 
     /** Logger used by this plugin. */
-    private Logger logger;
+    private final Logger logger = Logger.getLogger("Minecraft.MyResidence");
 
     /** Payment methods. */
     private Methods methods;
@@ -84,9 +82,12 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     /** WorldEdit plugin. */
     private WorldEditPlugin worldEdit;
 
+    /** Manager of the events. */
+    private EventManager eventManager;
+
     /** Called on enabling this plugin. */
     public void onEnable() {
-        logger = getServer().getLogger();
+        eventManager = new EventManager(this);
         methods = new Methods();
         nation = new PersistNation(this);
         sessionManager = new SessionManager(this, nation);
@@ -218,6 +219,11 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         this.worldEdit = worldEdit;
     }
 
+    /** @return the event manager. */
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
     /**
      * Formats the passed amount of money to a localized string.
      *
@@ -287,6 +293,10 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         // Listen for players broke signs.
         SignBrokeListener signBrokeListener = new SignBrokeListener(this, nation);
         pluginManager.registerEvent(Event.Type.BLOCK_BREAK, signBrokeListener, Event.Priority.Normal, this);
+
+        // Listen for residences.
+        SignUpdateListener signUpdateListener = new SignUpdateListener(nation, this);
+        getEventManager().addListener(signUpdateListener);
     }
 
     /** Setups the commands. */

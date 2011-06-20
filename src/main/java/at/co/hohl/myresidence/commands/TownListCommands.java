@@ -22,10 +22,12 @@ import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
+import at.co.hohl.utils.Chat;
 import com.avaje.ebean.ExpressionList;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.util.StringUtil;
 import com.sk89q.worldedit.commands.InsufficientArgumentsException;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -141,14 +143,9 @@ public class TownListCommands {
                 ChatColor.LIGHT_PURPLE, searchTitle, page, rows / LINES_PER_PAGE + 1));
 
         for (Town town : towns) {
-            player.sendMessage(
-                    String.format(
-                            ChatColor.GRAY + "%d. " + ChatColor.WHITE + "%s" + ChatColor.GRAY + "(%s) [Balance: %s]",
-                            index,
-                            town.getName(),
-                            nation.getMajor(town).getName(),
-                            plugin.format(town.getMoney())));
-            ++index;
+            Chat.sendMessage(player, "{0}. {1} ({2}) [Balance: {3}]", index++, town.getName(),
+                    StringUtil.joinString(nation.getTownManager(town).getMajors(), ", ", 0),
+                    plugin.format(town.getMoney()));
         }
     }
 }
