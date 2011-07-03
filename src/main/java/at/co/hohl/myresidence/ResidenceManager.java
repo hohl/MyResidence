@@ -18,6 +18,7 @@
 
 package at.co.hohl.myresidence;
 
+import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.Inhabitant;
 import at.co.hohl.myresidence.storage.persistent.ResidenceFlag;
 import com.sk89q.worldedit.bukkit.selections.Selection;
@@ -79,7 +80,7 @@ public interface ResidenceManager extends FlagManager<ResidenceFlag.Type> {
     void setSign(Block sign);
 
     /** @return the sign of the residence. */
-    Block getSign();
+    Block getSign() throws ResidenceSignMissingException;
 
     /**
      * Sets the home point for the location.

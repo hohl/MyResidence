@@ -20,6 +20,7 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.ResidenceManager;
 import at.co.hohl.myresidence.event.ResidenceChangedEvent;
 import at.co.hohl.myresidence.event.ResidenceCreatedEvent;
 import at.co.hohl.myresidence.event.ResidenceRemovedEvent;
@@ -34,7 +35,6 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.selections.Selection;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
@@ -95,17 +95,15 @@ public class ResidenceCommands {
                 if (!buildInWildness) {
                     residence.setTownId(town.getId());
                 }
-                nation.getDatabase().save(residence);
+                nation.save(residence);
 
-                final ResidenceArea area = new ResidenceArea(selection);
-                area.setResidenceId(residence.getId());
-                nation.getDatabase().save(area);
-
-                ResidenceSign sign = new ResidenceSign(session.getSelectedSign());
-                sign.setResidenceId(residence.getId());
-                nation.getDatabase().save(sign);
+                ResidenceManager manager = nation.getResidenceManager(residence);
+                manager.setSign(session.getSelectedSignBlock());
+                manager.setArea(selection);
 
                 Chat.sendMessage(player, "&2Residence {0} created!", residence);
+
+                plugin.info("Residence %s (ID:%d) created by %s.", residence, residence.getId(), player.getName());
 
                 plugin.getEventManager().callEvent(new ResidenceCreatedEvent(session, residence));
             }
@@ -157,7 +155,6 @@ public class ResidenceCommands {
         session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);
 
         // Notify user about need confirmation.
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Use /task confirm to confirm this task!");
         Chat.sendMessage(player, "&dDo you really want to remove &5{0}&d?", residenceToRemove);
         Chat.sendMessage(player, "&dUse &5/task confirm&d to confirm this task!");
     }
@@ -212,7 +209,7 @@ public class ResidenceCommands {
             aliases = {"sell", "sale", "s"},
             usage = "[price]",
             desc = "Makes your residence available for sale",
-            min = 1,
+            min = 0,
             max = 1
     )
     @CommandPermissions({"myresidence.residence.sell"})
@@ -231,6 +228,7 @@ public class ResidenceCommands {
         double price = args.getDouble(0, residence.getValue());
         residence.setForSale(true);
         residence.setPrice(price);
+        residence.setOwnerId(session.getPlayerId());
         if (residence.getValue() <= 0.0) {
             residence.setValue(price);
         }

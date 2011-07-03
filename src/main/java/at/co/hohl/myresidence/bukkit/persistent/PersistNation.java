@@ -223,13 +223,29 @@ public class PersistNation implements Nation {
     }
 
     /**
-     * Returns all residences of that town.
+     * Find a residence by name owned by the passed residence.
      *
-     * @param town the town to look up the residences.
-     * @return list of founded residences.
+     * @param inhabitant the inhabitant which owns the residence to look for.
+     * @param search     a part of the name to search.
+     * @return the residence found.
      */
-    public List<Residence> getResidences(Town town) {
-        return getDatabase().find(Residence.class).where().eq("townId", town.getId()).findList();
+    public List<Residence> findResidence(Inhabitant inhabitant, String search) {
+        return getDatabase().find(Residence.class).where()
+                .eq("ownerId", inhabitant.getId())
+                .like("name", "%" + search + "%")
+                .findList();
+    }
+
+    /**
+     * Find a residence by name.
+     *
+     * @param search a part of the name to search.
+     * @return the residence found.
+     */
+    public List<Residence> findResidence(String search) {
+        return getDatabase().find(Residence.class)
+                .where().like("name", "%" + search + "%")
+                .findList();
     }
 
     /**

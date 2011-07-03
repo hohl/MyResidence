@@ -57,7 +57,9 @@ public class EventManager {
                         try {
                             listener.handle(o);
                         } catch (Throwable e) {
-                            plugin.severe("Exception occurred: %s", e.getClass().getName());
+                            plugin.severe("Exception occurred: %s in listener: %s",
+                                    e.getClass().getName(), listener.getClass().getName());
+
                             e.printStackTrace();
                         }
                     }

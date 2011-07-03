@@ -31,6 +31,8 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 /**
  * Commands for managing the home points of the residences.
  *
@@ -39,31 +41,31 @@ import org.bukkit.entity.Player;
 public class HomeCommands {
     @Command(
             aliases = {"home"},
-            desc = "Teleport you to your nearest home",
-            max = 0
+            desc = "Teleport you to your nearest home"
     )
     public static void home(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
                             final Session session) throws MyResidenceException {
-        /*Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
-        HomePoint nearestHome = nation.getNearestHome(playerInhabitant, player.getLocation());
+        Residence residence = nation.getResidence(session.getLastHomeResidenceId());
 
-        if (nearestHome != null) {
-            Location homeLocation = new Location(player.getWorld(),
-                    nearestHome.getX(),
-                    nearestHome.getY(),
-                    nearestHome.getZ(),
-                    nearestHome.getYaw(),
-                    nearestHome.getPitch());
+        if (args.argsLength() > 0) {
+            List<Residence> residences =
+                    nation.findResidence(nation.getInhabitant(session.getPlayerId()), args.getJoinedStrings(0));
 
-            player.teleport(homeLocation);
+            if (residences.size() != 1) {
+                throw new MyResidenceException("Residence not found!");
+            }
 
-            player.sendMessage(ChatColor.DARK_GREEN + "Welcome Home!");
-        } else {
-            throw new MyResidenceException("You have no home in this world!");
-        }*/
+            residence = residences.get(0);
+        }
+
+        session.setLastHomeResidenceId(residence.getId());
+
+        player.teleport(nation.getResidenceManager(residence).getHome());
+
+        Chat.sendMessage(player, "&2Welcome at home!");
     }
 
     @Command(

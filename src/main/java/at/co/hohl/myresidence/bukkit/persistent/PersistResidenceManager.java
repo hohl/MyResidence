@@ -21,13 +21,15 @@ package at.co.hohl.myresidence.bukkit.persistent;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.ResidenceManager;
+import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.material.Sign;
+import org.bukkit.block.Sign;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -142,7 +144,7 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         area.setLowY(selection.getMinimumPoint().getBlockY());
         area.setLowZ(selection.getMinimumPoint().getBlockZ());
 
-        nation.save(selection);
+        nation.save(area);
     }
 
     /** @return the area of the residence. */
@@ -180,21 +182,22 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
     }
 
     /** @return the sign of the residence. */
-    public Block getSign() {
+    public Block getSign() throws ResidenceSignMissingException {
         ResidenceSign residenceSign = nation.getDatabase().find(ResidenceSign.class)
                 .where().eq("residenceId", residence.getId()).findUnique();
 
         if (residenceSign != null) {
-            World world = plugin.getServer().getWorld(residenceSign.getWorld());
-            Block block = world.getBlockAt(
-                    new Location(world, residenceSign.getX(), residenceSign.getY(), residenceSign.getZ()));
+            World world = Bukkit.getServer().getWorld(residenceSign.getWorld());
+            Block block = world.getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
 
             if (block != null && block.getState() instanceof Sign) {
                 return block;
+            } else {
+                throw new RuntimeException("Invalid block at location of sign!");
             }
         }
 
-        return null;
+        throw new ResidenceSignMissingException(residence);
     }
 
     /**

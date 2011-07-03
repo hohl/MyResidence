@@ -25,6 +25,7 @@ import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
 import at.co.hohl.myresidence.storage.persistent.Major;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import at.co.hohl.myresidence.storage.persistent.Town;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -60,11 +61,17 @@ public class Session {
     /** Last clicked sign. */
     private Sign selectedSign;
 
+    /** Last clicked sign block. */
+    private Block selectedSignBlock;
+
     /** Time, when sign is selected. */
     private long signSelectedAt;
 
     /** Selected town. */
     private int selectedTownId = -1;
+
+    /** ID of last targeted home. */
+    private int lastHomeResidenceId;
 
     /** Activator for task. */
     private Activator taskActivator;
@@ -179,15 +186,35 @@ public class Session {
         selectedTownId = town.getId();
     }
 
+    public Block getSelectedSignBlock() {
+        return selectedSignBlock;
+    }
+
     /**
      * Sets the last selected sign.
      *
-     * @param selectedSign the selected sign.
+     * @param selectedSignBlock the block of the selected sign.
      */
-    public void setSelectedSign(Sign selectedSign) {
-        this.selectedSign = selectedSign;
+    public void setSelectedSignBlock(Block selectedSignBlock) {
+        if (selectedSignBlock == null) {
+            this.selectedSignBlock = null;
+            this.selectedSign = null;
+        } else if (selectedSignBlock.getState() instanceof Sign) {
+            this.selectedSignBlock = selectedSignBlock;
+            this.selectedSign = (Sign) selectedSignBlock.getState();
 
-        signSelectedAt = System.currentTimeMillis();
+            signSelectedAt = System.currentTimeMillis();
+        } else {
+            throw new RuntimeException("Block is not a sign!");
+        }
+    }
+
+    public int getLastHomeResidenceId() {
+        return lastHomeResidenceId;
+    }
+
+    public void setLastHomeResidenceId(int lastHomeResidenceId) {
+        this.lastHomeResidenceId = lastHomeResidenceId;
     }
 
     public boolean isDebugger() {

@@ -25,6 +25,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 /**
  * Represents a collection of Towns and Residences.
  *
@@ -62,6 +64,23 @@ public interface Nation {
      * @return the founded residence or null.
      */
     Residence getResidence(Sign sign);
+
+    /**
+     * Find a residence by name.
+     *
+     * @param search a part of the name to search.
+     * @return the residence found.
+     */
+    List<Residence> findResidence(String search);
+
+    /**
+     * Find a residence by name owned by the passed residence.
+     *
+     * @param inhabitant the inhabitant which owns the residence to look for.
+     * @param search     a part of the name to search.
+     * @return the residence found.
+     */
+    List<Residence> findResidence(Inhabitant inhabitant, String search);
 
     /**
      * Returns the town with the passed id.

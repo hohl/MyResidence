@@ -70,7 +70,7 @@ public final class Chat {
      */
     private static String insertArgs(String message, Object... args) {
         for (int index = 0; index < args.length; ++index) {
-            message = message.replace("{" + index + "}", args.toString());
+            message = message.replace("{" + index + "}", args[index].toString());
         }
 
         return message;
@@ -83,8 +83,8 @@ public final class Chat {
      * @return the message with replaced color codes.
      */
     private static String replaceColorCodes(String message) {
-        for (ChatColor color : ChatColor.values()) {
-            message = message.replace("&" + color.getCode(), color.toString());
+        for (int index = 0; index < 16; ++index) {
+            message = message.replace(String.format("&%h", index), ChatColor.getByCode(index).toString());
         }
 
         return message;

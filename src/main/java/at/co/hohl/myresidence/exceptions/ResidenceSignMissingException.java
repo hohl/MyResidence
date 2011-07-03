@@ -38,4 +38,15 @@ public class ResidenceSignMissingException extends MyResidenceException {
         super("Miss sign for Residence '" + residence.getName() + "'!");
         this.residence = residence;
     }
+
+    /**
+     * Creates a new ResidenceSignMissingException for the passed Residence.
+     *
+     * @param residence the residence to create.
+     * @param message   the message to send.
+     */
+    public ResidenceSignMissingException(Residence residence, String message) {
+        super(message);
+        this.residence = residence;
+    }
 }

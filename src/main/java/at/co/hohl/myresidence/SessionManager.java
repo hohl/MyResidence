@@ -66,6 +66,6 @@ public class SessionManager {
      * @param player the player who's session should be removed.
      */
     public void close(Player player) {
-        sessionMap.remove(sessionMap.get(player));
+        sessionMap.remove(player);
     }
 }

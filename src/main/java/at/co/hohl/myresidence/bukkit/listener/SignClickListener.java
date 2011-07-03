@@ -68,7 +68,7 @@ public class SignClickListener extends PlayerListener {
 
         Sign clickedSign = (Sign) event.getClickedBlock().getState();
         Session playerSession = plugin.getSessionManager().get(event.getPlayer());
-        playerSession.setSelectedSign(clickedSign);
+        playerSession.setSelectedSignBlock(event.getClickedBlock());
 
         if (Session.Activator.SELECT_SIGN.equals(playerSession.getTaskActivator())) {
             playerSession.getTask().run();
@@ -83,10 +83,10 @@ public class SignClickListener extends PlayerListener {
                 plugin.severe("Invalid residence sign at: [%s: %d, %d, %d]",
                         location.getWorld().getName(), location.getBlockX(), location.getBlockY(),
                         location.getBlockZ());
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         } else {
-            playerSession.setSelectedSign(null);
+            playerSession.setSelectedSignBlock(null);
         }
     }
 
