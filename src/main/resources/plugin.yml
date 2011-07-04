@@ -29,3 +29,9 @@ commands:
     sethome:
         description: Sets the home point for the residence.
         usage: /<command>
+    like:
+        description: Likes a residence.
+        usage: /<command>
+    unlike:
+        description: Unlikes a liked residence.
+        usage: /<command>

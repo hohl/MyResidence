@@ -83,7 +83,7 @@ public class SignClickListener extends PlayerListener {
                 plugin.severe("Invalid residence sign at: [%s: %d, %d, %d]",
                         location.getWorld().getName(), location.getBlockX(), location.getBlockY(),
                         location.getBlockZ());
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         } else {
             playerSession.setSelectedSignBlock(null);

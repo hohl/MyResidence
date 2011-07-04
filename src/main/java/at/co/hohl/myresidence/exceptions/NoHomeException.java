@@ -19,12 +19,12 @@
 package at.co.hohl.myresidence.exceptions;
 
 /**
- * Thrown when there is now town selected.
+ * Called when the player wants to teleport home, but doesn't have a home.
  *
  * @author Michael Hohl
  */
-public class NoTownSelectedException extends InvalidCommandUsageException {
-    public NoTownSelectedException() {
-        super("You need to select a town first!");
+public class NoHomeException extends MyResidenceException {
+    public NoHomeException() {
+        super("You do not own a home!");
     }
 }

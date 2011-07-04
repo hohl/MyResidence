@@ -20,6 +20,7 @@ package at.co.hohl.myresidence.dev;
 
 import at.co.hohl.myresidence.commands.GeneralCommands;
 import at.co.hohl.myresidence.commands.HomeCommands;
+import at.co.hohl.myresidence.commands.LikeCommands;
 import at.co.hohl.myresidence.commands.MapCommand;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
@@ -53,6 +54,7 @@ public class DocumentationPrinter {
         classes.add(GeneralCommands.class);
         classes.add(MapCommand.class);
         classes.add(HomeCommands.class);
+        classes.add(LikeCommands.class);
 
         return classes;
     }

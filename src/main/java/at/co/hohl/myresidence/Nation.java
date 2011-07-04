@@ -71,7 +71,7 @@ public interface Nation {
      * @param search a part of the name to search.
      * @return the residence found.
      */
-    List<Residence> findResidence(String search);
+    List<Residence> findResidences(String search);
 
     /**
      * Find a residence by name owned by the passed residence.
@@ -80,7 +80,15 @@ public interface Nation {
      * @param search     a part of the name to search.
      * @return the residence found.
      */
-    List<Residence> findResidence(Inhabitant inhabitant, String search);
+    List<Residence> findResidences(Inhabitant inhabitant, String search);
+
+    /**
+     * Finds all residences owned by the passed inhabitant.
+     *
+     * @param inhabitant the inhabitant to look for.
+     * @return list of the found residences.
+     */
+    List<Residence> findResidences(Inhabitant inhabitant);
 
     /**
      * Returns the town with the passed id.

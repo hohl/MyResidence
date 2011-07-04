@@ -203,52 +203,57 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
     /**
      * Sets the home point for the location.
      *
-     * @param home the home point for the location.
+     * @param homeLocation the home point for the location.
      */
-    public void setHome(Location home) {
-        HomePoint homePoint = nation.getDatabase().find(HomePoint.class).where()
+    public void setHome(Location homeLocation) {
+        HomePoint residenceHome = nation.getDatabase().find(HomePoint.class).where()
                 .eq("residenceId", residence.getId())
                 .findUnique();
 
-        if (home == null) {
-            homePoint = new HomePoint();
-            homePoint.setResidenceId(residence.getId());
+        if (residenceHome == null) {
+            residenceHome = new HomePoint();
+            residenceHome.setResidenceId(residence.getId());
         }
 
-        homePoint.setWorld(home.getWorld().getName());
-        homePoint.setX(home.getX());
-        homePoint.setY(home.getBlockY());
-        homePoint.setZ(home.getZ());
-        homePoint.setPitch(home.getPitch());
-        homePoint.setYaw(home.getYaw());
+        residenceHome.setWorld(homeLocation.getWorld().getName());
+        residenceHome.setX(homeLocation.getX());
+        residenceHome.setY(homeLocation.getBlockY());
+        residenceHome.setZ(homeLocation.getZ());
+        residenceHome.setPitch(homeLocation.getPitch());
+        residenceHome.setYaw(homeLocation.getYaw());
 
-        nation.save(homePoint);
+        nation.save(residenceHome);
     }
 
     /** @return the location of the home point. */
     public Location getHome() {
-        HomePoint home = nation.getDatabase().find(HomePoint.class).where()
+        HomePoint residenceHome = nation.getDatabase().find(HomePoint.class).where()
                 .eq("residenceId", residence.getId())
                 .findUnique();
 
-        if (home == null) {
-            home = new HomePoint();
-            home.setResidenceId(residence.getId());
+        if (residenceHome == null) {
+            residenceHome = new HomePoint();
+            residenceHome.setResidenceId(residence.getId());
 
             ResidenceArea area = nation.getDatabase().find(ResidenceArea.class).where()
                     .eq("residenceId", residence.getId()).findUnique();
             if (area != null) {
-                home.setWorld(area.getWorld());
-                home.setX(area.getLowX() + (area.getHighX() - area.getHighX()) / 2);
-                home.setY(area.getLowY() + (area.getHighY() - area.getHighY()) / 2);
-                home.setZ(area.getHighZ());
+                residenceHome.setWorld(area.getWorld());
+                residenceHome.setX(area.getLowX() + (area.getHighX() - area.getLowX()) / 2);
+                residenceHome.setY(area.getHighY());
+                residenceHome.setZ(area.getLowZ() + (area.getHighZ() - area.getLowZ()) / 2);
             }
         }
 
-        Location location =
-                new Location(plugin.getServer().getWorld(home.getWorld()), home.getX(), home.getY(), home.getZ());
+        Location homeLocation = new Location(
+                Bukkit.getServer().getWorld(residenceHome.getWorld()),
+                residenceHome.getX(),
+                residenceHome.getY(),
+                residenceHome.getZ(),
+                residenceHome.getYaw(),
+                residenceHome.getPitch());
 
-        return location;
+        return homeLocation;
     }
 
     /** @return the inhabitants who liked the residence. */

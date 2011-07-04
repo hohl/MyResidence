@@ -25,6 +25,7 @@ import at.co.hohl.myresidence.bukkit.listener.*;
 import at.co.hohl.myresidence.bukkit.persistent.PersistNation;
 import at.co.hohl.myresidence.commands.GeneralCommands;
 import at.co.hohl.myresidence.commands.HomeCommands;
+import at.co.hohl.myresidence.commands.LikeCommands;
 import at.co.hohl.myresidence.commands.MapCommand;
 import at.co.hohl.myresidence.event.EventManager;
 import at.co.hohl.myresidence.exceptions.*;
@@ -311,6 +312,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         commands.register(GeneralCommands.class);
         commands.register(MapCommand.class);
         commands.register(HomeCommands.class);
+        commands.register(LikeCommands.class);
     }
 
     /** Creates needed databases. */

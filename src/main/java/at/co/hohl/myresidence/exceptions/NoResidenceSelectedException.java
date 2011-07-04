@@ -23,7 +23,7 @@ package at.co.hohl.myresidence.exceptions;
  *
  * @author Michael Hohl
  */
-public class NoResidenceSelectedException extends MyResidenceException {
+public class NoResidenceSelectedException extends InvalidCommandUsageException {
     /** Creates a new NoResidenceSelectedException. */
     public NoResidenceSelectedException() {
         super("You have to be inside a Residence or select it by clicking signs!");

@@ -101,8 +101,15 @@ public class PersistNation implements Nation {
                         ChatColor.GRAY + "Members: " + ChatColor.WHITE + StringUtil.joinString(members, ", ", 0));
             }
 
+            // Retrieve likes
+            List<Inhabitant> likes = manager.getLikes();
+            if (likes.size() > 0) {
+                player.sendMessage(
+                        ChatColor.GRAY + "Likes Received: " + ChatColor.WHITE + StringUtil.joinString(likes, ", ", 0));
+            }
+
             // Retrieve and send money values.
-            player.sendMessage(ChatColor.GRAY + "Value: " + plugin.format(residence.getValue()));
+            player.sendMessage(ChatColor.GRAY + "Value: " + ChatColor.WHITE + plugin.format(residence.getValue()));
             if (residence.isForSale()) {
                 player.sendMessage(ChatColor.YELLOW + "RESIDENCE FOR SALE!");
                 player.sendMessage(ChatColor.YELLOW + "Price: " + plugin.format(residence.getPrice()));
@@ -229,7 +236,7 @@ public class PersistNation implements Nation {
      * @param search     a part of the name to search.
      * @return the residence found.
      */
-    public List<Residence> findResidence(Inhabitant inhabitant, String search) {
+    public List<Residence> findResidences(Inhabitant inhabitant, String search) {
         return getDatabase().find(Residence.class).where()
                 .eq("ownerId", inhabitant.getId())
                 .like("name", "%" + search + "%")
@@ -242,9 +249,21 @@ public class PersistNation implements Nation {
      * @param search a part of the name to search.
      * @return the residence found.
      */
-    public List<Residence> findResidence(String search) {
+    public List<Residence> findResidences(String search) {
         return getDatabase().find(Residence.class)
                 .where().like("name", "%" + search + "%")
+                .findList();
+    }
+
+    /**
+     * Finds all residences owned by the passed inhabitant.
+     *
+     * @param inhabitant the inhabitant to look for.
+     * @return list of the found residences.
+     */
+    public List<Residence> findResidences(Inhabitant inhabitant) {
+        return getDatabase().find(Residence.class).where()
+                .eq("ownerId", inhabitant.getId())
                 .findList();
     }
 

@@ -19,12 +19,24 @@
 package at.co.hohl.myresidence.exceptions;
 
 /**
- * Thrown when there is now town selected.
+ * Thrown when a command is used invalid.
  *
  * @author Michael Hohl
  */
-public class NoTownSelectedException extends InvalidCommandUsageException {
-    public NoTownSelectedException() {
-        super("You need to select a town first!");
+public class InvalidCommandUsageException extends MyResidenceException {
+    public InvalidCommandUsageException() {
+        super();
+    }
+
+    public InvalidCommandUsageException(String s) {
+        super(s);
+    }
+
+    public InvalidCommandUsageException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
+
+    public InvalidCommandUsageException(Throwable throwable) {
+        super(throwable);
     }
 }

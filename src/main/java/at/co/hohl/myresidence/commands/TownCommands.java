@@ -21,6 +21,7 @@ package at.co.hohl.myresidence.commands;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
+import at.co.hohl.myresidence.exceptions.TownNotFoundException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import com.sk89q.minecraft.util.commands.Command;
@@ -110,6 +111,10 @@ public class TownCommands {
                              final Player player,
                              final Session session) throws MyResidenceException {
         Town townAtCurrentLocation = nation.getTown(player.getLocation());
+
+        if (townAtCurrentLocation == null) {
+            throw new TownNotFoundException("You are not inside a town!");
+        }
 
         List<String> rules = nation.getRuleManager(townAtCurrentLocation).getRules();
 

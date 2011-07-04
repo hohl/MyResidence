@@ -21,14 +21,15 @@ package at.co.hohl.myresidence.commands;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.ResidenceManager;
+import at.co.hohl.myresidence.exceptions.InvalidCommandUsageException;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
+import at.co.hohl.myresidence.exceptions.NoHomeException;
 import at.co.hohl.myresidence.exceptions.NotOwnException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import at.co.hohl.utils.Chat;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -47,20 +48,34 @@ public class HomeCommands {
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
-                            final Session session) throws MyResidenceException {
-        Residence residence = nation.getResidence(session.getLastHomeResidenceId());
+                            final Session session) throws NoHomeException, InvalidCommandUsageException {
+        Residence residence = null;
 
         if (args.argsLength() > 0) {
             List<Residence> residences =
-                    nation.findResidence(nation.getInhabitant(session.getPlayerId()), args.getJoinedStrings(0));
+                    nation.findResidences(nation.getInhabitant(session.getPlayerId()), args.getJoinedStrings(0));
 
             if (residences.size() != 1) {
-                throw new MyResidenceException("Residence not found!");
+                throw new InvalidCommandUsageException("Residence not found!");
             }
 
             residence = residences.get(0);
+        } else if (session.getLastHomeResidenceId() != 0) {
+            residence = nation.getResidence(session.getLastHomeResidenceId());
         }
 
+        // If there is no residence, look up for any residence of the player.
+        if (residence == null) {
+            List<Residence> playersResidences = nation.findResidences(nation.getInhabitant(session.getPlayerId()));
+
+            if (playersResidences.size() == 0) {
+                throw new NoHomeException();
+            }
+
+            residence = playersResidences.get(0);
+        }
+
+        // Store last selected residence as home!
         session.setLastHomeResidenceId(residence.getId());
 
         player.teleport(nation.getResidenceManager(residence).getHome());
@@ -78,7 +93,6 @@ public class HomeCommands {
                                final Nation nation,
                                final Player player,
                                final Session session) throws MyResidenceException {
-        Location playerLocation = player.getLocation();
         Residence residence = nation.getResidence(player.getLocation());
 
         // Check if player is inside residence.
@@ -87,11 +101,12 @@ public class HomeCommands {
         }
 
         // Check if player is the owner.
-        if (session.hasResidenceOwnerRights(residence)) {
+        if (!session.hasResidenceOwnerRights(residence)) {
             throw new NotOwnException();
         }
 
         ResidenceManager manager = nation.getResidenceManager(residence);
+
         manager.setHome(player.getLocation());
 
         Chat.sendMessage(player, "&2Home set successfully for residence &a{0}&2.", residence);
