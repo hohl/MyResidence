@@ -352,7 +352,7 @@ public class ResidenceCommands {
     }
 
     @Command(
-            aliases = {"info", "i"},
+            aliases = {"info", "here", "i"},
             desc = "Shows information about residences",
             usage = "[residence]"
     )

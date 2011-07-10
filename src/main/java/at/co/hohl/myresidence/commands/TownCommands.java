@@ -101,7 +101,7 @@ public class TownCommands {
     }
 
     @Command(
-            aliases = {"rules", "¤"},
+            aliases = {"rules", "ï¿½"},
             desc = "Shows the rules of the town",
             max = 0
     )
@@ -182,6 +182,19 @@ public class TownCommands {
     @NestedCommand({TownFlagCommands.class})
     @CommandPermissions({"myresidence.town.major.flag"})
     public static void flags(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) {
+    }
+
+    @Command(
+            aliases = {"major"},
+            desc = "Manage majors of the town"
+    )
+    @NestedCommand({TownMajorCommands.class})
+    @CommandPermissions({"myresidence.town.major.majority"})
+    public static void major(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,
                              final Player player,
