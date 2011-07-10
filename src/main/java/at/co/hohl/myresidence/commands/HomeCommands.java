@@ -18,6 +18,7 @@
 
 package at.co.hohl.myresidence.commands;
 
+import at.co.hohl.mcutils.chat.Chat;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.ResidenceManager;
@@ -27,7 +28,6 @@ import at.co.hohl.myresidence.exceptions.NoHomeException;
 import at.co.hohl.myresidence.exceptions.NotOwnException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Residence;
-import at.co.hohl.utils.Chat;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import org.bukkit.entity.Player;
@@ -101,7 +101,7 @@ public class HomeCommands {
         }
 
         // Check if player is the owner.
-        if (!session.hasResidenceOwnerRights(residence)) {
+        if (residence.getOwnerId() != session.getPlayerId()) {
             throw new NotOwnException();
         }
 

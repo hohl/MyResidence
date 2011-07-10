@@ -41,7 +41,9 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class PersistResidenceManager extends PersistResidenceFlagManager implements ResidenceManager {
-    /** Plugin which holds the instance. */
+    /**
+     * Plugin which holds the instance.
+     */
     protected final MyResidence plugin;
 
     /**
@@ -147,7 +149,9 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         nation.save(area);
     }
 
-    /** @return the area of the residence. */
+    /**
+     * @return the area of the residence.
+     */
     public Selection getArea() {
         ResidenceArea area = nation.getDatabase().find(ResidenceArea.class)
                 .where().eq("residenceId", residence.getId()).findUnique();
@@ -181,7 +185,9 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         nation.save(residenceSign);
     }
 
-    /** @return the sign of the residence. */
+    /**
+     * @return the sign of the residence.
+     */
     public Block getSign() throws ResidenceSignMissingException {
         ResidenceSign residenceSign = nation.getDatabase().find(ResidenceSign.class)
                 .where().eq("residenceId", residence.getId()).findUnique();
@@ -222,10 +228,12 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         residenceHome.setPitch(homeLocation.getPitch());
         residenceHome.setYaw(homeLocation.getYaw());
 
-        nation.save(residenceHome);
+        nation.getDatabase().save(residenceHome);
     }
 
-    /** @return the location of the home point. */
+    /**
+     * @return the location of the home point.
+     */
     public Location getHome() {
         HomePoint residenceHome = nation.getDatabase().find(HomePoint.class).where()
                 .eq("residenceId", residence.getId())
@@ -256,7 +264,9 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         return homeLocation;
     }
 
-    /** @return the inhabitants who liked the residence. */
+    /**
+     * @return the inhabitants who liked the residence.
+     */
     public List<Inhabitant> getLikes() {
         List<Like> likes =
                 nation.getDatabase().find(Like.class).where().eq("residenceId", residence.getId()).findList();
@@ -269,7 +279,9 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         return inhabitantsLikedThis;
     }
 
-    /** @param inhabitant the inhabitant to like the residence. */
+    /**
+     * @param inhabitant the inhabitant to like the residence.
+     */
     public void like(Inhabitant inhabitant) {
         unlike(inhabitant);
 
@@ -280,7 +292,9 @@ public class PersistResidenceManager extends PersistResidenceFlagManager impleme
         nation.save(like);
     }
 
-    /** @param inhabitant the inhabitant to unlike the residence. */
+    /**
+     * @param inhabitant the inhabitant to unlike the residence.
+     */
     public void unlike(Inhabitant inhabitant) {
         List<Like> likes = nation.getDatabase().find(Like.class).where()
                 .eq("residenceId", residence.getId())

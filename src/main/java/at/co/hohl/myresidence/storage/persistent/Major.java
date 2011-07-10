@@ -18,8 +18,7 @@
 
 package at.co.hohl.myresidence.storage.persistent;
 
-import com.avaje.ebean.validation.NotNull;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -35,10 +34,10 @@ public class Major {
     @Id
     private int id;
 
-    @NotNull
+    @Column(nullable = true)
     private int inhabitantId;
 
-    @NotNull
+    @Column(nullable = true)
     private int townId;
 
     private boolean hidden;

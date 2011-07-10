@@ -18,11 +18,11 @@
 
 package at.co.hohl.myresidence.commands;
 
+import at.co.hohl.mcutils.chat.Chat;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Town;
-import at.co.hohl.utils.Chat;
 import com.avaje.ebean.ExpressionList;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
@@ -40,7 +40,9 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class TownListCommands {
-    /** Maximum number of lines per page. */
+    /**
+     * Maximum number of lines per page.
+     */
     private static final int LINES_PER_PAGE = 7;
 
     @Command(

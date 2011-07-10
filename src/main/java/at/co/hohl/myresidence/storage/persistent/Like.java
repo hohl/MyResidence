@@ -19,8 +19,8 @@
 package at.co.hohl.myresidence.storage.persistent;
 
 import com.avaje.ebean.validation.Length;
-import com.avaje.ebean.validation.NotNull;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -36,10 +36,10 @@ public class Like {
     @Id
     private int id;
 
-    @NotNull
+    @Column(nullable = false)
     private int residenceId;
 
-    @NotNull
+    @Column(nullable = false)
     private int inhabitantId;
 
     @Length(max = 256)

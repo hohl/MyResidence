@@ -20,9 +20,8 @@ package at.co.hohl.myresidence.storage.persistent;
 
 import com.avaje.ebean.validation.Length;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Warp point per residence.
@@ -31,10 +30,14 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "res_homes")
-public class HomePoint {
+public class HomePoint implements Serializable {
     @Id
     private int id;
 
+    @Version
+    private Long version;
+
+    @Column(nullable = false, unique = true)
     private int residenceId;
 
     @Length(max = 32)
@@ -58,12 +61,12 @@ public class HomePoint {
         this.id = id;
     }
 
-    public float getPitch() {
-        return pitch;
+    public Long getVersion() {
+        return version;
     }
 
-    public void setPitch(float pitch) {
-        this.pitch = pitch;
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public int getResidenceId() {
@@ -98,6 +101,14 @@ public class HomePoint {
         this.y = y;
     }
 
+    public double getZ() {
+        return z;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
+    }
+
     public float getYaw() {
         return yaw;
     }
@@ -106,11 +117,11 @@ public class HomePoint {
         this.yaw = yaw;
     }
 
-    public double getZ() {
-        return z;
+    public float getPitch() {
+        return pitch;
     }
 
-    public void setZ(double z) {
-        this.z = z;
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
     }
 }

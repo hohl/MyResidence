@@ -62,31 +62,49 @@ import java.util.logging.Logger;
  * @author Michael Home
  */
 public class MyResidencePlugin extends JavaPlugin implements MyResidence {
-    /** Manager for all commands bound to this plugin. */
+    /**
+     * Manager for all commands bound to this plugin.
+     */
     private CommandsManager<Player> commands;
 
-    /** Maps loaded configuration to worlds. */
+    /**
+     * Maps loaded configuration to worlds.
+     */
     private Map<String, Configuration> configurationMap = new HashMap<String, Configuration>();
 
-    /** SessionManager used by this plugin. */
+    /**
+     * SessionManager used by this plugin.
+     */
     private SessionManager sessionManager;
 
-    /** Nation held by this plugin. */
+    /**
+     * Nation held by this plugin.
+     */
     private Nation nation;
 
-    /** Logger used by this plugin. */
+    /**
+     * Logger used by this plugin.
+     */
     private final Logger logger = Logger.getLogger("Minecraft.MyResidence");
 
-    /** Payment methods. */
+    /**
+     * Payment methods.
+     */
     private Methods methods;
 
-    /** WorldEdit plugin. */
+    /**
+     * WorldEdit plugin.
+     */
     private WorldEditPlugin worldEdit;
 
-    /** Manager of the events. */
+    /**
+     * Manager of the events.
+     */
     private EventManager eventManager;
 
-    /** Called on enabling this plugin. */
+    /**
+     * Called on enabling this plugin.
+     */
     public void onEnable() {
         eventManager = new EventManager(this);
         methods = new Methods();
@@ -100,7 +118,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         info("version %s enabled!", getDescription().getVersion());
     }
 
-    /** Called on disabling this plugin. */
+    /**
+     * Called on disabling this plugin.
+     */
     public void onDisable() {
         info("version %s disabled!", getDescription().getVersion());
     }
@@ -191,27 +211,41 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         }
     }
 
-    /** @return the collection of towns and residences. */
+    /**
+     * @return the collection of towns and residences.
+     */
     public Nation getNation() {
         return nation;
     }
 
-    /** @return the SessionManager used by this MyResidence implementation. */
+    /**
+     * @return the SessionManager used by this MyResidence implementation.
+     */
     public SessionManager getSessionManager() {
         return sessionManager;
     }
 
-    /** @return all available payment methods. */
+    /**
+     * @return all available payment methods.
+     */
     public Methods getPaymentMethods() {
         return methods;
     }
 
-    /** @return handler for the permissions. */
+    /**
+     * @return handler for the permissions.
+     */
     public PermissionsResolver getPermissionsResolver() {
+        if (worldEdit == null) {
+            throw new NullPointerException("Miss valid WorldEdit installation!");
+        }
+
         return worldEdit.getPermissionsResolver();
     }
 
-    /** @return world edit plugin. */
+    /**
+     * @return world edit plugin.
+     */
     public WorldEditPlugin getWorldEdit() {
         return worldEdit;
     }
@@ -220,7 +254,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         this.worldEdit = worldEdit;
     }
 
-    /** @return the event manager. */
+    /**
+     * @return the event manager.
+     */
     public EventManager getEventManager() {
         return eventManager;
     }
@@ -272,7 +308,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         logger.severe(String.format("[%s] %s", getDescription().getName(), formattedMessage));
     }
 
-    /** Setups the listeners for the plugin. */
+    /**
+     * Setups the listeners for the plugin.
+     */
     private void setupListeners() {
         PluginManager pluginManager = getServer().getPluginManager();
 
@@ -289,7 +327,6 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         // Listen for player clicking on signs.
         SignClickListener signClickListener = new SignClickListener(this, nation);
         pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, signClickListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, signClickListener, Event.Priority.Normal, this);
 
         // Listen for players broke signs.
         SignBrokeListener signBrokeListener = new SignBrokeListener(this, nation);
@@ -300,12 +337,15 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         getEventManager().addListener(signUpdateListener);
     }
 
-    /** Setups the commands. */
+    /**
+     * Setups the commands.
+     */
     private void setupCommands() {
         commands = new CommandsManager<Player>() {
             @Override
             public boolean hasPermission(Player player, String permission) {
-                return getPermissionsResolver().hasPermission(player.getName(), permission);
+                return permission == null || player.isOp() ||
+                        getPermissionsResolver().hasPermission(player.getName(), permission);
             }
         };
 
@@ -315,7 +355,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         commands.register(LikeCommands.class);
     }
 
-    /** Creates needed databases. */
+    /**
+     * Creates needed databases.
+     */
     private void setupDatabase() {
         try {
             info("test databases for MyResidence...");
@@ -338,7 +380,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
         }
     }
 
-    /** @return all DAOs of this plugin. */
+    /**
+     * @return all DAOs of this plugin.
+     */
     @Override
     public List<Class<?>> getDatabaseClasses() {
         List<Class<?>> list = new ArrayList<Class<?>>();

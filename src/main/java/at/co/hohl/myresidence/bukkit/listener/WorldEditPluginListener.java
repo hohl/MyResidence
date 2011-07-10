@@ -20,9 +20,11 @@ package at.co.hohl.myresidence.bukkit.listener;
 
 import at.co.hohl.myresidence.bukkit.MyResidencePlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.plugin.Plugin;
 
 /**
  * Listens to bukkit if there is a WorldEdit api enabled.
@@ -30,7 +32,9 @@ import org.bukkit.event.server.ServerListener;
  * @author Michael Hohl
  */
 public class WorldEditPluginListener extends ServerListener {
-    /** Plugin which holds the instance. */
+    /**
+     * Plugin which holds the instance.
+     */
     private final MyResidencePlugin plugin;
 
     /**
@@ -38,8 +42,15 @@ public class WorldEditPluginListener extends ServerListener {
      *
      * @param plugin the api which holds the instance.
      */
-    public WorldEditPluginListener(final MyResidencePlugin plugin) {
-        this.plugin = plugin;
+    public WorldEditPluginListener(final MyResidencePlugin residencePlugin) {
+        this.plugin = residencePlugin;
+
+        // Call a plugin enabled event manually for all already enabled plugins.
+        for (Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins()) {
+            if (plugin.isEnabled()) {
+                onPluginEnable(new PluginEnableEvent(plugin));
+            }
+        }
     }
 
     /**

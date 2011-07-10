@@ -28,7 +28,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 
 /**
@@ -37,10 +36,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
  * @author Michael Hohl
  */
 public class SignClickListener extends PlayerListener {
-    /** Plugin which holds the instance. */
+    /**
+     * Plugin which holds the instance.
+     */
     private final MyResidence plugin;
 
-    /** The nation which holds all the towns and residences. */
+    /**
+     * The nation which holds all the towns and residences.
+     */
     private final Nation nation;
 
     /**
@@ -88,11 +91,5 @@ public class SignClickListener extends PlayerListener {
         } else {
             playerSession.setSelectedSignBlock(null);
         }
-    }
-
-    @Override
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.getSessionManager().close(event.getPlayer());
-        plugin.info("Removed session of %s.", event.getPlayer().getName());
     }
 }

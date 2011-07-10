@@ -33,13 +33,6 @@
         <developerConnection>scm:git:git@github.com:hohl/myresidence.git</developerConnection>
     </scm>
 
-    <distributionManagement>
-        <repository>
-            <id>ftp-repository</id>
-            <url>ftp://hohl.bplaced.net/mvn2</url>
-        </repository>
-    </distributionManagement>
-
     <repositories>
         <!-- Repository for dependencies of MIHO's -->
         <repository>
@@ -61,13 +54,6 @@
     </repositories>
 
     <dependencies>
-        <!-- WorldEdit -->
-        <dependency>
-            <groupId>com.sk89q</groupId>
-            <artifactId>worldedit</artifactId>
-            <version>4.6</version>
-        </dependency>
-
         <!-- Register -->
         <dependency>
             <groupId>com.nijikokun</groupId>
@@ -75,16 +61,40 @@
             <version>1.0</version>
         </dependency>
 
+        <!-- McUtils -->
+        <dependency>
+            <groupId>at.co.hohl</groupId>
+            <artifactId>mcutils</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- WorldEdit -->
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>worldedit</artifactId>
+            <version>4.6</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Bukkit -->
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
+    <!-- Repository used for deploying -->
+    <distributionManagement>
+        <repository>
+            <id>ftp-repository</id>
+            <url>ftp://hohl.bplaced.net/mvn2</url>
+        </repository>
+    </distributionManagement>
+
     <build>
-        <sourceDirectory>${basedir}/src/main/java/</sourceDirectory>
+        <sourceDirectory>src/main/java/</sourceDirectory>
 
         <!-- Resources -->
         <resources>
@@ -115,25 +125,29 @@
                 <version>2.3.2</version>
             </plugin>
 
-            <!-- JAR creation plugin -->
+            <!-- Assembly -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
-                        <addMavenDescriptor>true</addMavenDescriptor>
-                        <pomPropertiesFile>true</pomPropertiesFile>
                         <manifest>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <mainClass>at.co.hohl.myresidence.dev.DocumentationPrinter</mainClass>
                         </manifest>
-                        <manifestEntries>
-                            <Class-Path>WorldEdit.jar</Class-Path>
-                        </manifestEntries>
                     </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
         </plugins>
 
         <extensions>

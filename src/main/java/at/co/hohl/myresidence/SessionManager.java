@@ -18,10 +18,10 @@
 
 package at.co.hohl.myresidence;
 
+import at.co.hohl.mcutils.collections.CachedMap;
 import at.co.hohl.myresidence.storage.Session;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,18 +30,31 @@ import java.util.Map;
  * @author Michael Hohl
  */
 public class SessionManager {
-    /** Session Map used by this player. */
-    private final Map<Player, Session> sessionMap;
+    /**
+     * The time in milliseconds which should a session get stored.
+     */
+    public static final long SESSION_DURATION = 9000000;
 
-    /** The MyResidence plugin which holds the SessionManager. */
+    /**
+     * Session Map used by this player.
+     */
+    private final Map<String, Session> sessionMap;
+
+    /**
+     * The MyResidence plugin which holds the SessionManager.
+     */
     private final MyResidence plugin;
 
-    /** The Nation which is handled by the plugin. */
+    /**
+     * The Nation which is handled by the plugin.
+     */
     private final Nation nation;
 
-    /** Creates a new Session Manager. */
+    /**
+     * Creates a new Session Manager.
+     */
     public SessionManager(MyResidence plugin, Nation nation) {
-        sessionMap = new HashMap<Player, Session>();
+        sessionMap = new CachedMap<String, Session>(SESSION_DURATION);
         this.plugin = plugin;
         this.nation = nation;
     }
@@ -53,11 +66,11 @@ public class SessionManager {
      * @return the found or create session.
      */
     public Session get(Player player) {
-        if (!sessionMap.containsKey(player)) {
-            sessionMap.put(player, new Session(plugin, nation, player));
+        if (!sessionMap.containsKey(player.getName())) {
+            sessionMap.put(player.getName(), new Session(plugin, nation, player));
         }
 
-        return sessionMap.get(player);
+        return sessionMap.get(player.getName());
     }
 
     /**
@@ -66,6 +79,6 @@ public class SessionManager {
      * @param player the player who's session should be removed.
      */
     public void close(Player player) {
-        sessionMap.remove(player);
+        sessionMap.remove(player.getName());
     }
 }

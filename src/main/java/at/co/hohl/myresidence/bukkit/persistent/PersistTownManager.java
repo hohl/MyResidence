@@ -89,7 +89,9 @@ public class PersistTownManager extends PersistTownFlagManager implements TownMa
                 .findRowCount() > 0;
     }
 
-    /** @return the major of the town. */
+    /**
+     * @return the major of the town.
+     */
     public List<Inhabitant> getMajors() {
         List<Major> majors = nation.getDatabase().find(Major.class)
                 .where()
@@ -98,13 +100,15 @@ public class PersistTownManager extends PersistTownFlagManager implements TownMa
 
         List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
         for (Major major : majors) {
-            inhabitants.add(nation.getInhabitant(major.getId()));
+            inhabitants.add(nation.getInhabitant(major.getInhabitantId()));
         }
 
         return inhabitants;
     }
 
-    /** @return all public majors of the town. */
+    /**
+     * @return all public majors of the town.
+     */
     public List<Inhabitant> getPublicMajors() {
         List<Major> majors = nation.getDatabase().find(Major.class)
                 .where()
@@ -114,13 +118,15 @@ public class PersistTownManager extends PersistTownFlagManager implements TownMa
 
         List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
         for (Major major : majors) {
-            inhabitants.add(nation.getInhabitant(major.getId()));
+            inhabitants.add(nation.getInhabitant(major.getInhabitantId()));
         }
 
         return inhabitants;
     }
 
-    /** @return inhabitants of the town. */
+    /**
+     * @return inhabitants of the town.
+     */
     public List<Inhabitant> getInhabitants() {
         List<Residence> residences = nation.getDatabase().find(Residence.class)
                 .where().eq("townId", town.getId()).findList();
@@ -150,7 +156,9 @@ public class PersistTownManager extends PersistTownFlagManager implements TownMa
                 .findRowCount() > 0;
     }
 
-    /** @return residences of the town. */
+    /**
+     * @return residences of the town.
+     */
     public List<Residence> getResidences() {
         return nation.getDatabase().find(Residence.class).where().eq("townId", town.getId()).findList();
     }
