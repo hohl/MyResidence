@@ -46,6 +46,7 @@ public class TownClaimCommands {
     @Command(
             aliases = {"chunk", "c"},
             desc = "Claims the single chunk, you are currently stand on",
+            flags = "i",
             max = 0
     )
     @CommandPermissions({"myresidence.town.major.expand"})
@@ -66,12 +67,17 @@ public class TownClaimCommands {
             throw new PermissionsDeniedException("You are not the major of the selected town!");
         }
 
+        // Check if player is allowed to use the i-flag
+        if (args.hasFlag('i') && !session.hasPermission("myresidence.admin")) {
+            throw new PermissionsDeniedException("Only admins are allowed to use the ignore flag!");
+        }
+
         // Check if already reserved?
         Town chunkOwner = nation.getChunkManager().getChunkOwner(chunkWorld, chunkVector);
         if (chunkOwner != null) {
             if (chunkOwner.equals(selectedTown)) {
                 throw new MyResidenceException("Town already owns this chunk!");
-            } else {
+            } else if (!args.hasFlag('i')) {
                 throw new MyResidenceException("This chunk is already bought by another town!");
             }
         }
@@ -95,6 +101,7 @@ public class TownClaimCommands {
     @Command(
             aliases = {"selection", "s"},
             desc = "Claims all Chunks in your WE selection.",
+            flags = "i",
             max = 0
     )
     @CommandPermissions({"myresidence.town.major.expand"})
@@ -116,13 +123,18 @@ public class TownClaimCommands {
             throw new PermissionsDeniedException("You are not the major of the selected town!");
         }
 
+        // Check if player is allowed to use the i-flag
+        if (args.hasFlag('i') && !session.hasPermission("myresidence.admin")) {
+            throw new PermissionsDeniedException("Only admins are allowed to use the ignore flag!");
+        }
+
         // Count chunks to bought.
         int numberOfChunksToBought = 0;
         for (final Vector2D chunk : selectedRegion.getChunks()) {
             Town chunkOwner = chunkManager.getChunkOwner(selectedWorld, chunk);
             if (chunkOwner == null) {
                 numberOfChunksToBought++;
-            } else if (chunkOwner != selectedTown) {
+            } else if (chunkOwner != selectedTown && args.hasFlag('i')) {
                 throw new MyResidenceException("At least on of the chunks is already bought by another town!");
             }
         }
