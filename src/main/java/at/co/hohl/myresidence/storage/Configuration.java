@@ -24,17 +24,30 @@ package at.co.hohl.myresidence.storage;
  * @author Michael Hohl
  */
 public class Configuration {
-    /** The configuration used by for loading/saving. */
+    /**
+     * The configuration used by for loading/saving.
+     */
     private final org.bukkit.util.config.Configuration configuartion;
 
-    /** Costs for one chunk. */
+    /**
+     * Costs for one chunk.
+     */
     private double chunkCost;
 
-    /** Title for residence signs. */
+    /**
+     * Title for residence signs.
+     */
     private String signTitle;
 
-    /** Text for sign for sale. */
+    /**
+     * Text for sign for sale.
+     */
     private String signSaleText;
+
+    /**
+     * Check if block is free, before teleporting.
+     */
+    private boolean safeTeleport;
 
     /**
      * Creates a new Configuration with the passed Bukkit Config.
@@ -46,19 +59,25 @@ public class Configuration {
         load();
     }
 
-    /** Loads the configuration. (Auto done on construction, only for reload!) */
+    /**
+     * Loads the configuration. (Auto done on construction, only for reload!)
+     */
     public void load() {
         configuartion.load();
-        chunkCost = configuartion.getDouble("chunk.cost", 1000);
+        chunkCost = configuartion.getDouble("cost.chunk", 1000);
         signTitle = configuartion.getString("sign.title", "[Residence]");
         signSaleText = configuartion.getString("sign.sale", "FOR SALE!");
+        safeTeleport = configuartion.getBoolean("safe_teleport", true);
     }
 
-    /** Saves changes to file. */
+    /**
+     * Saves changes to file.
+     */
     public void save() {
-        configuartion.setProperty("chunk.cost", chunkCost);
+        configuartion.setProperty("cost.chunk", chunkCost);
         configuartion.setProperty("sign.title", signTitle);
         configuartion.setProperty("sign.sale", signSaleText);
+        configuartion.setProperty("safe_teleport", safeTeleport);
         configuartion.save();
     }
 
@@ -84,5 +103,13 @@ public class Configuration {
 
     public void setSignTitle(String signTitle) {
         this.signTitle = signTitle;
+    }
+
+    public boolean isSafeTeleport() {
+        return safeTeleport;
+    }
+
+    public void setSafeTeleport(boolean safeTeleport) {
+        this.safeTeleport = safeTeleport;
     }
 }

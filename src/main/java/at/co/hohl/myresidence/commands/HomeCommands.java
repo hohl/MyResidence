@@ -30,6 +30,8 @@ import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -78,7 +80,12 @@ public class HomeCommands {
         // Store last selected residence as home!
         session.setLastHomeResidenceId(residence.getId());
 
-        player.teleport(nation.getResidenceManager(residence).getHome());
+        Location target = nation.getResidenceManager(residence).getHome();
+        if (plugin.getConfiguration(target.getWorld()).isSafeTeleport() &&
+                !Material.AIR.equals(target.getWorld().getBlockAt(target).getType())) {
+            target.setY(target.getWorld().getHighestBlockYAt(target));
+        }
+        player.teleport(target);
 
         Chat.sendMessage(player, "&2Welcome at home!");
     }
