@@ -22,8 +22,6 @@ import at.co.hohl.mcutils.collections.CachedMap;
 import at.co.hohl.myresidence.storage.Session;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
-
 /**
  * Manager for all sessions of the MyResidence plugin.
  *
@@ -38,7 +36,7 @@ public class SessionManager {
     /**
      * Session Map used by this player.
      */
-    private final Map<String, Session> sessionMap;
+    private final CachedMap<String, Session> sessionMap;
 
     /**
      * The MyResidence plugin which holds the SessionManager.
@@ -70,6 +68,7 @@ public class SessionManager {
             sessionMap.put(player.getName(), new Session(plugin, nation, player));
         }
 
+        sessionMap.update(player.getName());
         return sessionMap.get(player.getName());
     }
 
