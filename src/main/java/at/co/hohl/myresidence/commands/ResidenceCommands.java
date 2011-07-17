@@ -144,12 +144,12 @@ public class ResidenceCommands {
         // Create task to confirm.
         session.setTask(new Runnable() {
             public void run() {
+                plugin.getEventManager().callEvent(new ResidenceRemovedEvent(session, residenceToRemove));
+
                 nation.getDatabase().delete(residenceToRemove);
                 nation.getDatabase().delete(residenceArea);
                 nation.getDatabase().delete(residenceSign);
                 Chat.sendMessage(player, "&2Residence {0} removed!", residenceToRemove);
-
-                plugin.getEventManager().callEvent(new ResidenceRemovedEvent(session, residenceToRemove));
             }
         });
         session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);
