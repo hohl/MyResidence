@@ -32,52 +32,52 @@ import org.bukkit.plugin.Plugin;
  * @author Michael Hohl
  */
 public class WorldEditPluginListener extends ServerListener {
-    /**
-     * Plugin which holds the instance.
-     */
-    private final MyResidencePlugin plugin;
+  /**
+   * Plugin which holds the instance.
+   */
+  private final MyResidencePlugin plugin;
 
-    /**
-     * Creates a new WorldEditPluginListener.
-     *
-     * @param plugin the api which holds the instance.
-     */
-    public WorldEditPluginListener(final MyResidencePlugin residencePlugin) {
-        this.plugin = residencePlugin;
+  /**
+   * Creates a new WorldEditPluginListener.
+   *
+   * @param plugin the api which holds the instance.
+   */
+  public WorldEditPluginListener(final MyResidencePlugin residencePlugin) {
+    this.plugin = residencePlugin;
 
-        // Call a plugin enabled event manually for all already enabled plugins.
-        for (Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins()) {
-            if (plugin.isEnabled()) {
-                onPluginEnable(new PluginEnableEvent(plugin));
-            }
-        }
+    // Call a plugin enabled event manually for all already enabled plugins.
+    for (Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins()) {
+      if (plugin.isEnabled()) {
+        onPluginEnable(new PluginEnableEvent(plugin));
+      }
     }
+  }
 
-    /**
-     * Called when an api gets enabled.
-     *
-     * @param event the occurred event.
-     */
-    @Override
-    public void onPluginEnable(PluginEnableEvent event) {
-        if (plugin.getWorldEdit() == null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
-            plugin.setWorldEdit((WorldEditPlugin) event.getPlugin());
+  /**
+   * Called when an api gets enabled.
+   *
+   * @param event the occurred event.
+   */
+  @Override
+  public void onPluginEnable(PluginEnableEvent event) {
+    if (plugin.getWorldEdit() == null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
+      plugin.setWorldEdit((WorldEditPlugin) event.getPlugin());
 
-            plugin.info("WorldEdit plugin connected!");
-        }
+      plugin.info("WorldEdit plugin connected!");
     }
+  }
 
-    /**
-     * Called when an api gets disabled.
-     *
-     * @param event the occurred event.
-     */
-    @Override
-    public void onPluginDisable(PluginDisableEvent event) {
-        if (plugin.getWorldEdit() != null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
-            plugin.setWorldEdit(null);
+  /**
+   * Called when an api gets disabled.
+   *
+   * @param event the occurred event.
+   */
+  @Override
+  public void onPluginDisable(PluginDisableEvent event) {
+    if (plugin.getWorldEdit() != null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
+      plugin.setWorldEdit(null);
 
-            plugin.info("WorldEdit plugin detached!");
-        }
+      plugin.info("WorldEdit plugin detached!");
     }
+  }
 }

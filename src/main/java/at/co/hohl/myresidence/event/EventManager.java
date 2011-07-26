@@ -29,62 +29,66 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class EventManager {
-    /** Plugin which holds the instance. */
-    private final MyResidence plugin;
+  /**
+   * Plugin which holds the instance.
+   */
+  private final MyResidence plugin;
 
-    /** Listeners for residence events. */
-    private final List<EventListener> eventListeners = new LinkedList<EventListener>();
+  /**
+   * Listeners for residence events.
+   */
+  private final List<EventListener> eventListeners = new LinkedList<EventListener>();
 
-    /**
-     * Creates a new event manager.
-     *
-     * @param plugin the plugin which holds the instance.
-     */
-    public EventManager(MyResidence plugin) {
-        this.plugin = plugin;
-    }
+  /**
+   * Creates a new event manager.
+   *
+   * @param plugin the plugin which holds the instance.
+   */
+  public EventManager(MyResidence plugin) {
+    this.plugin = plugin;
+  }
 
-    /**
-     * Calls a new event.
-     *
-     * @param o the event to call.
-     */
-    public void callEvent(final Object o) {
-        Runnable eventRunnable = new Runnable() {
-            public void run() {
-                for (EventListener listener : eventListeners) {
-                    if (listener.canHandle(o)) {
-                        try {
-                            listener.handle(o);
-                        } catch (Throwable e) {
-                            plugin.severe("Exception occurred: %s in listener: %s",
-                                    e.getClass().getName(), listener.getClass().getName());
+  /**
+   * Calls a new event.
+   *
+   * @param o the event to call.
+   */
+  public void callEvent(final Object o) {
+    Runnable eventRunnable = new Runnable() {
+      public void run() {
+        for (EventListener listener : eventListeners) {
+          if (listener.canHandle(o)) {
+            try {
+              listener.handle(o);
+            } catch (Throwable e) {
+              plugin.severe("Exception occurred: %s in listener: %s",
+                      e.getClass().getName(), listener.getClass().getName());
 
-                            e.printStackTrace();
-                        }
-                    }
-                }
+              e.printStackTrace();
             }
-        };
+          }
+        }
+      }
+    };
 
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, eventRunnable);
-    }
+    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, eventRunnable);
+  }
 
-    /**
-     * Adds a new listener.
-     *
-     * @param listener listener to add.
-     */
-    public void addListener(EventListener listener) {
-        eventListeners.add(listener);
-    }
+  /**
+   * Adds a new listener.
+   *
+   * @param listener listener to add.
+   */
+  public void addListener(EventListener listener) {
+    eventListeners.add(listener);
+  }
 
-    /**
-     * Removes a existing listener.
-     *
-     * @param eventListener listener to remove.
-     */
-    public void removeListener(EventListener eventListener) {
-        eventListeners.remove(eventListener);
-    }
+  /**
+   * Removes a existing listener.
+   *
+   * @param eventListener listener to remove.
+   */
+  public void removeListener(EventListener eventListener) {
+    eventListeners.remove(eventListener);
+  }
 }

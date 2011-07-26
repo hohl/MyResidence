@@ -38,86 +38,86 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class TownFlagCommands {
-    @Command(
-            aliases = {"set", "add"},
-            usage = "<flag>",
-            desc = "Sets the flag for the selected town",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.town.flags"})
-    public static void set(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session) throws NoTownSelectedException, PermissionsDeniedException {
-        Town selectedTown = session.getSelectedTown();
+  @Command(
+          aliases = {"set", "add"},
+          usage = "<flag>",
+          desc = "Sets the flag for the selected town",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.town.flags"})
+  public static void set(final CommandContext args,
+                         final MyResidence plugin,
+                         final Nation nation,
+                         final Player player,
+                         final Session session) throws NoTownSelectedException, PermissionsDeniedException {
+    Town selectedTown = session.getSelectedTown();
 
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of this town!");
-        }
-
-        try {
-            TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
-            nation.getFlagManager(selectedTown).setFlag(flag);
-
-            player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
-                    ChatColor.GREEN + flag +
-                    ChatColor.DARK_GREEN + " to " +
-                    ChatColor.GREEN + selectedTown.getName() +
-                    ChatColor.DARK_GREEN + "!");
-        } catch (IllegalArgumentException e) {
-            player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
-        }
+    if (!session.hasMajorRights(selectedTown)) {
+      throw new PermissionsDeniedException("You are not the major of this town!");
     }
 
-    @Command(
-            aliases = {"remove"},
-            usage = "<flag>",
-            desc = "Removes the flag for the selected residence",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.town.flags"})
-    public static void remove(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) throws NoTownSelectedException, PermissionsDeniedException {
-        Town selectedTown = session.getSelectedTown();
+    try {
+      TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
+      nation.getFlagManager(selectedTown).setFlag(flag);
 
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of this town!");
-        }
-
-        try {
-
-            TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
-            nation.getFlagManager(selectedTown).removeFlag(flag);
-
-            player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
-                    ChatColor.GREEN + flag +
-                    ChatColor.DARK_GREEN + " from " +
-                    ChatColor.GREEN + selectedTown.getName() +
-                    ChatColor.DARK_GREEN + "!");
-        } catch (IllegalArgumentException e) {
-            player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
-        }
+      player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
+              ChatColor.GREEN + flag +
+              ChatColor.DARK_GREEN + " to " +
+              ChatColor.GREEN + selectedTown.getName() +
+              ChatColor.DARK_GREEN + "!");
+    } catch (IllegalArgumentException e) {
+      player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
     }
+  }
 
-    @Command(
-            aliases = {"list", "?"},
-            desc = "Lists all available flags",
-            max = 0
-    )
-    @CommandPermissions({"myresidence.town.flags"})
-    public static void list(final CommandContext args,
+  @Command(
+          aliases = {"remove"},
+          usage = "<flag>",
+          desc = "Removes the flag for the selected residence",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.town.flags"})
+  public static void remove(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
-                            final Session session) {
+                            final Session session) throws NoTownSelectedException, PermissionsDeniedException {
+    Town selectedTown = session.getSelectedTown();
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Available Flags: " +
-                ChatColor.GREEN + StringUtil.joinString(TownFlag.Type.values(), ", ", 0));
+    if (!session.hasMajorRights(selectedTown)) {
+      throw new PermissionsDeniedException("You are not the major of this town!");
     }
+
+    try {
+
+      TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
+      nation.getFlagManager(selectedTown).removeFlag(flag);
+
+      player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
+              ChatColor.GREEN + flag +
+              ChatColor.DARK_GREEN + " from " +
+              ChatColor.GREEN + selectedTown.getName() +
+              ChatColor.DARK_GREEN + "!");
+    } catch (IllegalArgumentException e) {
+      player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
+    }
+  }
+
+  @Command(
+          aliases = {"list", "?"},
+          desc = "Lists all available flags",
+          max = 0
+  )
+  @CommandPermissions({"myresidence.town.flags"})
+  public static void list(final CommandContext args,
+                          final MyResidence plugin,
+                          final Nation nation,
+                          final Player player,
+                          final Session session) {
+
+    player.sendMessage(ChatColor.DARK_GREEN + "Available Flags: " +
+            ChatColor.GREEN + StringUtil.joinString(TownFlag.Type.values(), ", ", 0));
+  }
 }

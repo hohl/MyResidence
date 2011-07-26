@@ -28,50 +28,50 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class SessionManager {
-    /**
-     * The time in milliseconds which should a session get stored.
-     */
-    public static final long SESSION_DURATION = 9000000;
+  /**
+   * The time in milliseconds which should a session get stored.
+   */
+  public static final long SESSION_DURATION = 9000000;
 
-    /**
-     * Session Map used by this player.
-     */
-    private final CachedMap<String, Session> sessionMap;
+  /**
+   * Session Map used by this player.
+   */
+  private final CachedMap<String, Session> sessionMap;
 
-    /**
-     * The Nation which is handled by the plugin.
-     */
-    private final Nation nation;
+  /**
+   * The Nation which is handled by the plugin.
+   */
+  private final Nation nation;
 
-    /**
-     * Creates a new Session Manager.
-     */
-    public SessionManager(Nation nation) {
-        sessionMap = new CachedMap<String, Session>(SESSION_DURATION);
-        this.nation = nation;
+  /**
+   * Creates a new Session Manager.
+   */
+  public SessionManager(Nation nation) {
+    sessionMap = new CachedMap<String, Session>(SESSION_DURATION);
+    this.nation = nation;
+  }
+
+  /**
+   * Returns the session for the passed player.
+   *
+   * @param player the player to look for the session.
+   * @return the found or create session.
+   */
+  public Session get(Player player) {
+    if (!sessionMap.containsKey(player.getName())) {
+      sessionMap.put(player.getName(), new Session(nation, player));
     }
 
-    /**
-     * Returns the session for the passed player.
-     *
-     * @param player the player to look for the session.
-     * @return the found or create session.
-     */
-    public Session get(Player player) {
-        if (!sessionMap.containsKey(player.getName())) {
-            sessionMap.put(player.getName(), new Session(nation, player));
-        }
+    sessionMap.update(player.getName());
+    return sessionMap.get(player.getName());
+  }
 
-        sessionMap.update(player.getName());
-        return sessionMap.get(player.getName());
-    }
-
-    /**
-     * Removes the session of the passed player.
-     *
-     * @param player the player who's session should be removed.
-     */
-    public void close(Player player) {
-        sessionMap.remove(player.getName());
-    }
+  /**
+   * Removes the session of the passed player.
+   *
+   * @param player the player who's session should be removed.
+   */
+  public void close(Player player) {
+    sessionMap.remove(player.getName());
+  }
 }

@@ -39,59 +39,59 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class TownMajorCommands {
-    @Command(
-            aliases = {"add"},
-            usage = "<playername>",
-            desc = "Adds a major to the town",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.major"})
-    public static void add(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session) throws NoTownSelectedException, PermissionsDeniedException {
-        Town selectedTown = session.getSelectedTown();
+  @Command(
+          aliases = {"add"},
+          usage = "<playername>",
+          desc = "Adds a major to the town",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.major"})
+  public static void add(final CommandContext args,
+                         final MyResidence plugin,
+                         final Nation nation,
+                         final Player player,
+                         final Session session) throws NoTownSelectedException, PermissionsDeniedException {
+    Town selectedTown = session.getSelectedTown();
 
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of this town!");
-        }
-
-        TownManager manager = nation.getTownManager(selectedTown);
-        Inhabitant newMajor = nation.getInhabitant(args.getString(0));
-        manager.addMajor(newMajor);
-
-        Chat.sendMessage(player, "&2{0}&a becomes major of &2{1}&a!", newMajor.getName(), selectedTown.getName());
+    if (!session.hasMajorRights(selectedTown)) {
+      throw new PermissionsDeniedException("You are not the major of this town!");
     }
 
-    @Command(
-            aliases = {"remove"},
-            usage = "<playername>",
-            desc = "Removes a major to the town",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.major"})
-    public static void remove(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) throws MyResidenceException, PermissionsDeniedException {
-        Town selectedTown = session.getSelectedTown();
+    TownManager manager = nation.getTownManager(selectedTown);
+    Inhabitant newMajor = nation.getInhabitant(args.getString(0));
+    manager.addMajor(newMajor);
 
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of this town!");
-        }
+    Chat.sendMessage(player, "&2{0}&a becomes major of &2{1}&a!", newMajor.getName(), selectedTown.getName());
+  }
 
-        TownManager manager = nation.getTownManager(selectedTown);
-        Inhabitant majorToRemove = nation.getInhabitant(args.getString(0));
+  @Command(
+          aliases = {"remove"},
+          usage = "<playername>",
+          desc = "Removes a major to the town",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.major"})
+  public static void remove(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) throws MyResidenceException, PermissionsDeniedException {
+    Town selectedTown = session.getSelectedTown();
 
-        if (!manager.isMajor(majorToRemove)) {
-            throw new MyResidenceException("Major not found!");
-        }
-
-        manager.removeMajor(majorToRemove);
-        Chat.sendMessage(player, "&2{0}&a is no longer major of &2{1}&a!", majorToRemove.getName(), selectedTown.getName());
+    if (!session.hasMajorRights(selectedTown)) {
+      throw new PermissionsDeniedException("You are not the major of this town!");
     }
+
+    TownManager manager = nation.getTownManager(selectedTown);
+    Inhabitant majorToRemove = nation.getInhabitant(args.getString(0));
+
+    if (!manager.isMajor(majorToRemove)) {
+      throw new MyResidenceException("Major not found!");
+    }
+
+    manager.removeMajor(majorToRemove);
+    Chat.sendMessage(player, "&2{0}&a is no longer major of &2{1}&a!", majorToRemove.getName(), selectedTown.getName());
+  }
 }

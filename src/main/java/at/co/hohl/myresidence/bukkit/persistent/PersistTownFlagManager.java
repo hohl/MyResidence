@@ -32,82 +32,86 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class PersistTownFlagManager implements FlagManager<TownFlag.Type> {
-    /** Nation which holds the town. */
-    protected final Nation nation;
+  /**
+   * Nation which holds the town.
+   */
+  protected final Nation nation;
 
-    /** The area to manage. */
-    protected final Town town;
+  /**
+   * The area to manage.
+   */
+  protected final Town town;
 
-    /**
-     * Creates a new FlagManager implementation.
-     *
-     * @param nation nation which holds the town.
-     * @param town   the town to manage.
-     */
-    public PersistTownFlagManager(Nation nation, Town town) {
-        this.nation = nation;
-        this.town = town;
+  /**
+   * Creates a new FlagManager implementation.
+   *
+   * @param nation nation which holds the town.
+   * @param town   the town to manage.
+   */
+  public PersistTownFlagManager(Nation nation, Town town) {
+    this.nation = nation;
+    this.town = town;
+  }
+
+  /**
+   * Checks if residence or town has has the flag set.
+   *
+   * @param flag flag to check.
+   * @return true, if the flag is set.
+   */
+  public boolean hasFlag(TownFlag.Type flag) {
+    return nation.getDatabase().find(TownFlag.class)
+            .where()
+            .eq("townId", town.getId())
+            .eq("flag", flag)
+            .findRowCount() > 0;
+  }
+
+  /**
+   * Returns all flags of a town or residence.
+   *
+   * @return the flags set.
+   */
+  public List<TownFlag.Type> getFlags() {
+    List<TownFlag> residenceFlags = nation.getDatabase().find(TownFlag.class)
+            .where()
+            .eq("townId", town.getId()).findList();
+
+    List<TownFlag.Type> flagTypes = new LinkedList<TownFlag.Type>();
+    for (TownFlag flag : residenceFlags) {
+      flagTypes.add(flag.getFlag());
     }
 
-    /**
-     * Checks if residence or town has has the flag set.
-     *
-     * @param flag flag to check.
-     * @return true, if the flag is set.
-     */
-    public boolean hasFlag(TownFlag.Type flag) {
-        return nation.getDatabase().find(TownFlag.class)
-                .where()
-                .eq("townId", town.getId())
-                .eq("flag", flag)
-                .findRowCount() > 0;
+    return flagTypes;
+  }
+
+  /**
+   * Sets the passed flag.
+   *
+   * @param flag the flag to set.
+   */
+  public void setFlag(TownFlag.Type flag) {
+    if (!hasFlag(flag)) {
+      TownFlag townFlag = new TownFlag();
+      townFlag.setTownId(town.getId());
+      townFlag.setFlag(flag);
+      nation.getDatabase().save(townFlag);
     }
+  }
 
-    /**
-     * Returns all flags of a town or residence.
-     *
-     * @return the flags set.
-     */
-    public List<TownFlag.Type> getFlags() {
-        List<TownFlag> residenceFlags = nation.getDatabase().find(TownFlag.class)
-                .where()
-                .eq("townId", town.getId()).findList();
+  /**
+   * Remove the passed flag.
+   *
+   * @param flag the flag to remove.
+   */
+  public void removeFlag(TownFlag.Type flag) {
+    List<TownFlag> townFlagsToDelete = nation.getDatabase().find(TownFlag.class)
+            .where()
+            .eq("townId", town.getId())
+            .eq("flag", flag).findList();
 
-        List<TownFlag.Type> flagTypes = new LinkedList<TownFlag.Type>();
-        for (TownFlag flag : residenceFlags) {
-            flagTypes.add(flag.getFlag());
-        }
-
-        return flagTypes;
+    if (townFlagsToDelete.size() > 0) {
+      nation.getDatabase().delete(townFlagsToDelete);
     }
-
-    /**
-     * Sets the passed flag.
-     *
-     * @param flag the flag to set.
-     */
-    public void setFlag(TownFlag.Type flag) {
-        if (!hasFlag(flag)) {
-            TownFlag townFlag = new TownFlag();
-            townFlag.setTownId(town.getId());
-            townFlag.setFlag(flag);
-            nation.getDatabase().save(townFlag);
-        }
-    }
-
-    /**
-     * Remove the passed flag.
-     *
-     * @param flag the flag to remove.
-     */
-    public void removeFlag(TownFlag.Type flag) {
-        List<TownFlag> townFlagsToDelete = nation.getDatabase().find(TownFlag.class)
-                .where()
-                .eq("townId", town.getId())
-                .eq("flag", flag).findList();
-
-        if (townFlagsToDelete.size() > 0) {
-            nation.getDatabase().delete(townFlagsToDelete);
-        }
-    }
+  }
 }

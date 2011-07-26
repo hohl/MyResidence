@@ -30,50 +30,52 @@ import org.bukkit.event.server.ServerListener;
  * @author Michael Hohl
  */
 public class EconomyPluginListener extends ServerListener {
-    /** Plugin instance which holds the Register Library. */
-    private MyResidence plugin;
+  /**
+   * Plugin instance which holds the Register Library.
+   */
+  private MyResidence plugin;
 
-    /**
-     * Creates a new EconomyPluginListener.
-     *
-     * @param plugin the plugin which holds the instance.
-     */
-    public EconomyPluginListener(final MyResidence plugin) {
-        this.plugin = plugin;
+  /**
+   * Creates a new EconomyPluginListener.
+   *
+   * @param plugin the plugin which holds the instance.
+   */
+  public EconomyPluginListener(final MyResidence plugin) {
+    this.plugin = plugin;
+  }
+
+  /**
+   * Called when a plugin gets disabled.
+   *
+   * @param event the occurred event.
+   */
+  @Override
+  public void onPluginDisable(PluginDisableEvent event) {
+    // Check to see if the plugin that's being disabled is the one we are using
+    Methods methods = plugin.getPaymentMethods();
+    if (methods != null && methods.hasMethod()) {
+      Boolean check = methods.checkDisabled(event.getPlugin());
+
+      if (check) {
+        plugin.info("Payment method was disabled. No longer accepting payments.");
+      }
     }
+  }
 
-    /**
-     * Called when a plugin gets disabled.
-     *
-     * @param event the occurred event.
-     */
-    @Override
-    public void onPluginDisable(PluginDisableEvent event) {
-        // Check to see if the plugin that's being disabled is the one we are using
-        Methods methods = plugin.getPaymentMethods();
-        if (methods != null && methods.hasMethod()) {
-            Boolean check = methods.checkDisabled(event.getPlugin());
+  /**
+   * Called when a plugin gets enabled.
+   *
+   * @param event the occurred event.
+   */
+  @Override
+  public void onPluginEnable(PluginEnableEvent event) {
+    // Create new methods if there didn't exists anyone.
+    Methods methods = plugin.getPaymentMethods();
 
-            if (check) {
-                plugin.info("Payment method was disabled. No longer accepting payments.");
-            }
-        }
+    // Check to see if we need a payment method
+    if (!methods.hasMethod() && methods.setMethod(event.getPlugin())) {
+      plugin.info(String.format("Payment method found (%s %s)", methods.getMethod().getName(),
+              methods.getMethod().getVersion()));
     }
-
-    /**
-     * Called when a plugin gets enabled.
-     *
-     * @param event the occurred event.
-     */
-    @Override
-    public void onPluginEnable(PluginEnableEvent event) {
-        // Create new methods if there didn't exists anyone.
-        Methods methods = plugin.getPaymentMethods();
-
-        // Check to see if we need a payment method
-        if (!methods.hasMethod() && methods.setMethod(event.getPlugin())) {
-            plugin.info(String.format("Payment method found (%s %s)", methods.getMethod().getName(),
-                    methods.getMethod().getVersion()));
-        }
-    }
+  }
 }

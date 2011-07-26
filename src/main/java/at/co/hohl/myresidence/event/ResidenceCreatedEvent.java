@@ -27,20 +27,20 @@ import at.co.hohl.myresidence.storage.persistent.Residence;
  * @author Michael Hohl
  */
 public final class ResidenceCreatedEvent {
-    private final Residence residence;
+  private final Residence residence;
 
-    private final Session creator;
+  private final Session creator;
 
-    public ResidenceCreatedEvent(Session creator, Residence residence) {
-        this.creator = creator;
-        this.residence = residence;
-    }
+  public ResidenceCreatedEvent(Session creator, Residence residence) {
+    this.creator = creator;
+    this.residence = residence;
+  }
 
-    public Session getCreator() {
-        return creator;
-    }
+  public Session getCreator() {
+    return creator;
+  }
 
-    public Residence getResidence() {
-        return residence;
-    }
+  public Residence getResidence() {
+    return residence;
+  }
 }

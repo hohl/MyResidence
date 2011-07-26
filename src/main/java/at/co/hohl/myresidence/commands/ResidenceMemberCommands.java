@@ -40,72 +40,72 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class ResidenceMemberCommands {
-    @Command(
-            aliases = {"add"},
-            desc = "Adds a member to the residence",
-            usage = "<player>",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.residence.member"})
-    public static void add(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session)
-            throws MyResidenceException {
-        Residence selectedResidence = session.getSelectedResidence();
-        Inhabitant inhabitantToAdd = nation.getInhabitant(args.getString(0));
+  @Command(
+          aliases = {"add"},
+          desc = "Adds a member to the residence",
+          usage = "<player>",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.residence.member"})
+  public static void add(final CommandContext args,
+                         final MyResidence plugin,
+                         final Nation nation,
+                         final Player player,
+                         final Session session)
+          throws MyResidenceException {
+    Residence selectedResidence = session.getSelectedResidence();
+    Inhabitant inhabitantToAdd = nation.getInhabitant(args.getString(0));
 
-        if (inhabitantToAdd == null) {
-            throw new PlayerNotFoundException();
-        }
-
-        nation.getResidenceManager(selectedResidence).addMember(inhabitantToAdd);
-
-        Chat.sendMessage(player, "&2Member &a{0}&2 added!", inhabitantToAdd.getName());
+    if (inhabitantToAdd == null) {
+      throw new PlayerNotFoundException();
     }
 
-    @Command(
-            aliases = {"remove"},
-            desc = "Removes a member of the residence",
-            usage = "<player>",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.residence.member"})
-    public static void remove(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session)
-            throws MyResidenceException {
-        Residence selectedResidence = session.getSelectedResidence();
-        Inhabitant inhabitantToRemove = nation.getInhabitant(args.getString(0));
+    nation.getResidenceManager(selectedResidence).addMember(inhabitantToAdd);
 
-        if (inhabitantToRemove == null) {
-            throw new PlayerNotFoundException();
-        }
+    Chat.sendMessage(player, "&2Member &a{0}&2 added!", inhabitantToAdd.getName());
+  }
 
-        nation.getResidenceManager(selectedResidence).removeMember(inhabitantToRemove);
-
-        Chat.sendMessage(player, "&2Member &a{0}&2 removed!", inhabitantToRemove.getName());
-    }
-
-    @Command(
-            aliases = {"list"},
-            desc = "Lists all members of the selected residence.",
-            max = 0
-    )
-    public static void list(final CommandContext args,
+  @Command(
+          aliases = {"remove"},
+          desc = "Removes a member of the residence",
+          usage = "<player>",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.residence.member"})
+  public static void remove(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
                             final Session session)
-            throws MyResidenceException {
-        Residence selectedResidence = session.getSelectedResidence();
-        List<Inhabitant> members = nation.getResidenceManager(selectedResidence).getMembers();
+          throws MyResidenceException {
+    Residence selectedResidence = session.getSelectedResidence();
+    Inhabitant inhabitantToRemove = nation.getInhabitant(args.getString(0));
 
-        Chat.sendMessage(player, "&2Members of the residence: &a{0}", StringUtil.joinString(members, ", ", 0));
+    if (inhabitantToRemove == null) {
+      throw new PlayerNotFoundException();
     }
+
+    nation.getResidenceManager(selectedResidence).removeMember(inhabitantToRemove);
+
+    Chat.sendMessage(player, "&2Member &a{0}&2 removed!", inhabitantToRemove.getName());
+  }
+
+  @Command(
+          aliases = {"list"},
+          desc = "Lists all members of the selected residence.",
+          max = 0
+  )
+  public static void list(final CommandContext args,
+                          final MyResidence plugin,
+                          final Nation nation,
+                          final Player player,
+                          final Session session)
+          throws MyResidenceException {
+    Residence selectedResidence = session.getSelectedResidence();
+    List<Inhabitant> members = nation.getResidenceManager(selectedResidence).getMembers();
+
+    Chat.sendMessage(player, "&2Members of the residence: &a{0}", StringUtil.joinString(members, ", ", 0));
+  }
 }

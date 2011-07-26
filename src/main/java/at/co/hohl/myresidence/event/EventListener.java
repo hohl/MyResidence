@@ -24,18 +24,18 @@ package at.co.hohl.myresidence.event;
  * @author Michael Hohl
  */
 public interface EventListener {
-    /**
-     * Checks if the handler can handle the event.
-     *
-     * @param o the object which is the event.
-     * @return true, if the handler could handle the event.
-     */
-    boolean canHandle(Object o);
+  /**
+   * Checks if the handler can handle the event.
+   *
+   * @param o the object which is the event.
+   * @return true, if the handler could handle the event.
+   */
+  boolean canHandle(Object o);
 
-    /**
-     * Handles the event.
-     *
-     * @param o the object which is the event.
-     */
-    void handle(Object o);
+  /**
+   * Handles the event.
+   *
+   * @param o the object which is the event.
+   */
+  void handle(Object o);
 }

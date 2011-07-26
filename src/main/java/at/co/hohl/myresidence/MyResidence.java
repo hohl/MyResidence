@@ -38,56 +38,68 @@ import org.bukkit.plugin.PluginDescriptionFile;
  * @author Michael Hohl
  */
 public interface MyResidence extends Plugin {
-    /** @return the collection of towns and residences. */
-    Nation getNation();
+  /**
+   * @return the collection of towns and residences.
+   */
+  Nation getNation();
 
-    /**
-     * @param world the world to get configuration.
-     * @return the main configuration for the plugin.
-     */
-    Configuration getConfiguration(World world);
+  /**
+   * @param world the world to get configuration.
+   * @return the main configuration for the plugin.
+   */
+  Configuration getConfiguration(World world);
 
-    /** @return the SessionManager used by this MyResidence implementation. */
-    SessionManager getSessionManager();
+  /**
+   * @return the SessionManager used by this MyResidence implementation.
+   */
+  SessionManager getSessionManager();
 
-    /** @return all available payment methods. */
-    Methods getPaymentMethods();
+  /**
+   * @return all available payment methods.
+   */
+  Methods getPaymentMethods();
 
-    /** @return world edit plugin. */
-    WorldEditPlugin getWorldEdit();
+  /**
+   * @return world edit plugin.
+   */
+  WorldEditPlugin getWorldEdit();
 
-    /** @return the event manager. */
-    EventManager getEventManager();
+  /**
+   * @return the event manager.
+   */
+  EventManager getEventManager();
 
-    /**
-     * Formats the passed amount of money to a localized string.
-     *
-     * @param money the amount of money.
-     * @return a string for the amount of money.
-     */
-    String format(double money);
+  /**
+   * Formats the passed amount of money to a localized string.
+   *
+   * @param money the amount of money.
+   * @return a string for the amount of money.
+   */
+  String format(double money);
 
-    /**
-     * Logs an message with the level info.
-     *
-     * @param message the message to log.
-     */
-    void info(String message, Object... args);
+  /**
+   * Logs an message with the level info.
+   *
+   * @param message the message to log.
+   */
+  void info(String message, Object... args);
 
-    /**
-     * Logs an message with the level warning.
-     *
-     * @param message the message to log.
-     */
-    void warning(String message, Object... args);
+  /**
+   * Logs an message with the level warning.
+   *
+   * @param message the message to log.
+   */
+  void warning(String message, Object... args);
 
-    /**
-     * Logs an message with the level severe.
-     *
-     * @param message the message to log.
-     */
-    void severe(String message, Object... args);
+  /**
+   * Logs an message with the level severe.
+   *
+   * @param message the message to log.
+   */
+  void severe(String message, Object... args);
 
-    /** @return the description of the implementation of MyResidence. */
-    PluginDescriptionFile getDescription();
+  /**
+   * @return the description of the implementation of MyResidence.
+   */
+  PluginDescriptionFile getDescription();
 }

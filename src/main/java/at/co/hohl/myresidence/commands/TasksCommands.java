@@ -32,40 +32,40 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class TasksCommands {
-    @Command(
-            aliases = {"confirm", "y"},
-            desc = "Confirms a task",
-            max = 0
-    )
-    public static void confirm(final CommandContext args,
-                               final MyResidence plugin,
-                               final Nation nation,
-                               final Player player,
-                               final Session session) {
-        if (session.getTaskActivator() == Session.Activator.CONFIRM_COMMAND) {
-            session.getTask().run();
-            session.setTaskActivator(null);
-        } else {
-            player.sendMessage(ChatColor.RED + "There is nothing to confirm!");
-        }
+  @Command(
+          aliases = {"confirm", "y"},
+          desc = "Confirms a task",
+          max = 0
+  )
+  public static void confirm(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) {
+    if (session.getTaskActivator() == Session.Activator.CONFIRM_COMMAND) {
+      session.getTask().run();
+      session.setTaskActivator(null);
+    } else {
+      player.sendMessage(ChatColor.RED + "There is nothing to confirm!");
     }
+  }
 
-    @Command(
-            aliases = {"cancel", "x", "n"},
-            desc = "Cancels a task",
-            max = 0
-    )
-    public static void cancel(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) {
-        if (session.getTaskActivator() != null) {
-            session.setTaskActivator(null);
+  @Command(
+          aliases = {"cancel", "x", "n"},
+          desc = "Cancels a task",
+          max = 0
+  )
+  public static void cancel(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) {
+    if (session.getTaskActivator() != null) {
+      session.setTaskActivator(null);
 
-            player.sendMessage(ChatColor.DARK_GREEN + "Task canceled!");
-        } else {
-            player.sendMessage(ChatColor.RED + "There is nothing to cancel!");
-        }
+      player.sendMessage(ChatColor.DARK_GREEN + "Task canceled!");
+    } else {
+      player.sendMessage(ChatColor.RED + "There is nothing to cancel!");
     }
+  }
 }

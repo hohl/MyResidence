@@ -36,50 +36,50 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class MapCommand {
-    private static final int MAP_ROWS = 20;
-    private static final int MAP_LINES = 5;
+  private static final int MAP_ROWS = 20;
+  private static final int MAP_LINES = 5;
 
-    @Command(
-            aliases = {"map"},
-            desc = "Displays the town map",
-            max = 0
-    )
-    public static void map(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session) {
-        Chunk playerChunk = player.getLocation().getBlock().getChunk();
-        World world = player.getWorld();
-        Town currentTown = nation.getTown(player.getLocation());
+  @Command(
+          aliases = {"map"},
+          desc = "Displays the town map",
+          max = 0
+  )
+  public static void map(final CommandContext args,
+                         final MyResidence plugin,
+                         final Nation nation,
+                         final Player player,
+                         final Session session) {
+    Chunk playerChunk = player.getLocation().getBlock().getChunk();
+    World world = player.getWorld();
+    Town currentTown = nation.getTown(player.getLocation());
 
-        int chunkXstart = playerChunk.getX() - (MAP_ROWS / 2);
-        int chunkXend = chunkXstart + MAP_ROWS;
-        int chunkZstart = playerChunk.getZ() - (MAP_LINES / 2);
-        int chunkZend = chunkZstart + MAP_LINES;
+    int chunkXstart = playerChunk.getX() - (MAP_ROWS / 2);
+    int chunkXend = chunkXstart + MAP_ROWS;
+    int chunkZstart = playerChunk.getZ() - (MAP_LINES / 2);
+    int chunkZend = chunkZstart + MAP_LINES;
 
-        player.sendMessage(ChatColor.GRAY + "= = = = TOWN MAP = = = =");
-        for (int indexZ = chunkZstart; indexZ <= chunkZend; ++indexZ) {
-            StringBuilder line = new StringBuilder();
-            for (int indexX = chunkXstart; indexX <= chunkXend; ++indexX) {
-                Vector2D chunk = new Vector2D(indexX, indexZ);
+    player.sendMessage(ChatColor.GRAY + "= = = = TOWN MAP = = = =");
+    for (int indexZ = chunkZstart; indexZ <= chunkZend; ++indexZ) {
+      StringBuilder line = new StringBuilder();
+      for (int indexX = chunkXstart; indexX <= chunkXend; ++indexX) {
+        Vector2D chunk = new Vector2D(indexX, indexZ);
 
-                if (chunk.getX() == playerChunk.getX() && chunk.getZ() == playerChunk.getZ()) {
-                    line.append(ChatColor.WHITE);
-                } else {
-                    line.append(ChatColor.GRAY);
-                }
-
-                Town chunkOwner = nation.getChunkManager().getChunkOwner(world, chunk);
-                if (chunkOwner == null) {
-                    line.append(" -");
-                } else if (chunkOwner.equals(currentTown)) {
-                    line.append(" #");
-                } else {
-                    line.append(ChatColor.DARK_GRAY + " #");
-                }
-            }
-            player.sendMessage(line.toString());
+        if (chunk.getX() == playerChunk.getX() && chunk.getZ() == playerChunk.getZ()) {
+          line.append(ChatColor.WHITE);
+        } else {
+          line.append(ChatColor.GRAY);
         }
+
+        Town chunkOwner = nation.getChunkManager().getChunkOwner(world, chunk);
+        if (chunkOwner == null) {
+          line.append(" -");
+        } else if (chunkOwner.equals(currentTown)) {
+          line.append(" #");
+        } else {
+          line.append(ChatColor.DARK_GRAY + " #");
+        }
+      }
+      player.sendMessage(line.toString());
     }
+  }
 }

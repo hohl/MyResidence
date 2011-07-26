@@ -26,32 +26,32 @@ import java.util.List;
  * @author Michael Hohl
  */
 public interface FlagManager<T> {
-    /**
-     * Checks if residence or town has has the flag set.
-     *
-     * @param flag flag to check.
-     * @return true, if the flag is set.
-     */
-    boolean hasFlag(T flag);
+  /**
+   * Checks if residence or town has has the flag set.
+   *
+   * @param flag flag to check.
+   * @return true, if the flag is set.
+   */
+  boolean hasFlag(T flag);
 
-    /**
-     * Returns all flags of a town or residence.
-     *
-     * @return the flags set.
-     */
-    List<T> getFlags();
+  /**
+   * Returns all flags of a town or residence.
+   *
+   * @return the flags set.
+   */
+  List<T> getFlags();
 
-    /**
-     * Sets the passed flag.
-     *
-     * @param flag the flag to set.
-     */
-    void setFlag(T flag);
+  /**
+   * Sets the passed flag.
+   *
+   * @param flag the flag to set.
+   */
+  void setFlag(T flag);
 
-    /**
-     * Remove the passed flag.
-     *
-     * @param flag the flag to remove.
-     */
-    void removeFlag(T flag);
+  /**
+   * Remove the passed flag.
+   *
+   * @param flag the flag to remove.
+   */
+  void removeFlag(T flag);
 }

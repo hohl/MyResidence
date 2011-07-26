@@ -20,7 +20,6 @@ package at.co.hohl.myresidence.bukkit;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.storage.SessionManager;
 import at.co.hohl.myresidence.bukkit.listener.*;
 import at.co.hohl.myresidence.bukkit.persistent.PersistNation;
 import at.co.hohl.myresidence.commands.GeneralCommands;
@@ -31,6 +30,7 @@ import at.co.hohl.myresidence.event.EventManager;
 import at.co.hohl.myresidence.exceptions.*;
 import at.co.hohl.myresidence.storage.Configuration;
 import at.co.hohl.myresidence.storage.Session;
+import at.co.hohl.myresidence.storage.SessionManager;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.nijikokun.register.payment.Method;
 import com.nijikokun.register.payment.Methods;

@@ -42,80 +42,80 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class HomeCommands {
-    @Command(
-            aliases = {"home"},
-            desc = "Teleport you to your nearest home"
-    )
-    public static void home(final CommandContext args,
-                            final MyResidence plugin,
-                            final Nation nation,
-                            final Player player,
-                            final Session session) throws NoHomeException, InvalidCommandUsageException {
-        Residence residence = null;
+  @Command(
+          aliases = {"home"},
+          desc = "Teleport you to your nearest home"
+  )
+  public static void home(final CommandContext args,
+                          final MyResidence plugin,
+                          final Nation nation,
+                          final Player player,
+                          final Session session) throws NoHomeException, InvalidCommandUsageException {
+    Residence residence = null;
 
-        if (args.argsLength() > 0) {
-            List<Residence> residences =
-                    nation.findResidences(nation.getInhabitant(session.getPlayerId()), args.getJoinedStrings(0));
+    if (args.argsLength() > 0) {
+      List<Residence> residences =
+              nation.findResidences(nation.getInhabitant(session.getPlayerId()), args.getJoinedStrings(0));
 
-            if (residences.size() != 1) {
-                throw new InvalidCommandUsageException("Residence not found!");
-            }
+      if (residences.size() != 1) {
+        throw new InvalidCommandUsageException("Residence not found!");
+      }
 
-            residence = residences.get(0);
-        } else if (session.getLastHomeResidenceId() != 0) {
-            residence = nation.getResidence(session.getLastHomeResidenceId());
-        }
-
-        // If there is no residence, look up for any residence of the player.
-        if (residence == null) {
-            List<Residence> playersResidences = nation.findResidences(nation.getInhabitant(session.getPlayerId()));
-
-            if (playersResidences.size() == 0) {
-                throw new NoHomeException();
-            }
-
-            residence = playersResidences.get(0);
-        }
-
-        // Store last selected residence as home!
-        session.setLastHomeResidenceId(residence.getId());
-
-        Location target = nation.getResidenceManager(residence).getHome();
-        if (plugin.getConfiguration(target.getWorld()).isSafeTeleport() &&
-                !Material.AIR.equals(target.getWorld().getBlockAt(target).getType())) {
-            target.setY(target.getWorld().getHighestBlockYAt(target));
-        }
-        player.teleport(target);
-
-        Chat.sendMessage(player, "&2Welcome at home!");
+      residence = residences.get(0);
+    } else if (session.getLastHomeResidenceId() != 0) {
+      residence = nation.getResidence(session.getLastHomeResidenceId());
     }
 
-    @Command(
-            aliases = {"sethome"},
-            desc = "Sets the home for your residence",
-            max = 0
-    )
-    public static void sethome(final CommandContext args,
-                               final MyResidence plugin,
-                               final Nation nation,
-                               final Player player,
-                               final Session session) throws MyResidenceException {
-        Residence residence = nation.getResidence(player.getLocation());
+    // If there is no residence, look up for any residence of the player.
+    if (residence == null) {
+      List<Residence> playersResidences = nation.findResidences(nation.getInhabitant(session.getPlayerId()));
 
-        // Check if player is inside residence.
-        if (residence == null) {
-            throw new MyResidenceException("You are not inside a residence!");
-        }
+      if (playersResidences.size() == 0) {
+        throw new NoHomeException();
+      }
 
-        // Check if player is the owner.
-        if (residence.getOwnerId() != session.getPlayerId()) {
-            throw new NotOwnException();
-        }
-
-        ResidenceManager manager = nation.getResidenceManager(residence);
-
-        manager.setHome(player.getLocation());
-
-        Chat.sendMessage(player, "&2Home set successfully for residence &a{0}&2.", residence);
+      residence = playersResidences.get(0);
     }
+
+    // Store last selected residence as home!
+    session.setLastHomeResidenceId(residence.getId());
+
+    Location target = nation.getResidenceManager(residence).getHome();
+    if (plugin.getConfiguration(target.getWorld()).isSafeTeleport() &&
+            !Material.AIR.equals(target.getWorld().getBlockAt(target).getType())) {
+      target.setY(target.getWorld().getHighestBlockYAt(target));
+    }
+    player.teleport(target);
+
+    Chat.sendMessage(player, "&2Welcome at home!");
+  }
+
+  @Command(
+          aliases = {"sethome"},
+          desc = "Sets the home for your residence",
+          max = 0
+  )
+  public static void sethome(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) throws MyResidenceException {
+    Residence residence = nation.getResidence(player.getLocation());
+
+    // Check if player is inside residence.
+    if (residence == null) {
+      throw new MyResidenceException("You are not inside a residence!");
+    }
+
+    // Check if player is the owner.
+    if (residence.getOwnerId() != session.getPlayerId()) {
+      throw new NotOwnException();
+    }
+
+    ResidenceManager manager = nation.getResidenceManager(residence);
+
+    manager.setHome(player.getLocation());
+
+    Chat.sendMessage(player, "&2Home set successfully for residence &a{0}&2.", residence);
+  }
 }

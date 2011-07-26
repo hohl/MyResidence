@@ -36,49 +36,49 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class TownRuleCommands {
-    @Command(
-            aliases = {"add"},
-            desc = "Adds a new rule to the selected town",
-            min = 1
-    )
-    @CommandPermissions({"myresidence.town.major.rules"})
-    public static void add(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session)
-            throws MyResidenceException {
-        Town selectedTown = session.getSelectedTown();
+  @Command(
+          aliases = {"add"},
+          desc = "Adds a new rule to the selected town",
+          min = 1
+  )
+  @CommandPermissions({"myresidence.town.major.rules"})
+  public static void add(final CommandContext args,
+                         final MyResidence plugin,
+                         final Nation nation,
+                         final Player player,
+                         final Session session)
+          throws MyResidenceException {
+    Town selectedTown = session.getSelectedTown();
 
-        if (!session.hasMajorRights(selectedTown)) {
-            throw new PermissionsDeniedException("You are not the major of this town!");
-        }
-
-        nation.getRuleManager(selectedTown).addRule(args.getJoinedStrings(0));
-
-        player.sendMessage(ChatColor.DARK_GREEN + "Added new line to the rules of " +
-                ChatColor.GREEN + selectedTown.getName() +
-                ChatColor.DARK_GREEN + ".");
+    if (!session.hasMajorRights(selectedTown)) {
+      throw new PermissionsDeniedException("You are not the major of this town!");
     }
 
-    @Command(
-            aliases = {"remove"},
-            desc = "Removes a line from the rules",
-            min = 1
-    )
-    @CommandPermissions({"myresidence.town.major.rules"})
-    public static void remove(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session)
-            throws MyResidenceException {
-        Town selectedTown = session.getSelectedTown();
+    nation.getRuleManager(selectedTown).addRule(args.getJoinedStrings(0));
 
-        nation.getRuleManager(selectedTown).removeRule(args.getJoinedStrings(0));
+    player.sendMessage(ChatColor.DARK_GREEN + "Added new line to the rules of " +
+            ChatColor.GREEN + selectedTown.getName() +
+            ChatColor.DARK_GREEN + ".");
+  }
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Removed a line from the rules of " +
-                ChatColor.GREEN + selectedTown.getName() +
-                ChatColor.DARK_GREEN + ".");
-    }
+  @Command(
+          aliases = {"remove"},
+          desc = "Removes a line from the rules",
+          min = 1
+  )
+  @CommandPermissions({"myresidence.town.major.rules"})
+  public static void remove(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session)
+          throws MyResidenceException {
+    Town selectedTown = session.getSelectedTown();
+
+    nation.getRuleManager(selectedTown).removeRule(args.getJoinedStrings(0));
+
+    player.sendMessage(ChatColor.DARK_GREEN + "Removed a line from the rules of " +
+            ChatColor.GREEN + selectedTown.getName() +
+            ChatColor.DARK_GREEN + ".");
+  }
 }

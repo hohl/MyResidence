@@ -37,76 +37,76 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class ResidenceFlagCommands {
-    @Command(
-            aliases = {"set", "add"},
-            usage = "<flag>",
-            desc = "Sets the flag for the selected residence",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.major"})
-    public static void set(final CommandContext args,
-                           final MyResidence plugin,
-                           final Nation nation,
-                           final Player player,
-                           final Session session) throws NoResidenceSelectedException {
-        try {
-            Residence selectedResidence = session.getSelectedResidence();
-            ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
-            nation.getFlagManager(selectedResidence).setFlag(flag);
+  @Command(
+          aliases = {"set", "add"},
+          usage = "<flag>",
+          desc = "Sets the flag for the selected residence",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.major"})
+  public static void set(final CommandContext args,
+                         final MyResidence plugin,
+                         final Nation nation,
+                         final Player player,
+                         final Session session) throws NoResidenceSelectedException {
+    try {
+      Residence selectedResidence = session.getSelectedResidence();
+      ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
+      nation.getFlagManager(selectedResidence).setFlag(flag);
 
-            player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
-                    ChatColor.GREEN + flag +
-                    ChatColor.DARK_GREEN + " to " +
-                    ChatColor.GREEN + selectedResidence.getName() +
-                    ChatColor.DARK_GREEN + "!");
-        } catch (IllegalArgumentException e) {
-            player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
-        }
+      player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
+              ChatColor.GREEN + flag +
+              ChatColor.DARK_GREEN + " to " +
+              ChatColor.GREEN + selectedResidence.getName() +
+              ChatColor.DARK_GREEN + "!");
+    } catch (IllegalArgumentException e) {
+      player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
     }
+  }
 
-    @Command(
-            aliases = {"remove"},
-            usage = "<flag>",
-            desc = "Removes the flag for the selected residence",
-            min = 1,
-            max = 1
-    )
-    @CommandPermissions({"myresidence.major"})
-    public static void remove(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) throws NoResidenceSelectedException {
-
-        try {
-            Residence selectedResidence = session.getSelectedResidence();
-            ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
-            nation.getFlagManager(selectedResidence).removeFlag(flag);
-
-            player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
-                    ChatColor.GREEN + flag +
-                    ChatColor.DARK_GREEN + " from " +
-                    ChatColor.GREEN + selectedResidence.getName() +
-                    ChatColor.DARK_GREEN + "!");
-        } catch (IllegalArgumentException e) {
-            player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
-        }
-    }
-
-    @Command(
-            aliases = {"list", "help"},
-            desc = "Lists all available flags",
-            max = 0
-    )
-    @CommandPermissions({"myresidence.major"})
-    public static void list(final CommandContext args,
+  @Command(
+          aliases = {"remove"},
+          usage = "<flag>",
+          desc = "Removes the flag for the selected residence",
+          min = 1,
+          max = 1
+  )
+  @CommandPermissions({"myresidence.major"})
+  public static void remove(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
-                            final Session session) {
+                            final Session session) throws NoResidenceSelectedException {
 
-        player.sendMessage(ChatColor.DARK_GREEN + "Available Flags: " +
-                ChatColor.GREEN + StringUtil.joinString(ResidenceFlag.Type.values(), ", ", 0));
+    try {
+      Residence selectedResidence = session.getSelectedResidence();
+      ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
+      nation.getFlagManager(selectedResidence).removeFlag(flag);
+
+      player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
+              ChatColor.GREEN + flag +
+              ChatColor.DARK_GREEN + " from " +
+              ChatColor.GREEN + selectedResidence.getName() +
+              ChatColor.DARK_GREEN + "!");
+    } catch (IllegalArgumentException e) {
+      player.sendMessage(ChatColor.RED + "There does not exist any flag with that name!");
     }
+  }
+
+  @Command(
+          aliases = {"list", "help"},
+          desc = "Lists all available flags",
+          max = 0
+  )
+  @CommandPermissions({"myresidence.major"})
+  public static void list(final CommandContext args,
+                          final MyResidence plugin,
+                          final Nation nation,
+                          final Player player,
+                          final Session session) {
+
+    player.sendMessage(ChatColor.DARK_GREEN + "Available Flags: " +
+            ChatColor.GREEN + StringUtil.joinString(ResidenceFlag.Type.values(), ", ", 0));
+  }
 }

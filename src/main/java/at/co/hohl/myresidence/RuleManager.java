@@ -28,20 +28,22 @@ import java.util.List;
  * @author Michael Hohl
  */
 public interface RuleManager {
-    /**
-     * Adds a single rule.
-     *
-     * @param rule the rule to create.
-     */
-    void addRule(String rule);
+  /**
+   * Adds a single rule.
+   *
+   * @param rule the rule to create.
+   */
+  void addRule(String rule);
 
-    /**
-     * Removes a rule, which is like the passed string.
-     *
-     * @param rule (part of the) message of the rule to remove.
-     */
-    void removeRule(String rule) throws MyResidenceException;
+  /**
+   * Removes a rule, which is like the passed string.
+   *
+   * @param rule (part of the) message of the rule to remove.
+   */
+  void removeRule(String rule) throws MyResidenceException;
 
-    /** Gets all rules of the town. */
-    List<String> getRules();
+  /**
+   * Gets all rules of the town.
+   */
+  List<String> getRules();
 }

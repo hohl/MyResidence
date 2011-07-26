@@ -40,114 +40,115 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class TownListCommands {
-    /**
-     * Maximum number of lines per page.
-     */
-    private static final int LINES_PER_PAGE = 7;
+  /**
+   * Maximum number of lines per page.
+   */
+  private static final int LINES_PER_PAGE = 7;
 
-    @Command(
-            aliases = {"alphabetic", "abc"},
-            usage = "[page]",
-            desc = "Lists the towns in alphabetical order",
-            max = 1
-    )
-    @CommandPermissions({"myresidence.town.list.alphabetic"})
-    public static void alphabetical(final CommandContext args,
-                                    final MyResidence plugin,
-                                    final Nation nation,
-                                    final Player player,
-                                    final Session session) throws InsufficientArgumentsException {
+  @Command(
+          aliases = {"alphabetic", "abc"},
+          usage = "[page]",
+          desc = "Lists the towns in alphabetical order",
+          max = 1
+  )
+  @CommandPermissions({"myresidence.town.list.alphabetic"})
+  public static void alphabetical(final CommandContext args,
+                                  final MyResidence plugin,
+                                  final Nation nation,
+                                  final Player player,
+                                  final Session session) throws InsufficientArgumentsException {
 
-        ExpressionList expressionList = nation.getDatabase().find(Town.class).where();
+    ExpressionList expressionList = nation.getDatabase().find(Town.class).where();
 
-        // Richest town at the top!
-        expressionList.orderBy("name ASC");
+    // Richest town at the top!
+    expressionList.orderBy("name ASC");
 
-        // Find and display exact page.
-        int page = args.getInteger(0, 1);
-        displayResults("Towns (Alphabetical Order)", expressionList, page, plugin, nation, player);
+    // Find and display exact page.
+    int page = args.getInteger(0, 1);
+    displayResults("Towns (Alphabetical Order)", expressionList, page, plugin, nation, player);
 
+  }
+
+  @Command(
+          aliases = {"richest"},
+          usage = "[page]",
+          desc = "Lists the richest towns",
+          max = 1
+  )
+  @CommandPermissions({"myresidence.town.list.richest"})
+  public static void richest(final CommandContext args,
+                             final MyResidence plugin,
+                             final Nation nation,
+                             final Player player,
+                             final Session session) throws InsufficientArgumentsException {
+
+    ExpressionList expressionList = nation.getDatabase().find(Town.class).where();
+
+    // Richest town at the top!
+    expressionList.orderBy("money DESC");
+
+    // Find and display exact page.
+    int page = args.getInteger(0, 1);
+    displayResults("Towns (Richest)", expressionList, page, plugin, nation, player);
+
+  }
+
+  @Command(
+          aliases = {"oldest", "age"},
+          usage = "[page]",
+          desc = "Lists the towns in order of their age",
+          max = 1
+  )
+  @CommandPermissions({"myresidence.town.list.oldest"})
+  public static void oldest(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) throws InsufficientArgumentsException {
+
+    ExpressionList expressionList = nation.getDatabase().find(Town.class).where();
+
+    // Richest town at the top!
+    expressionList.orderBy("foundedAt ASC");
+
+    // Find and display exact page.
+    int page = args.getInteger(0, 1);
+    displayResults("Towns (Oldest)", expressionList, page, plugin, nation, player);
+
+  }
+
+  // Displays the search results.
+
+  private static void displayResults(final String searchTitle,
+                                     final ExpressionList expressionList,
+                                     final int page,
+                                     final MyResidence plugin,
+                                     final Nation nation,
+                                     final Player player)
+          throws InsufficientArgumentsException {
+
+    int rows = expressionList.findRowCount();
+    int index = (page - 1) * 7 + 1;
+    if (rows == 0) {
+      throw new InsufficientArgumentsException("No search results found!");
     }
-
-    @Command(
-            aliases = {"richest"},
-            usage = "[page]",
-            desc = "Lists the richest towns",
-            max = 1
-    )
-    @CommandPermissions({"myresidence.town.list.richest"})
-    public static void richest(final CommandContext args,
-                               final MyResidence plugin,
-                               final Nation nation,
-                               final Player player,
-                               final Session session) throws InsufficientArgumentsException {
-
-        ExpressionList expressionList = nation.getDatabase().find(Town.class).where();
-
-        // Richest town at the top!
-        expressionList.orderBy("money DESC");
-
-        // Find and display exact page.
-        int page = args.getInteger(0, 1);
-        displayResults("Towns (Richest)", expressionList, page, plugin, nation, player);
-
+    if (index > rows || index < 1) {
+      throw new InsufficientArgumentsException("Invalid page number!");
     }
+    expressionList.setMaxRows(LINES_PER_PAGE);
+    expressionList.setFirstRow((page - 1) * LINES_PER_PAGE);
 
-    @Command(
-            aliases = {"oldest", "age"},
-            usage = "[page]",
-            desc = "Lists the towns in order of their age",
-            max = 1
-    )
-    @CommandPermissions({"myresidence.town.list.oldest"})
-    public static void oldest(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) throws InsufficientArgumentsException {
+    // Get towns.
+    List<Town> towns = expressionList.findList();
 
-        ExpressionList expressionList = nation.getDatabase().find(Town.class).where();
+    // Send results to player.
+    player.sendMessage(String.format("%s= = = %s [Page %s/%s] = = =",
+            ChatColor.LIGHT_PURPLE, searchTitle, page, rows / LINES_PER_PAGE + 1));
 
-        // Richest town at the top!
-        expressionList.orderBy("foundedAt ASC");
-
-        // Find and display exact page.
-        int page = args.getInteger(0, 1);
-        displayResults("Towns (Oldest)", expressionList, page, plugin, nation, player);
-
+    for (Town town : towns) {
+      Chat.sendMessage(player, "{0}. {1} ({2}) [Balance: {3}]", index++, town.getName(),
+              StringUtil.joinString(nation.getTownManager(town).getMajors(), ", ", 0),
+              plugin.format(town.getMoney()));
     }
-
-    // Displays the search results.
-    private static void displayResults(final String searchTitle,
-                                       final ExpressionList expressionList,
-                                       final int page,
-                                       final MyResidence plugin,
-                                       final Nation nation,
-                                       final Player player)
-            throws InsufficientArgumentsException {
-
-        int rows = expressionList.findRowCount();
-        int index = (page - 1) * 7 + 1;
-        if (rows == 0) {
-            throw new InsufficientArgumentsException("No search results found!");
-        }
-        if (index > rows || index < 1) {
-            throw new InsufficientArgumentsException("Invalid page number!");
-        }
-        expressionList.setMaxRows(LINES_PER_PAGE);
-        expressionList.setFirstRow((page - 1) * LINES_PER_PAGE);
-
-        // Get towns.
-        List<Town> towns = expressionList.findList();
-
-        // Send results to player.
-        player.sendMessage(String.format("%s= = = %s [Page %s/%s] = = =",
-                ChatColor.LIGHT_PURPLE, searchTitle, page, rows / LINES_PER_PAGE + 1));
-
-        for (Town town : towns) {
-            Chat.sendMessage(player, "{0}. {1} ({2}) [Balance: {3}]", index++, town.getName(),
-                    StringUtil.joinString(nation.getTownManager(town).getMajors(), ", ", 0),
-                    plugin.format(town.getMoney()));
-        }
-    }
+  }
 }

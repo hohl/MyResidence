@@ -21,21 +21,17 @@ package at.co.hohl.myresidence.commands;
 import at.co.hohl.mcutils.chat.Chat;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.event.ResidenceRemovedEvent;
-import at.co.hohl.myresidence.exceptions.*;
+import at.co.hohl.myresidence.exceptions.MyResidenceException;
+import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
+import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
+import at.co.hohl.myresidence.exceptions.TownNotFoundException;
 import at.co.hohl.myresidence.storage.Session;
-import at.co.hohl.myresidence.storage.persistent.Residence;
-import at.co.hohl.myresidence.storage.persistent.ResidenceArea;
-import at.co.hohl.myresidence.storage.persistent.ResidenceSign;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
@@ -105,7 +101,7 @@ public class TownCommands {
     // Notify user about need confirmation.
     Chat.sendMessage(player, "&dDo you really want to remove &5{0}&d?", townToRemove);
     Chat.sendMessage(player, "&dUse &5/task confirm&d to confirm this task!");
-    
+
   }
 
   @Command(

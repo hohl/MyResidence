@@ -32,51 +32,51 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class GeneralCommands {
-    @Command(
-            aliases = {"res", "residence"},
-            desc = "Commands to manage residences"
-    )
-    @NestedCommand({ResidenceCommands.class})
-    public static void residence(final CommandContext args,
-                                 final MyResidence plugin,
-                                 final Nation nation,
-                                 final Player player,
-                                 final Session session) {
-    }
+  @Command(
+          aliases = {"res", "residence"},
+          desc = "Commands to manage residences"
+  )
+  @NestedCommand({ResidenceCommands.class})
+  public static void residence(final CommandContext args,
+                               final MyResidence plugin,
+                               final Nation nation,
+                               final Player player,
+                               final Session session) {
+  }
 
-    @Command(
-            aliases = {"town"},
-            desc = "Commands to manage towns"
-    )
-    @NestedCommand({TownCommands.class})
-    public static void town(final CommandContext args,
+  @Command(
+          aliases = {"town"},
+          desc = "Commands to manage towns"
+  )
+  @NestedCommand({TownCommands.class})
+  public static void town(final CommandContext args,
+                          final MyResidence plugin,
+                          final Nation nation,
+                          final Player player,
+                          final Session session) {
+  }
+
+  @Command(
+          aliases = {"task"},
+          desc = "Confirms or cancels tasks"
+  )
+  @NestedCommand({TasksCommands.class})
+  public static void tasks(final CommandContext args,
+                           final MyResidence plugin,
+                           final Nation nation,
+                           final Player player,
+                           final Session session) {
+  }
+
+  @Command(
+          aliases = {"myres", "myresidence"},
+          desc = "Manages the MyResidence plugin"
+  )
+  @NestedCommand({PluginCommands.class})
+  public static void plugin(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
                             final Session session) {
-    }
-
-    @Command(
-            aliases = {"task"},
-            desc = "Confirms or cancels tasks"
-    )
-    @NestedCommand({TasksCommands.class})
-    public static void tasks(final CommandContext args,
-                             final MyResidence plugin,
-                             final Nation nation,
-                             final Player player,
-                             final Session session) {
-    }
-
-    @Command(
-            aliases = {"myres", "myresidence"},
-            desc = "Manages the MyResidence plugin"
-    )
-    @NestedCommand({PluginCommands.class})
-    public static void plugin(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) {
-    }
+  }
 }

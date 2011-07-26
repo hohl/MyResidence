@@ -33,62 +33,62 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class PluginCommands {
-    @Command(
-            aliases = {"reload"},
-            desc = "Reloads the MyResidence plugin",
-            max = 0
-    )
-    @CommandPermissions({"myresidence.reload"})
-    public static void reload(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session) {
+  @Command(
+          aliases = {"reload"},
+          desc = "Reloads the MyResidence plugin",
+          max = 0
+  )
+  @CommandPermissions({"myresidence.reload"})
+  public static void reload(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) {
 
-        plugin.getServer().reload();
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Configuration reloaded!");
+    plugin.getServer().reload();
+    player.sendMessage(ChatColor.LIGHT_PURPLE + "Configuration reloaded!");
 
-    }
+  }
 
-    @Command(
-            aliases = {"version", "ver"},
-            desc = "Returns MyResidence version",
-            max = 0
-    )
-    public static void version(final CommandContext args,
-                               final MyResidence plugin,
-                               final Nation nation,
-                               final Player player,
-                               final Session session) {
-
-        player.sendMessage(ChatColor.GOLD +
-                String.format("%s version %s",
-                        plugin.getDescription().getName(),
-                        plugin.getDescription().getVersion()));
-
-        player.sendMessage(ChatColor.GOLD +
-                plugin.getDescription().getWebsite());
-
-    }
-
-    @Command(
-            aliases = {"debug"},
-            desc = "Sends you more detailed debug information",
-            max = 0
-    )
-    public static void debug(final CommandContext args,
+  @Command(
+          aliases = {"version", "ver"},
+          desc = "Returns MyResidence version",
+          max = 0
+  )
+  public static void version(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,
                              final Player player,
                              final Session session) {
 
-        if (!session.isDebugger()) {
-            session.setDebugger(true);
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
-        } else {
-            session.setDebugger(false);
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "You will not receive debug information anymore!");
-        }
+    player.sendMessage(ChatColor.GOLD +
+            String.format("%s version %s",
+                    plugin.getDescription().getName(),
+                    plugin.getDescription().getVersion()));
 
+    player.sendMessage(ChatColor.GOLD +
+            plugin.getDescription().getWebsite());
+
+  }
+
+  @Command(
+          aliases = {"debug"},
+          desc = "Sends you more detailed debug information",
+          max = 0
+  )
+  public static void debug(final CommandContext args,
+                           final MyResidence plugin,
+                           final Nation nation,
+                           final Player player,
+                           final Session session) {
+
+    if (!session.isDebugger()) {
+      session.setDebugger(true);
+      player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
+    } else {
+      session.setDebugger(false);
+      player.sendMessage(ChatColor.LIGHT_PURPLE + "You will not receive debug information anymore!");
     }
+
+  }
 }

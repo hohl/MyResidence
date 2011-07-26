@@ -34,132 +34,132 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class PersistTownManager extends PersistTownFlagManager implements TownManager {
-    /**
-     * Creates a new FlagManager implementation.
-     *
-     * @param nation nation which holds the town.
-     * @param town   the town to manage.
-     */
-    public PersistTownManager(Nation nation, Town town) {
-        super(nation, town);
+  /**
+   * Creates a new FlagManager implementation.
+   *
+   * @param nation nation which holds the town.
+   * @param town   the town to manage.
+   */
+  public PersistTownManager(Nation nation, Town town) {
+    super(nation, town);
+  }
+
+  /**
+   * Adds a major for the town.
+   *
+   * @param inhabitant the inhabitant to add as major.
+   */
+  public void addMajor(Inhabitant inhabitant) {
+    Major major = nation.getDatabase().find(Major.class)
+            .where()
+            .eq("inhabitantId", inhabitant.getId())
+            .eq("townId", town.getId())
+            .findUnique();
+
+    if (major == null) {
+      major = new Major();
+      major.setInhabitantId(inhabitant.getId());
+      major.setTownId(town.getId());
     }
 
-    /**
-     * Adds a major for the town.
-     *
-     * @param inhabitant the inhabitant to add as major.
-     */
-    public void addMajor(Inhabitant inhabitant) {
-        Major major = nation.getDatabase().find(Major.class)
-                .where()
-                .eq("inhabitantId", inhabitant.getId())
-                .eq("townId", town.getId())
-                .findUnique();
+    nation.getDatabase().save(major);
+  }
 
-        if (major == null) {
-            major = new Major();
-            major.setInhabitantId(inhabitant.getId());
-            major.setTownId(town.getId());
-        }
+  /**
+   * Removes a major of the town.
+   *
+   * @param inhabitant the inhabitant to remove as major.
+   */
+  public void removeMajor(Inhabitant inhabitant) {
+    List<Major> majorsToRemove = nation.getDatabase().find(Major.class)
+            .where().eq("townId", town.getId()).eq("inhabitantId", inhabitant.getId()).findList();
 
-        nation.getDatabase().save(major);
+    nation.getDatabase().delete(majorsToRemove);
+  }
+
+  /**
+   * Checks if the inhabitant is a major in the town.
+   *
+   * @param inhabitant the inhabitant to check.
+   * @return true, if the inhabitant is major.
+   */
+  public boolean isMajor(Inhabitant inhabitant) {
+    return nation.getDatabase().find(Major.class)
+            .where().eq("townId", town.getId()).eq("inhabitantId", inhabitant.getId())
+            .findRowCount() > 0;
+  }
+
+  /**
+   * @return the major of the town.
+   */
+  public List<Inhabitant> getMajors() {
+    List<Major> majors = nation.getDatabase().find(Major.class)
+            .where()
+            .eq("townId", town.getId())
+            .findList();
+
+    List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
+    for (Major major : majors) {
+      inhabitants.add(nation.getInhabitant(major.getInhabitantId()));
     }
 
-    /**
-     * Removes a major of the town.
-     *
-     * @param inhabitant the inhabitant to remove as major.
-     */
-    public void removeMajor(Inhabitant inhabitant) {
-        List<Major> majorsToRemove = nation.getDatabase().find(Major.class)
-                .where().eq("townId", town.getId()).eq("inhabitantId", inhabitant.getId()).findList();
+    return inhabitants;
+  }
 
-        nation.getDatabase().delete(majorsToRemove);
+  /**
+   * @return all public majors of the town.
+   */
+  public List<Inhabitant> getPublicMajors() {
+    List<Major> majors = nation.getDatabase().find(Major.class)
+            .where()
+            .eq("townId", town.getId())
+            .eq("hidden", false)
+            .findList();
+
+    List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
+    for (Major major : majors) {
+      inhabitants.add(nation.getInhabitant(major.getInhabitantId()));
     }
 
-    /**
-     * Checks if the inhabitant is a major in the town.
-     *
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is major.
-     */
-    public boolean isMajor(Inhabitant inhabitant) {
-        return nation.getDatabase().find(Major.class)
-                .where().eq("townId", town.getId()).eq("inhabitantId", inhabitant.getId())
-                .findRowCount() > 0;
+    return inhabitants;
+  }
+
+  /**
+   * @return inhabitants of the town.
+   */
+  public List<Inhabitant> getInhabitants() {
+    List<Residence> residences = nation.getDatabase().find(Residence.class)
+            .where().eq("townId", town.getId()).findList();
+
+    List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
+    for (Residence residence : residences) {
+      Inhabitant owner = nation.getInhabitant(residence.getOwnerId());
+
+      if (owner == null) {
+        inhabitants.add(owner);
+      }
     }
 
-    /**
-     * @return the major of the town.
-     */
-    public List<Inhabitant> getMajors() {
-        List<Major> majors = nation.getDatabase().find(Major.class)
-                .where()
-                .eq("townId", town.getId())
-                .findList();
+    return inhabitants;
+  }
 
-        List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
-        for (Major major : majors) {
-            inhabitants.add(nation.getInhabitant(major.getInhabitantId()));
-        }
+  /**
+   * Checks if the passed inhabitant is an inhabitant of the town.
+   *
+   * @param inhabitant the inhabitant to check.
+   * @return true, if the inhabitant is an inhabitant of the town.
+   */
+  public boolean isInhabitant(Inhabitant inhabitant) {
+    return nation.getDatabase().find(Residence.class).where()
+            .eq("townId", town.getId())
+            .eq("inhabitantId", inhabitant.getId())
+            .findRowCount() > 0;
+  }
 
-        return inhabitants;
-    }
-
-    /**
-     * @return all public majors of the town.
-     */
-    public List<Inhabitant> getPublicMajors() {
-        List<Major> majors = nation.getDatabase().find(Major.class)
-                .where()
-                .eq("townId", town.getId())
-                .eq("hidden", false)
-                .findList();
-
-        List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
-        for (Major major : majors) {
-            inhabitants.add(nation.getInhabitant(major.getInhabitantId()));
-        }
-
-        return inhabitants;
-    }
-
-    /**
-     * @return inhabitants of the town.
-     */
-    public List<Inhabitant> getInhabitants() {
-        List<Residence> residences = nation.getDatabase().find(Residence.class)
-                .where().eq("townId", town.getId()).findList();
-
-        List<Inhabitant> inhabitants = new LinkedList<Inhabitant>();
-        for (Residence residence : residences) {
-            Inhabitant owner = nation.getInhabitant(residence.getOwnerId());
-
-            if (owner == null) {
-                inhabitants.add(owner);
-            }
-        }
-
-        return inhabitants;
-    }
-
-    /**
-     * Checks if the passed inhabitant is an inhabitant of the town.
-     *
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is an inhabitant of the town.
-     */
-    public boolean isInhabitant(Inhabitant inhabitant) {
-        return nation.getDatabase().find(Residence.class).where()
-                .eq("townId", town.getId())
-                .eq("inhabitantId", inhabitant.getId())
-                .findRowCount() > 0;
-    }
-
-    /**
-     * @return residences of the town.
-     */
-    public List<Residence> getResidences() {
-        return nation.getDatabase().find(Residence.class).where().eq("townId", town.getId()).findList();
-    }
+  /**
+   * @return residences of the town.
+   */
+  public List<Residence> getResidences() {
+    return nation.getDatabase().find(Residence.class).where().eq("townId", town.getId()).findList();
+  }
 }

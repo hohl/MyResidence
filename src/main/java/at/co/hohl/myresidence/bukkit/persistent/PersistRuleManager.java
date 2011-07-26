@@ -34,67 +34,73 @@ import java.util.List;
  * @author Michael Hohk
  */
 public class PersistRuleManager implements RuleManager {
-    /** Nation of the town to manage. */
-    protected final Nation nation;
+  /**
+   * Nation of the town to manage.
+   */
+  protected final Nation nation;
 
-    /** Town to manage. */
-    protected final Town town;
+  /**
+   * Town to manage.
+   */
+  protected final Town town;
 
-    /**
-     * Creates a new PersistRuleManager.
-     *
-     * @param nation the nation of the town to manage.
-     * @param town   the town to manage.
-     */
-    public PersistRuleManager(Nation nation, Town town) {
-        this.nation = nation;
-        this.town = town;
+  /**
+   * Creates a new PersistRuleManager.
+   *
+   * @param nation the nation of the town to manage.
+   * @param town   the town to manage.
+   */
+  public PersistRuleManager(Nation nation, Town town) {
+    this.nation = nation;
+    this.town = town;
+  }
+
+  /**
+   * Adds a single rule.
+   *
+   * @param rule the rule to create.
+   */
+  public void addRule(String rule) {
+    TownRule townRule = new TownRule();
+    townRule.setTownId(town.getId());
+    townRule.setMessage(rule);
+
+    nation.getDatabase().save(townRule);
+  }
+
+  /**
+   * Removes a rule, which is like the passed string.
+   *
+   * @param rule (part of the) message of the rule to remove.
+   */
+  public void removeRule(String rule) throws MyResidenceException {
+    try {
+      TownRule townRule = nation.getDatabase().find(TownRule.class).where()
+              .ilike("message", "%" + rule + "%")
+              .eq("townId", town.getId())
+              .findUnique();
+
+      nation.getDatabase().delete(townRule);
+    } catch (PersistenceException e) {
+      throw new MyResidenceException("Rule not found!");
+    }
+  }
+
+  /**
+   * Gets all rules of the town.
+   */
+  public List<String> getRules() {
+    List<TownRule> rules = nation.getDatabase().find(TownRule.class)
+            .where()
+            .eq("townId", town.getId())
+            .orderBy("message ASC")
+            .findList();
+
+    List<String> ruleLines = new LinkedList<String>();
+    for (TownRule rule : rules) {
+      ruleLines.add(rule.getMessage());
     }
 
-    /**
-     * Adds a single rule.
-     *
-     * @param rule the rule to create.
-     */
-    public void addRule(String rule) {
-        TownRule townRule = new TownRule();
-        townRule.setTownId(town.getId());
-        townRule.setMessage(rule);
-
-        nation.getDatabase().save(townRule);
-    }
-
-    /**
-     * Removes a rule, which is like the passed string.
-     *
-     * @param rule (part of the) message of the rule to remove.
-     */
-    public void removeRule(String rule) throws MyResidenceException {
-        try {
-            TownRule townRule = nation.getDatabase().find(TownRule.class).where()
-                    .ilike("message", "%" + rule + "%")
-                    .eq("townId", town.getId())
-                    .findUnique();
-
-            nation.getDatabase().delete(townRule);
-        } catch (PersistenceException e) {
-            throw new MyResidenceException("Rule not found!");
-        }
-    }
-
-    /** Gets all rules of the town. */
-    public List<String> getRules() {
-        List<TownRule> rules = nation.getDatabase().find(TownRule.class)
-                .where()
-                .eq("townId", town.getId())
-                .orderBy("message ASC")
-                .findList();
-
-        List<String> ruleLines = new LinkedList<String>();
-        for (TownRule rule : rules) {
-            ruleLines.add(rule.getMessage());
-        }
-
-        return ruleLines;
-    }
+    return ruleLines;
+  }
 }

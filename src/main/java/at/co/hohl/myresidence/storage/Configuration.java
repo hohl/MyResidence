@@ -24,92 +24,92 @@ package at.co.hohl.myresidence.storage;
  * @author Michael Hohl
  */
 public class Configuration {
-    /**
-     * The configuration used by for loading/saving.
-     */
-    private final org.bukkit.util.config.Configuration configuartion;
+  /**
+   * The configuration used by for loading/saving.
+   */
+  private final org.bukkit.util.config.Configuration configuartion;
 
-    /**
-     * Costs for one chunk.
-     */
-    private double chunkCost;
+  /**
+   * Costs for one chunk.
+   */
+  private double chunkCost;
 
-    /**
-     * Title for residence signs.
-     */
-    private String signTitle;
+  /**
+   * Title for residence signs.
+   */
+  private String signTitle;
 
-    /**
-     * Text for sign for sale.
-     */
-    private String signSaleText;
+  /**
+   * Text for sign for sale.
+   */
+  private String signSaleText;
 
-    /**
-     * Check if block is free, before teleporting.
-     */
-    private boolean safeTeleport;
+  /**
+   * Check if block is free, before teleporting.
+   */
+  private boolean safeTeleport;
 
-    /**
-     * Creates a new Configuration with the passed Bukkit Config.
-     *
-     * @param configuration the bukkit config to load/save.
-     */
-    public Configuration(org.bukkit.util.config.Configuration configuration) {
-        this.configuartion = configuration;
-        load();
-    }
+  /**
+   * Creates a new Configuration with the passed Bukkit Config.
+   *
+   * @param configuration the bukkit config to load/save.
+   */
+  public Configuration(org.bukkit.util.config.Configuration configuration) {
+    this.configuartion = configuration;
+    load();
+  }
 
-    /**
-     * Loads the configuration. (Auto done on construction, only for reload!)
-     */
-    public void load() {
-        configuartion.load();
-        chunkCost = configuartion.getDouble("cost.chunk", 1000);
-        signTitle = configuartion.getString("sign.title", "[Residence]");
-        signSaleText = configuartion.getString("sign.sale", "FOR SALE!");
-        safeTeleport = configuartion.getBoolean("safe_teleport", true);
-    }
+  /**
+   * Loads the configuration. (Auto done on construction, only for reload!)
+   */
+  public void load() {
+    configuartion.load();
+    chunkCost = configuartion.getDouble("cost.chunk", 1000);
+    signTitle = configuartion.getString("sign.title", "[Residence]");
+    signSaleText = configuartion.getString("sign.sale", "FOR SALE!");
+    safeTeleport = configuartion.getBoolean("safe_teleport", true);
+  }
 
-    /**
-     * Saves changes to file.
-     */
-    public void save() {
-        configuartion.setProperty("cost.chunk", chunkCost);
-        configuartion.setProperty("sign.title", signTitle);
-        configuartion.setProperty("sign.sale", signSaleText);
-        configuartion.setProperty("safe_teleport", safeTeleport);
-        configuartion.save();
-    }
+  /**
+   * Saves changes to file.
+   */
+  public void save() {
+    configuartion.setProperty("cost.chunk", chunkCost);
+    configuartion.setProperty("sign.title", signTitle);
+    configuartion.setProperty("sign.sale", signSaleText);
+    configuartion.setProperty("safe_teleport", safeTeleport);
+    configuartion.save();
+  }
 
-    public double getChunkCost() {
-        return chunkCost;
-    }
+  public double getChunkCost() {
+    return chunkCost;
+  }
 
-    public void setChunkCost(double chunkCost) {
-        this.chunkCost = chunkCost;
-    }
+  public void setChunkCost(double chunkCost) {
+    this.chunkCost = chunkCost;
+  }
 
-    public String getSignSaleText() {
-        return signSaleText;
-    }
+  public String getSignSaleText() {
+    return signSaleText;
+  }
 
-    public void setSignSaleText(String signSaleText) {
-        this.signSaleText = signSaleText;
-    }
+  public void setSignSaleText(String signSaleText) {
+    this.signSaleText = signSaleText;
+  }
 
-    public String getSignTitle() {
-        return signTitle;
-    }
+  public String getSignTitle() {
+    return signTitle;
+  }
 
-    public void setSignTitle(String signTitle) {
-        this.signTitle = signTitle;
-    }
+  public void setSignTitle(String signTitle) {
+    this.signTitle = signTitle;
+  }
 
-    public boolean isSafeTeleport() {
-        return safeTeleport;
-    }
+  public boolean isSafeTeleport() {
+    return safeTeleport;
+  }
 
-    public void setSafeTeleport(boolean safeTeleport) {
-        this.safeTeleport = safeTeleport;
-    }
+  public void setSafeTeleport(boolean safeTeleport) {
+    this.safeTeleport = safeTeleport;
+  }
 }

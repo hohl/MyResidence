@@ -36,60 +36,60 @@ import org.bukkit.event.player.PlayerListener;
  * @author Michael Hohl
  */
 public class SignClickListener extends PlayerListener {
-    /**
-     * Plugin which holds the instance.
-     */
-    private final MyResidence plugin;
+  /**
+   * Plugin which holds the instance.
+   */
+  private final MyResidence plugin;
 
-    /**
-     * The nation which holds all the towns and residences.
-     */
-    private final Nation nation;
+  /**
+   * The nation which holds all the towns and residences.
+   */
+  private final Nation nation;
 
-    /**
-     * Creates a new SignClickListener.
-     *
-     * @param plugin the plugin which holds the instance.
-     * @param nation the nation which holds all the towns and residences.
-     */
-    public SignClickListener(MyResidence plugin, Nation nation) {
-        this.plugin = plugin;
-        this.nation = nation;
+  /**
+   * Creates a new SignClickListener.
+   *
+   * @param plugin the plugin which holds the instance.
+   * @param nation the nation which holds all the towns and residences.
+   */
+  public SignClickListener(MyResidence plugin, Nation nation) {
+    this.plugin = plugin;
+    this.nation = nation;
+  }
+
+  /**
+   * Called when player interacts with the world.
+   *
+   * @param event event occurred itself.
+   */
+  @Override
+  public void onPlayerInteract(PlayerInteractEvent event) {
+    if (event.isCancelled() || !(event.getClickedBlock().getType().equals(Material.SIGN_POST)
+            || event.getClickedBlock().getType().equals(Material.WALL_SIGN))) {
+      return;
     }
 
-    /**
-     * Called when player interacts with the world.
-     *
-     * @param event event occurred itself.
-     */
-    @Override
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.isCancelled() || !(event.getClickedBlock().getType().equals(Material.SIGN_POST)
-                || event.getClickedBlock().getType().equals(Material.WALL_SIGN))) {
-            return;
-        }
+    Sign clickedSign = (Sign) event.getClickedBlock().getState();
+    Session playerSession = plugin.getSessionManager().get(event.getPlayer());
+    playerSession.setSelectedSignBlock(event.getClickedBlock());
 
-        Sign clickedSign = (Sign) event.getClickedBlock().getState();
-        Session playerSession = plugin.getSessionManager().get(event.getPlayer());
-        playerSession.setSelectedSignBlock(event.getClickedBlock());
+    if (Session.Activator.SELECT_SIGN.equals(playerSession.getTaskActivator())) {
+      playerSession.getTask().run();
+      playerSession.setTaskActivator(null);
+    } else if (clickedSign.getLine(0).equals(plugin.getConfiguration(clickedSign.getWorld()).getSignTitle())) {
+      Residence residence = nation.getResidence(clickedSign);
 
-        if (Session.Activator.SELECT_SIGN.equals(playerSession.getTaskActivator())) {
-            playerSession.getTask().run();
-            playerSession.setTaskActivator(null);
-        } else if (clickedSign.getLine(0).equals(plugin.getConfiguration(clickedSign.getWorld()).getSignTitle())) {
-            Residence residence = nation.getResidence(clickedSign);
-
-            try {
-                nation.sendInformation(event.getPlayer(), residence);
-            } catch (MyResidenceException e) {
-                Location location = event.getClickedBlock().getLocation();
-                plugin.severe("Invalid residence sign at: [%s: %d, %d, %d]",
-                        location.getWorld().getName(), location.getBlockX(), location.getBlockY(),
-                        location.getBlockZ());
-                e.printStackTrace();
-            }
-        } else {
-            playerSession.setSelectedSignBlock(null);
-        }
+      try {
+        nation.sendInformation(event.getPlayer(), residence);
+      } catch (MyResidenceException e) {
+        Location location = event.getClickedBlock().getLocation();
+        plugin.severe("Invalid residence sign at: [%s: %d, %d, %d]",
+                location.getWorld().getName(), location.getBlockX(), location.getBlockY(),
+                location.getBlockZ());
+        e.printStackTrace();
+      }
+    } else {
+      playerSession.setSelectedSignBlock(null);
     }
+  }
 }

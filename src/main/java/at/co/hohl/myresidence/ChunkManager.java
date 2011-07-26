@@ -31,45 +31,45 @@ import java.util.Set;
  * @author Michael Hohl
  */
 public interface ChunkManager {
-    /**
-     * Returns the owner of the chunk.
-     *
-     * @param chunk the chunk.
-     * @return the owner of the chunk, or null if the chunk is connected to wildnes.
-     */
-    Town getChunkOwner(World world, Vector2D chunk);
+  /**
+   * Returns the owner of the chunk.
+   *
+   * @param chunk the chunk.
+   * @return the owner of the chunk, or null if the chunk is connected to wildnes.
+   */
+  Town getChunkOwner(World world, Vector2D chunk);
 
-    /**
-     * Adds a single chunk to the town.
-     *
-     * @param town  town to add.
-     * @param chunk the chunk to add.
-     */
-    void addChunk(Town town, World world, Vector2D chunk) throws TownNotFoundException;
+  /**
+   * Adds a single chunk to the town.
+   *
+   * @param town  town to add.
+   * @param chunk the chunk to add.
+   */
+  void addChunk(Town town, World world, Vector2D chunk) throws TownNotFoundException;
 
-    /**
-     * Adds a list of chunks.
-     *
-     * @param town   town to add.
-     * @param chunks list of chunks to add.
-     */
-    void addChunks(Town town, World world, Set<Vector2D> chunks) throws TownNotFoundException;
+  /**
+   * Adds a list of chunks.
+   *
+   * @param town   town to add.
+   * @param chunks list of chunks to add.
+   */
+  void addChunks(Town town, World world, Set<Vector2D> chunks) throws TownNotFoundException;
 
-    /**
-     * Checks if the chunks is owned by the town.
-     *
-     * @param town  town to check.
-     * @param chunk the chunk to check.
-     * @return true, if the town owns the chunk.
-     */
-    boolean hasChunk(Town town, World world, Vector2D chunk);
+  /**
+   * Checks if the chunks is owned by the town.
+   *
+   * @param town  town to check.
+   * @param chunk the chunk to check.
+   * @return true, if the town owns the chunk.
+   */
+  boolean hasChunk(Town town, World world, Vector2D chunk);
 
-    /**
-     * Checks if the chunks are owned by the town.
-     *
-     * @param town   town to check.
-     * @param chunks the chunk.
-     * @return if the town owns all the chunks.
-     */
-    boolean hasChunks(Town town, World world, Set<Vector2D> chunks);
+  /**
+   * Checks if the chunks are owned by the town.
+   *
+   * @param town   town to check.
+   * @param chunks the chunk.
+   * @return if the town owns all the chunks.
+   */
+  boolean hasChunks(Town town, World world, Set<Vector2D> chunks);
 }

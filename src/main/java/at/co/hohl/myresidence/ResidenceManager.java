@@ -33,71 +33,83 @@ import java.util.List;
  * @author Michael Hohl
  */
 public interface ResidenceManager extends FlagManager<ResidenceFlag.Type> {
-    /**
-     * Adds a member to the residence.
-     *
-     * @param inhabitant the inhabitant to become membership.
-     */
-    void addMember(Inhabitant inhabitant);
+  /**
+   * Adds a member to the residence.
+   *
+   * @param inhabitant the inhabitant to become membership.
+   */
+  void addMember(Inhabitant inhabitant);
 
-    /**
-     * Removes the residence as a member.
-     *
-     * @param inhabitant the inhabitant to remove as member.
-     */
-    void removeMember(Inhabitant inhabitant);
+  /**
+   * Removes the residence as a member.
+   *
+   * @param inhabitant the inhabitant to remove as member.
+   */
+  void removeMember(Inhabitant inhabitant);
 
-    /**
-     * Checks if the inhabitant is member or owner of the residence.
-     *
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is a member.
-     */
-    boolean isMember(Inhabitant inhabitant);
+  /**
+   * Checks if the inhabitant is member or owner of the residence.
+   *
+   * @param inhabitant the inhabitant to check.
+   * @return true, if the inhabitant is a member.
+   */
+  boolean isMember(Inhabitant inhabitant);
 
-    /**
-     * Returns the members of the residence.
-     *
-     * @return the members of the residence.
-     */
-    List<Inhabitant> getMembers();
+  /**
+   * Returns the members of the residence.
+   *
+   * @return the members of the residence.
+   */
+  List<Inhabitant> getMembers();
 
-    /**
-     * Sets the area of the residence.
-     *
-     * @param selection the area to set.
-     */
-    void setArea(Selection selection);
+  /**
+   * Sets the area of the residence.
+   *
+   * @param selection the area to set.
+   */
+  void setArea(Selection selection);
 
-    /** @return the area of the residence. */
-    Selection getArea();
+  /**
+   * @return the area of the residence.
+   */
+  Selection getArea();
 
-    /**
-     * Sets the sign of the residence.
-     *
-     * @param sign the sign of the residence.
-     */
-    void setSign(Block sign);
+  /**
+   * Sets the sign of the residence.
+   *
+   * @param sign the sign of the residence.
+   */
+  void setSign(Block sign);
 
-    /** @return the sign of the residence. */
-    Block getSign() throws ResidenceSignMissingException;
+  /**
+   * @return the sign of the residence.
+   */
+  Block getSign() throws ResidenceSignMissingException;
 
-    /**
-     * Sets the home point for the location.
-     *
-     * @param home the home point for the location.
-     */
-    void setHome(Location home);
+  /**
+   * Sets the home point for the location.
+   *
+   * @param home the home point for the location.
+   */
+  void setHome(Location home);
 
-    /** @return the location of the home point. */
-    Location getHome();
+  /**
+   * @return the location of the home point.
+   */
+  Location getHome();
 
-    /** @return the inhabitants who liked the residence. */
-    List<Inhabitant> getLikes();
+  /**
+   * @return the inhabitants who liked the residence.
+   */
+  List<Inhabitant> getLikes();
 
-    /** @param inhabitant the inhabitant to like the residence. */
-    void like(Inhabitant inhabitant);
+  /**
+   * @param inhabitant the inhabitant to like the residence.
+   */
+  void like(Inhabitant inhabitant);
 
-    /** @param inhabitant the inhabitant to unlike the residence. */
-    void unlike(Inhabitant inhabitant);
+  /**
+   * @param inhabitant the inhabitant to unlike the residence.
+   */
+  void unlike(Inhabitant inhabitant);
 }

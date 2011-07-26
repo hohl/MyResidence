@@ -30,45 +30,53 @@ import java.util.List;
  * @author Michael Hohl
  */
 public interface TownManager extends FlagManager<TownFlag.Type> {
-    /**
-     * Adds a major for the town.
-     *
-     * @param inhabitant the inhabitant to add as major.
-     */
-    void addMajor(Inhabitant inhabitant);
+  /**
+   * Adds a major for the town.
+   *
+   * @param inhabitant the inhabitant to add as major.
+   */
+  void addMajor(Inhabitant inhabitant);
 
-    /**
-     * Removes a major of the town.
-     *
-     * @param inhabitant the inhabitant to remove as major.
-     */
-    void removeMajor(Inhabitant inhabitant);
+  /**
+   * Removes a major of the town.
+   *
+   * @param inhabitant the inhabitant to remove as major.
+   */
+  void removeMajor(Inhabitant inhabitant);
 
-    /**
-     * Checks if the inhabitant is a major in the town.
-     *
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is major.
-     */
-    boolean isMajor(Inhabitant inhabitant);
+  /**
+   * Checks if the inhabitant is a major in the town.
+   *
+   * @param inhabitant the inhabitant to check.
+   * @return true, if the inhabitant is major.
+   */
+  boolean isMajor(Inhabitant inhabitant);
 
-    /** @return the major of the town. */
-    List<Inhabitant> getMajors();
+  /**
+   * @return the major of the town.
+   */
+  List<Inhabitant> getMajors();
 
-    /** @return all public majors of the town. */
-    List<Inhabitant> getPublicMajors();
+  /**
+   * @return all public majors of the town.
+   */
+  List<Inhabitant> getPublicMajors();
 
-    /** @return inhabitants of the town. */
-    List<Inhabitant> getInhabitants();
+  /**
+   * @return inhabitants of the town.
+   */
+  List<Inhabitant> getInhabitants();
 
-    /**
-     * Checks if the passed inhabitant is an inhabitant of the town.
-     *
-     * @param inhabitant the inhabitant to check.
-     * @return true, if the inhabitant is an inhabitant of the town.
-     */
-    boolean isInhabitant(Inhabitant inhabitant);
+  /**
+   * Checks if the passed inhabitant is an inhabitant of the town.
+   *
+   * @param inhabitant the inhabitant to check.
+   * @return true, if the inhabitant is an inhabitant of the town.
+   */
+  boolean isInhabitant(Inhabitant inhabitant);
 
-    /** @return residences of the town. */
-    List<Residence> getResidences();
+  /**
+   * @return residences of the town.
+   */
+  List<Residence> getResidences();
 }

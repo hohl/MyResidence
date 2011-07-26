@@ -27,20 +27,20 @@ import at.co.hohl.myresidence.storage.persistent.Residence;
  * @author Michael Hohl
  */
 public final class ResidenceChangedEvent {
-    private final Residence residence;
+  private final Residence residence;
 
-    private final Session changedBy;
+  private final Session changedBy;
 
-    public ResidenceChangedEvent(Session changedBy, Residence residence) {
-        this.changedBy = changedBy;
-        this.residence = residence;
-    }
+  public ResidenceChangedEvent(Session changedBy, Residence residence) {
+    this.changedBy = changedBy;
+    this.residence = residence;
+  }
 
-    public Session getChangedBy() {
-        return changedBy;
-    }
+  public Session getChangedBy() {
+    return changedBy;
+  }
 
-    public Residence getResidence() {
-        return residence;
-    }
+  public Residence getResidence() {
+    return residence;
+  }
 }

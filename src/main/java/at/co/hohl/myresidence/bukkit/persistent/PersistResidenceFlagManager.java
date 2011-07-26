@@ -32,82 +32,86 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class PersistResidenceFlagManager implements FlagManager<ResidenceFlag.Type> {
-    /** Nation which holds the residence. */
-    protected final Nation nation;
+  /**
+   * Nation which holds the residence.
+   */
+  protected final Nation nation;
 
-    /** The area to manage. */
-    protected final Residence residence;
+  /**
+   * The area to manage.
+   */
+  protected final Residence residence;
 
-    /**
-     * Creates a new FlagManager implementation.
-     *
-     * @param nation    nation which holds the residence.
-     * @param residence the residence to manage.
-     */
-    public PersistResidenceFlagManager(Nation nation, Residence residence) {
-        this.nation = nation;
-        this.residence = residence;
+  /**
+   * Creates a new FlagManager implementation.
+   *
+   * @param nation    nation which holds the residence.
+   * @param residence the residence to manage.
+   */
+  public PersistResidenceFlagManager(Nation nation, Residence residence) {
+    this.nation = nation;
+    this.residence = residence;
+  }
+
+  /**
+   * Checks if the passed residence has the flag set.
+   *
+   * @param flag flag to check.
+   * @return true, if the flag is set.
+   */
+  public boolean hasFlag(ResidenceFlag.Type flag) {
+    return nation.getDatabase().find(ResidenceFlag.class)
+            .where()
+            .eq("residenceId", residence.getId())
+            .eq("flag", flag)
+            .findRowCount() > 0;
+  }
+
+  /**
+   * Returns all flags of a residence.
+   *
+   * @return all flags set for the residence.
+   */
+  public List<ResidenceFlag.Type> getFlags() {
+    List<ResidenceFlag> residenceFlags = nation.getDatabase().find(ResidenceFlag.class)
+            .where()
+            .eq("residenceId", residence.getId()).findList();
+
+    List<ResidenceFlag.Type> flagTypes = new LinkedList<ResidenceFlag.Type>();
+    for (ResidenceFlag flag : residenceFlags) {
+      flagTypes.add(flag.getFlag());
     }
 
-    /**
-     * Checks if the passed residence has the flag set.
-     *
-     * @param flag flag to check.
-     * @return true, if the flag is set.
-     */
-    public boolean hasFlag(ResidenceFlag.Type flag) {
-        return nation.getDatabase().find(ResidenceFlag.class)
-                .where()
-                .eq("residenceId", residence.getId())
-                .eq("flag", flag)
-                .findRowCount() > 0;
+    return flagTypes;
+  }
+
+  /**
+   * Sets the passed flag.
+   *
+   * @param flag the flag to set.
+   */
+  public void setFlag(ResidenceFlag.Type flag) {
+    if (!hasFlag(flag)) {
+      ResidenceFlag residenceFlag = new ResidenceFlag();
+      residenceFlag.setResidenceId(residence.getId());
+      residenceFlag.setFlag(flag);
+      nation.getDatabase().save(residenceFlag);
     }
+  }
 
-    /**
-     * Returns all flags of a residence.
-     *
-     * @return all flags set for the residence.
-     */
-    public List<ResidenceFlag.Type> getFlags() {
-        List<ResidenceFlag> residenceFlags = nation.getDatabase().find(ResidenceFlag.class)
-                .where()
-                .eq("residenceId", residence.getId()).findList();
+  /**
+   * Remove the passed flag.
+   *
+   * @param flag the flag to remove.
+   */
+  public void removeFlag(ResidenceFlag.Type flag) {
+    List<ResidenceFlag> residenceFlagsToDelete = nation.getDatabase().find(ResidenceFlag.class)
+            .where()
+            .eq("residenceId", residence.getId())
+            .eq("flag", flag).findList();
 
-        List<ResidenceFlag.Type> flagTypes = new LinkedList<ResidenceFlag.Type>();
-        for (ResidenceFlag flag : residenceFlags) {
-            flagTypes.add(flag.getFlag());
-        }
-
-        return flagTypes;
+    if (residenceFlagsToDelete.size() > 0) {
+      nation.getDatabase().delete(residenceFlagsToDelete);
     }
-
-    /**
-     * Sets the passed flag.
-     *
-     * @param flag the flag to set.
-     */
-    public void setFlag(ResidenceFlag.Type flag) {
-        if (!hasFlag(flag)) {
-            ResidenceFlag residenceFlag = new ResidenceFlag();
-            residenceFlag.setResidenceId(residence.getId());
-            residenceFlag.setFlag(flag);
-            nation.getDatabase().save(residenceFlag);
-        }
-    }
-
-    /**
-     * Remove the passed flag.
-     *
-     * @param flag the flag to remove.
-     */
-    public void removeFlag(ResidenceFlag.Type flag) {
-        List<ResidenceFlag> residenceFlagsToDelete = nation.getDatabase().find(ResidenceFlag.class)
-                .where()
-                .eq("residenceId", residence.getId())
-                .eq("flag", flag).findList();
-
-        if (residenceFlagsToDelete.size() > 0) {
-            nation.getDatabase().delete(residenceFlagsToDelete);
-        }
-    }
+  }
 }
