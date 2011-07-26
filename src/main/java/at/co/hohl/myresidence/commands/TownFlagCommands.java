@@ -39,13 +39,13 @@ import org.bukkit.entity.Player;
  */
 public class TownFlagCommands {
     @Command(
-            aliases = {"set", "+"},
+            aliases = {"set", "add"},
             usage = "<flag>",
             desc = "Sets the flag for the selected town",
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.town.major.flag"})
+    @CommandPermissions({"myresidence.town.flags"})
     public static void set(final CommandContext args,
                            final MyResidence plugin,
                            final Nation nation,
@@ -72,13 +72,13 @@ public class TownFlagCommands {
     }
 
     @Command(
-            aliases = {"remove", "-"},
+            aliases = {"remove"},
             usage = "<flag>",
             desc = "Removes the flag for the selected residence",
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.town.major.flag"})
+    @CommandPermissions({"myresidence.town.flags"})
     public static void remove(final CommandContext args,
                               final MyResidence plugin,
                               final Nation nation,
@@ -110,7 +110,7 @@ public class TownFlagCommands {
             desc = "Lists all available flags",
             max = 0
     )
-    @CommandPermissions({"myresidence.town.major.flag"})
+    @CommandPermissions({"myresidence.town.flags"})
     public static void list(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,

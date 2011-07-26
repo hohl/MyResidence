@@ -40,13 +40,13 @@ import org.bukkit.entity.Player;
  */
 public class TownMajorCommands {
     @Command(
-            aliases = {"add", "+"},
+            aliases = {"add"},
             usage = "<playername>",
             desc = "Adds a major to the town",
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.town.major.majority"})
+    @CommandPermissions({"myresidence.major"})
     public static void add(final CommandContext args,
                            final MyResidence plugin,
                            final Nation nation,
@@ -66,13 +66,13 @@ public class TownMajorCommands {
     }
 
     @Command(
-            aliases = {"remove", "-"},
+            aliases = {"remove"},
             usage = "<playername>",
             desc = "Removes a major to the town",
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.town.major.majority"})
+    @CommandPermissions({"myresidence.major"})
     public static void remove(final CommandContext args,
                               final MyResidence plugin,
                               final Nation nation,
@@ -91,7 +91,7 @@ public class TownMajorCommands {
             throw new MyResidenceException("Major not found!");
         }
 
-        manager.addMajor(majorToRemove);
+        manager.removeMajor(majorToRemove);
         Chat.sendMessage(player, "&2{0}&a is no longer major of &2{1}&a!", majorToRemove.getName(), selectedTown.getName());
     }
 }

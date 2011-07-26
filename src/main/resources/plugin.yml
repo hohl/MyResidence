@@ -35,3 +35,60 @@ commands:
     unlike:
         description: Unlikes a liked residence.
         usage: /<command>
+
+permissions:
+    myresidence.*:
+        description: Gives access to all myresidence commands, including admin by pass flag
+        children:
+            myresidence.residence.*: true
+            myresidence.town.*: true
+            myresidence.admin: true
+            myresidence.like: true
+    myresidence.residence.*:
+        description: Gives access to all commands for managing residences.
+        children:
+            myresidence.residence.own: true
+            myresidence.residence.rename: true
+            myresidence.residence.value: true
+            myresidence.residence.members: true
+            myresidence.residence.wildness: true
+    myresidence.town.*:
+        description: Gives access to all commands for managing towns.
+        children:
+            myresidence.town.found: true
+            myresidence.town.remove: true
+            myresidence.town.flags: true
+            myresidence.major: true
+    myresidence.admin:
+        description: Allows manage all residences and towns without beeing major or owner
+        default: op
+    myresidence.major:
+        description: Allows user to become a major of a town
+        default: op
+    myresidence.like:
+        description: Allows to like/unlike a residence
+        default: true
+    myresidence.residence.own:
+        description: Allows to own, buy and sell a residence
+        default: true
+    myresidence.residence.rename:
+        description: Allows to rename a residence the player owns, is major in the town or has myresidence.admin perm
+        default: op
+    myresidence.residence.value:
+        description: Allows change the value of residence
+        default: op
+    myresidence.residence.members:
+        description: Allows manage members of a residence
+        default: true
+    myresidence.residence.wildness:
+        description: Allows to create a residence outside of a town
+        default: op
+    myresidence.town.found:
+        description: Allows to found a new town
+        default: op
+    myresidence.town.remove:
+        description: Allows to remove a town where you have major rights or myresidence.admin perm
+        default: op
+    myresidence.town.flags:
+        description: Allows to change flags of a town
+        default: op

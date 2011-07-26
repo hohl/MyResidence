@@ -49,7 +49,7 @@ public class TownClaimCommands {
             flags = "i",
             max = 0
     )
-    @CommandPermissions({"myresidence.town.major.expand"})
+    @CommandPermissions({"myresidence.major"})
     public static void claimChunk(final CommandContext args,
                                   final MyResidence plugin,
                                   final Nation nation,
@@ -104,7 +104,7 @@ public class TownClaimCommands {
             flags = "i",
             max = 0
     )
-    @CommandPermissions({"myresidence.town.major.expand"})
+    @CommandPermissions({"myresidence.major"})
     public static void claimSelection(final CommandContext args,
                                       final MyResidence plugin,
                                       final Nation nation,

@@ -33,161 +33,187 @@ import java.util.List;
  * @author Michael Hohl
  */
 public interface Nation {
-    /**
-     * Returns the residence at the passed location
-     *
-     * @param location the location to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(Location location);
+  /**
+   * Returns the residence at the passed location
+   *
+   * @param location the location to look for.
+   * @return the founded residence or null.
+   */
+  Residence getResidence(Location location);
 
-    /**
-     * Returns the residence with the passed id.
-     *
-     * @param id the id of the residence to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(int id);
+  /**
+   * Returns the residence with the passed id.
+   *
+   * @param id the id of the residence to look for.
+   * @return the founded residence or null.
+   */
+  Residence getResidence(int id);
 
-    /**
-     * Returns the residence with the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(String name);
+  /**
+   * Returns the residence with the passed name.
+   *
+   * @param name the name to look for.
+   * @return the founded residence or null.
+   */
+  Residence getResidence(String name);
 
-    /**
-     * Returns the residence by the passed sign.
-     *
-     * @param sign the sign to look for.
-     * @return the founded residence or null.
-     */
-    Residence getResidence(Sign sign);
+  /**
+   * Returns the residence by the passed sign.
+   *
+   * @param sign the sign to look for.
+   * @return the founded residence or null.
+   */
+  Residence getResidence(Sign sign);
 
-    /**
-     * Find a residence by name.
-     *
-     * @param search a part of the name to search.
-     * @return the residence found.
-     */
-    List<Residence> findResidences(String search);
+  /**
+   * Find a residence by name.
+   *
+   * @param search a part of the name to search.
+   * @return the residence found.
+   */
+  List<Residence> findResidences(String search);
 
-    /**
-     * Find a residence by name owned by the passed residence.
-     *
-     * @param inhabitant the inhabitant which owns the residence to look for.
-     * @param search     a part of the name to search.
-     * @return the residence found.
-     */
-    List<Residence> findResidences(Inhabitant inhabitant, String search);
+  /**
+   * Find a residence by name owned by the passed residence.
+   *
+   * @param inhabitant the inhabitant which owns the residence to look for.
+   * @param search     a part of the name to search.
+   * @return the residence found.
+   */
+  List<Residence> findResidences(Inhabitant inhabitant, String search);
 
-    /**
-     * Finds all residences owned by the passed inhabitant.
-     *
-     * @param inhabitant the inhabitant to look for.
-     * @return list of the found residences.
-     */
-    List<Residence> findResidences(Inhabitant inhabitant);
+  /**
+   * Finds all residences owned by the passed inhabitant.
+   *
+   * @param inhabitant the inhabitant to look for.
+   * @return list of the found residences.
+   */
+  List<Residence> findResidences(Inhabitant inhabitant);
 
-    /**
-     * Returns the town with the passed id.
-     *
-     * @param id the id of the town to look for.
-     * @return the founded town or null.
-     */
-    Town getTown(int id);
+  /**
+   * Returns the town with the passed id.
+   *
+   * @param id the id of the town to look for.
+   * @return the founded town or null.
+   */
+  Town getTown(int id);
 
-    /**
-     * Returns the town with the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded town or null.
-     */
-    Town getTown(String name);
+  /**
+   * Returns the town with the passed name.
+   *
+   * @param name the name to look for.
+   * @return the founded town or null.
+   */
+  Town getTown(String name);
 
-    /**
-     * Returns the town at the passed location.
-     *
-     * @param location the location to look for.
-     * @return the founded town or null.
-     */
-    Town getTown(Location location);
+  /**
+   * Returns the town at the passed location.
+   *
+   * @param location the location to look for.
+   * @return the founded town or null.
+   */
+  Town getTown(Location location);
 
-    /**
-     * Returns the player with the passed id.
-     *
-     * @param id the id of the player to look for.
-     * @return the founded player or null.
-     */
-    Inhabitant getInhabitant(int id);
+  /**
+   * Finds a town for the passed name.
+   *
+   * @param name the name of the town to find. Could alos be only a part of the name.
+   * @return founded towns.
+   */
+  List<Town> findTown(String name);
 
-    /**
-     * Returns the player data for the passed name.
-     *
-     * @param name the name to look for.
-     * @return the founded player or null.
-     */
-    Inhabitant getInhabitant(String name);
+  /**
+   * Removes a town.
+   *
+   * @param town town to remove.
+   */
+  void remove(Town town) throws MyResidenceException;
 
-    /** @return manager for the chunks. */
-    ChunkManager getChunkManager();
+  /**
+   * Removes a residence.
+   *
+   * @param residence residence to remove.
+   */
+  void remove(Residence residence);
 
-    /**
-     * Returns a manager for the residence.
-     *
-     * @param residence the residence.
-     * @return the manager for the residence.
-     */
-    ResidenceManager getResidenceManager(Residence residence);
+  /**
+   * Returns the player with the passed id.
+   *
+   * @param id the id of the player to look for.
+   * @return the founded player or null.
+   */
+  Inhabitant getInhabitant(int id);
 
-    /**
-     * Returns a manager for the town.
-     *
-     * @param town the manager for the town.
-     * @return the town.
-     */
-    TownManager getTownManager(Town town);
+  /**
+   * Returns the player data for the passed name.
+   *
+   * @param name the name to look for.
+   * @return the founded player or null.
+   */
+  Inhabitant getInhabitant(String name);
 
-    /**
-     * Returns a manager for the rules of the town.
-     *
-     * @param town the town to manage.
-     * @return the rule manager for the town.
-     */
-    RuleManager getRuleManager(Town town);
+  /**
+   * @return manager for the chunks.
+   */
+  ChunkManager getChunkManager();
 
-    /**
-     * Returns a manager for the flags of the residence.
-     *
-     * @param residence the residence to manage.
-     * @return the manager for the flags.
-     */
-    FlagManager<ResidenceFlag.Type> getFlagManager(Residence residence);
+  /**
+   * Returns a manager for the residence.
+   *
+   * @param residence the residence.
+   * @return the manager for the residence.
+   */
+  ResidenceManager getResidenceManager(Residence residence);
 
-    /**
-     * Returns a manager for the flags of the town.
-     *
-     * @param town the town to manage.
-     * @return the manager for the flags.
-     */
-    FlagManager<TownFlag.Type> getFlagManager(Town town);
+  /**
+   * Returns a manager for the town.
+   *
+   * @param town the manager for the town.
+   * @return the town.
+   */
+  TownManager getTownManager(Town town);
 
-    /**
-     * Sends the passed player information about the passed object.
-     *
-     * @param object object to retrieve information. Could be a Residence or a Town.
-     * @throws MyResidenceException can not send information to the passed player.
-     */
-    public void sendInformation(Player player, Object object) throws MyResidenceException;
+  /**
+   * Returns a manager for the rules of the town.
+   *
+   * @param town the town to manage.
+   * @return the rule manager for the town.
+   */
+  RuleManager getRuleManager(Town town);
 
-    /**
-     * Saves any changes to towns or residences.
-     *
-     * @param object the object of the town or residence to save.
-     */
-    void save(Object object);
+  /**
+   * Returns a manager for the flags of the residence.
+   *
+   * @param residence the residence to manage.
+   * @return the manager for the flags.
+   */
+  FlagManager<ResidenceFlag.Type> getFlagManager(Residence residence);
 
-    /** @return the database which holds all information about towns and residences. */
-    EbeanServer getDatabase();
+  /**
+   * Returns a manager for the flags of the town.
+   *
+   * @param town the town to manage.
+   * @return the manager for the flags.
+   */
+  FlagManager<TownFlag.Type> getFlagManager(Town town);
+
+  /**
+   * Sends the passed player information about the passed object.
+   *
+   * @param object object to retrieve information. Could be a Residence or a Town.
+   * @throws MyResidenceException can not send information to the passed player.
+   */
+  public void sendInformation(Player player, Object object) throws MyResidenceException;
+
+  /**
+   * Saves any changes to towns or residences.
+   *
+   * @param object the object of the town or residence to save.
+   */
+  void save(Object object);
+
+  /**
+   * @return the database which holds all information about towns and residences.
+   */
+  EbeanServer getDatabase();
 }

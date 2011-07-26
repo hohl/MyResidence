@@ -49,7 +49,6 @@ public class ResidenceListCommands {
             flags = "t",
             max = 1
     )
-    @CommandPermissions({"myresidence.residence.list"})
     public static void forSale(final CommandContext args,
                                final MyResidence plugin,
                                final Nation nation,
@@ -88,7 +87,6 @@ public class ResidenceListCommands {
             flags = "t",
             max = 1
     )
-    @CommandPermissions({"myresidence.residence.list"})
     public static void own(final CommandContext args,
                            final MyResidence plugin,
                            final Nation nation,
@@ -127,7 +125,6 @@ public class ResidenceListCommands {
             flags = "t",
             max = 1
     )
-    @CommandPermissions({"myresidence.residence.list"})
     public static void alphabetic(final CommandContext args,
                                   final MyResidence plugin,
                                   final Nation nation,
@@ -163,7 +160,6 @@ public class ResidenceListCommands {
             flags = "to",
             max = 1
     )
-    @CommandPermissions({"myresidence.residence.list"})
     public static void expensive(final CommandContext args,
                                  final MyResidence plugin,
                                  final Nation nation,

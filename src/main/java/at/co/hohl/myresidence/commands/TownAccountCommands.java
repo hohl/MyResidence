@@ -44,7 +44,7 @@ public class TownAccountCommands {
             desc = "Balance of town account",
             max = 0
     )
-    @CommandPermissions({"myresidence.town.major.account"})
+    @CommandPermissions({"myresidence.major"})
     public static void money(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,
@@ -69,7 +69,7 @@ public class TownAccountCommands {
             min = 2,
             max = 2
     )
-    @CommandPermissions({"myresidence.town.major.account"})
+    @CommandPermissions({"myresidence.major"})
     public static void pay(final CommandContext args,
                            final MyResidence plugin,
                            final Nation nation,
@@ -113,7 +113,7 @@ public class TownAccountCommands {
             min = 1,
             max = 1
     )
-    @CommandPermissions({"myresidence.town.major.account"})
+    @CommandPermissions({"myresidence.major"})
     public static void grant(final CommandContext args,
                              final MyResidence plugin,
                              final Nation nation,
