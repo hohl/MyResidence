@@ -20,10 +20,7 @@ package at.co.hohl.myresidence.bukkit.listener;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.event.ResidenceChangedEvent;
-import at.co.hohl.myresidence.event.ResidenceCreatedEvent;
-import at.co.hohl.myresidence.event.ResidenceListener;
-import at.co.hohl.myresidence.event.ResidenceRemovedEvent;
+import at.co.hohl.myresidence.event.*;
 import at.co.hohl.myresidence.exceptions.ResidenceSignMissingException;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import com.sk89q.util.StringUtil;
@@ -37,98 +34,112 @@ import org.bukkit.block.Sign;
  * @author Michael Hohl
  */
 public class SignUpdateListener extends ResidenceListener {
-    private final Nation nation;
+  private final Nation nation;
 
-    private final MyResidence plugin;
+  private final MyResidence plugin;
 
-    /**
-     * Creates a new listener, which updates the signs of the residences.
-     *
-     * @param nation the nation.
-     * @param plugin the plugin.
-     */
-    public SignUpdateListener(Nation nation, MyResidence plugin) {
-        this.nation = nation;
-        this.plugin = plugin;
+  /**
+   * Creates a new listener, which updates the signs of the residences.
+   *
+   * @param nation the nation.
+   * @param plugin the plugin.
+   */
+  public SignUpdateListener(Nation nation, MyResidence plugin) {
+    this.nation = nation;
+    this.plugin = plugin;
+  }
+
+  /**
+   * Called when a new residence is created.
+   *
+   * @param event the event itself.
+   */
+  @Override
+  public void onResidenceCreated(ResidenceCreatedEvent event) {
+    try {
+      updateResidenceSign(event.getResidence());
+    } catch (ResidenceSignMissingException e) {
+      plugin.severe(e.getMessage());
+    }
+  }
+
+  /**
+   * Called when a residence is changed.
+   *
+   * @param event the event itself.
+   */
+  @Override
+  public void onResidenceChanged(ResidenceChangedEvent event) {
+    try {
+      updateResidenceSign(event.getResidence());
+    } catch (ResidenceSignMissingException e) {
+      plugin.severe(e.getMessage());
+    }
+  }
+
+  /**
+   * Called when a residence received a lik.
+   *
+   * @param event the event itself.
+   */
+  @Override
+  public void onResidenceLiked(ResidenceLikedEvent event) {
+    try {
+      updateResidenceSign(event.getResidence());
+    } catch (ResidenceSignMissingException e) {
+      plugin.severe(e.getMessage());
+    }
+  }
+
+  /**
+   * Called when a residence is removed.
+   *
+   * @param event the event itself.
+   */
+  @Override
+  public void onResidenceRemoved(ResidenceRemovedEvent event) {
+    try {
+      Block signBlock = nation.getResidenceManager(event.getResidence()).getSign();
+      Sign sign = (Sign) signBlock.getState();
+
+      for (int index = 0; index < 4; ++index) {
+        sign.setLine(index, "");
+      }
+    } catch (ResidenceSignMissingException e) {
+      plugin.severe("Sign not found for residence %s!", event.getResidence().getName());
+    }
+  }
+
+  /**
+   * Updates the sign linked to passed Residence.
+   *
+   * @param residence Residence to update.
+   */
+  private void updateResidenceSign(Residence residence) throws ResidenceSignMissingException {
+    Block signBlock = nation.getResidenceManager(residence).getSign();
+
+    if (signBlock == null) {
+      throw new ResidenceSignMissingException(residence);
     }
 
-    /**
-     * Called when a new residence is created.
-     *
-     * @param event the event itself.
-     */
-    @Override
-    public void onResidenceCreated(ResidenceCreatedEvent event) {
-        try {
-            updateResidenceSign(event.getResidence());
-        } catch (ResidenceSignMissingException e) {
-            plugin.severe(e.getMessage());
-        }
+    Sign sign = (Sign) signBlock.getState();
+    sign.setLine(0, plugin.getConfiguration(signBlock.getWorld()).getSignTitle());
+    sign.setLine(1, StringUtil.trimLength(residence.getName(), 16));
+    if (residence.isForSale()) {
+      sign.setLine(2, ChatColor.YELLOW +
+              StringUtil.trimLength(plugin.getConfiguration(signBlock.getWorld()).getSignSaleText(), 14));
+
+      sign.setLine(3, ChatColor.YELLOW + StringUtil.trimLength(plugin.format(residence.getPrice()), 14));
+    } else {
+      sign.setLine(2, nation.getInhabitant(residence.getOwnerId()).getName());
+
+      int likes = nation.getResidenceManager(residence).getLikes().size();
+      if (likes > 0) {
+        sign.setLine(3, likes + " Likes");
+      } else {
+        sign.setLine(3, "");
+      }
     }
-
-    /**
-     * Called when a residence is changed.
-     *
-     * @param event the event itself.
-     */
-    @Override
-    public void onResidenceChanged(ResidenceChangedEvent event) {
-        try {
-            updateResidenceSign(event.getResidence());
-        } catch (ResidenceSignMissingException e) {
-            plugin.severe(e.getMessage());
-        }
-    }
-
-    /**
-     * Called when a residence is removed.
-     *
-     * @param event the event itself.
-     */
-    @Override
-    public void onResidenceRemoved(ResidenceRemovedEvent event) {
-        try {
-            Block signBlock = nation.getResidenceManager(event.getResidence()).getSign();
-            Sign sign = (Sign) signBlock.getState();
-
-            for (int index = 0; index < 4; ++index) {
-                sign.setLine(index, "");
-            }
-        } catch (ResidenceSignMissingException e) {
-            plugin.severe("Sign not found for residence %s!", event.getResidence().getName());
-        }
-    }
-
-    /**
-     * Updates the sign linked to passed Residence.
-     *
-     * @param residence Residence to update.
-     */
-    private void updateResidenceSign(Residence residence) throws ResidenceSignMissingException {
-        Block signBlock = nation.getResidenceManager(residence).getSign();
-
-        if (signBlock == null) {
-            throw new ResidenceSignMissingException(residence);
-        }
-
-        Sign sign = (Sign) signBlock.getState();
-        sign.setLine(0, plugin.getConfiguration(signBlock.getWorld()).getSignTitle());
-        sign.setLine(1, StringUtil.trimLength(residence.getName(), 16));
-        if (residence.isForSale()) {
-            sign.setLine(2, ChatColor.YELLOW +
-                    StringUtil.trimLength(plugin.getConfiguration(signBlock.getWorld()).getSignSaleText(), 14));
-
-            sign.setLine(3, ChatColor.YELLOW + StringUtil.trimLength(plugin.format(residence.getPrice()), 14));
-        } else {
-            sign.setLine(2, nation.getInhabitant(residence.getOwnerId()).getName());
-
-            int likes = nation.getResidenceManager(residence).getLikes().size();
-            if (likes > 0) {
-                sign.setLine(3, likes + " Likes");
-            } else {
-                sign.setLine(3, "");
-            }
-        }
-        sign.update();
-    }
+    sign.update();
+  }
 }

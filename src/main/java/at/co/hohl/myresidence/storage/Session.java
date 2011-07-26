@@ -18,7 +18,6 @@
 
 package at.co.hohl.myresidence.storage;
 
-import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.NoResidenceSelectedException;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
@@ -37,207 +36,236 @@ import java.util.List;
  * @author Michael Hohl
  */
 public class Session {
-    // Duration, how long a selection should be stored.
-    private static final long SELECTION_DURATION = 45 * 1000;
+  // Duration, how long a selection should be stored.
+  private static final long SELECTION_DURATION = 45 * 1000;
 
-    /** Activator for tasks. */
-    public enum Activator {
-        CONFIRM_COMMAND,
-        SELECT_SIGN
+  /**
+   * Activator for tasks.
+   */
+  public enum Activator {
+    CONFIRM_COMMAND,
+    SELECT_SIGN
+  }
+
+  /**
+   * Player who owns the session.
+   */
+  private final Player player;
+
+  /**
+   * The nation which contains all the towns and residences.
+   */
+  private final Nation nation;
+
+  /**
+   * Is flag set, player want to get debug information.
+   */
+  private boolean debugger;
+
+  /**
+   * Last clicked sign.
+   */
+  private Sign selectedSign;
+
+  /**
+   * Last clicked sign block.
+   */
+  private Block selectedSignBlock;
+
+  /**
+   * Time, when sign is selected.
+   */
+  private long signSelectedAt;
+
+  /**
+   * Selected town.
+   */
+  private int selectedTownId = -1;
+
+  /**
+   * ID of last targeted home.
+   */
+  private int lastHomeResidenceId;
+
+  /**
+   * Activator for task.
+   */
+  private Activator taskActivator;
+
+  /**
+   * Task to do.
+   */
+  private Runnable task;
+
+  /**
+   * Creates a new Session for the passed player.
+   *
+   * @param nation the nation which contains all the towns and residences.
+   * @param player the player who should own the session.
+   */
+  public Session(Nation nation, Player player) {
+    this.nation = nation;
+    this.player = player;
+  }
+
+  /**
+   * @return the name of the session owner.
+   */
+  public String getName() {
+    return player.getName();
+  }
+
+  /**
+   * @return id of the player.
+   */
+  public int getPlayerId() {
+    return nation.getInhabitant(player.getName()).getId();
+  }
+
+  /**
+   * Checks if the player has permission to do that.
+   *
+   * @param permission the permission to check.
+   * @return true, if the player has the permission.
+   */
+  @Deprecated
+  public boolean hasPermission(String permission) {
+    return player.hasPermission(permission);
+  }
+
+  /**
+   * Checks if the session has major rights in the town.
+   *
+   * @param town the town to check.
+   * @return true, if the session has enough rights.
+   */
+  public boolean hasMajorRights(Town town) {
+    return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
+            player.hasPermission("myresidence.admin");
+  }
+
+  /**
+   * Checks if the session has owner rights for the residence.
+   *
+   * @param residence the residence to check.
+   * @return true, if the session has enough rights.
+   */
+  public boolean hasResidenceOwnerRights(Residence residence) {
+    return getPlayerId() == residence.getOwnerId() || player.hasPermission("myresidence.admin");
+  }
+
+  /**
+   * Returns the current selected Residence.
+   *
+   * @return the current selection of the player.
+   * @throws at.co.hohl.myresidence.exceptions.NoResidenceSelectedException
+   *          thrown when the player don't have a selection.
+   */
+  public Residence getSelectedResidence() throws NoResidenceSelectedException {
+    Residence residence;
+
+    if (selectedSign != null && signSelectedAt + SELECTION_DURATION > System.currentTimeMillis()) {
+      signSelectedAt = System.currentTimeMillis();
+
+      residence = nation.getResidence(getSelectedSign());
+    } else {
+      residence = nation.getResidence(player.getLocation());
     }
 
-    /** Player who owns the session. */
-    private final Player player;
-
-    /** The nation which contains all the towns and residences. */
-    private final Nation nation;
-
-    /** Is flag set, player want to get debug information. */
-    private boolean debugger;
-
-    /** Last clicked sign. */
-    private Sign selectedSign;
-
-    /** Last clicked sign block. */
-    private Block selectedSignBlock;
-
-    /** Time, when sign is selected. */
-    private long signSelectedAt;
-
-    /** Selected town. */
-    private int selectedTownId = -1;
-
-    /** ID of last targeted home. */
-    private int lastHomeResidenceId;
-
-    /** Activator for task. */
-    private Activator taskActivator;
-
-    /** Task to do. */
-    private Runnable task;
-
-    /**
-     * Creates a new Session for the passed player.
-     *
-     * @param nation the nation which contains all the towns and residences.
-     * @param player the player who should own the session.
-     */
-    public Session(Nation nation, Player player) {
-        this.nation = nation;
-        this.player = player;
+    if (residence == null) {
+      throw new NoResidenceSelectedException();
     }
 
-    /** @return id of the player. */
-    public int getPlayerId() {
-        return nation.getInhabitant(player.getName()).getId();
+    return residence;
+
+  }
+
+  /**
+   * @return selected town.
+   * @throws NoTownSelectedException thrown when no town is selected.
+   */
+  public Town getSelectedTown() throws NoTownSelectedException {
+    if (selectedTownId == -1) {
+      List<Major> majorities = nation.getDatabase().find(Major.class).where()
+              .eq("inhabitantId", getPlayerId())
+              .findList();
+
+      if (majorities.size() == 1) {
+        selectedTownId = majorities.get(0).getTownId();
+        return nation.getTown(majorities.get(0).getTownId());
+      }
+
+      throw new NoTownSelectedException();
+    } else {
+      return nation.getTown(selectedTownId);
     }
+  }
 
-    /**
-     * Checks if the player has permission to do that.
-     *
-     * @param permission the permission to check.
-     * @return true, if the player has the permission.
-     */
-    @Deprecated
-    public boolean hasPermission(String permission) {
-        return player.hasPermission(permission);
+  /**
+   * Sets the selected Town.
+   *
+   * @param town the town to set selected.
+   */
+  public void setSelectedTown(Town town) {
+    selectedTownId = town.getId();
+  }
+
+  public Block getSelectedSignBlock() {
+    return selectedSignBlock;
+  }
+
+  /**
+   * Sets the last selected sign.
+   *
+   * @param selectedSignBlock the block of the selected sign.
+   */
+  public void setSelectedSignBlock(Block selectedSignBlock) {
+    if (selectedSignBlock == null) {
+      this.selectedSignBlock = null;
+      this.selectedSign = null;
+    } else if (selectedSignBlock.getState() instanceof Sign) {
+      this.selectedSignBlock = selectedSignBlock;
+      this.selectedSign = (Sign) selectedSignBlock.getState();
+
+      signSelectedAt = System.currentTimeMillis();
+    } else {
+      throw new RuntimeException("Block is not a sign!");
     }
+  }
 
-    /**
-     * Checks if the session has major rights in the town.
-     *
-     * @param town the town to check.
-     * @return true, if the session has enough rights.
-     */
-    public boolean hasMajorRights(Town town) {
-        return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
-                player.hasPermission("myresidence.admin");
-    }
+  public int getLastHomeResidenceId() {
+    return lastHomeResidenceId;
+  }
 
-    /**
-     * Checks if the session has owner rights for the residence.
-     *
-     * @param residence the residence to check.
-     * @return true, if the session has enough rights.
-     */
-    public boolean hasResidenceOwnerRights(Residence residence) {
-        return getPlayerId() == residence.getOwnerId() || player.hasPermission("myresidence.admin");
-    }
+  public void setLastHomeResidenceId(int lastHomeResidenceId) {
+    this.lastHomeResidenceId = lastHomeResidenceId;
+  }
 
-    /**
-     * Returns the current selected Residence.
-     *
-     * @return the current selection of the player.
-     *
-     * @throws at.co.hohl.myresidence.exceptions.NoResidenceSelectedException
-     *          thrown when the player don't have a selection.
-     */
-    public Residence getSelectedResidence() throws NoResidenceSelectedException {
-        Residence residence;
+  public boolean isDebugger() {
+    return debugger;
+  }
 
-        if (selectedSign != null && signSelectedAt + SELECTION_DURATION > System.currentTimeMillis()) {
-            signSelectedAt = System.currentTimeMillis();
+  public void setDebugger(boolean debugger) {
+    this.debugger = debugger;
+  }
 
-            residence = nation.getResidence(getSelectedSign());
-        } else {
-            residence = nation.getResidence(player.getLocation());
-        }
+  public Sign getSelectedSign() {
+    return selectedSign;
+  }
 
-        if (residence == null) {
-            throw new NoResidenceSelectedException();
-        }
+  public Runnable getTask() {
+    return task;
+  }
 
-        return residence;
+  public void setTask(Runnable task) {
+    this.task = task;
+  }
 
-    }
+  public Activator getTaskActivator() {
+    return taskActivator;
+  }
 
-    /**
-     * @return selected town.
-     *
-     * @throws NoTownSelectedException thrown when no town is selected.
-     */
-    public Town getSelectedTown() throws NoTownSelectedException {
-        if (selectedTownId == -1) {
-            List<Major> majorities = nation.getDatabase().find(Major.class).where()
-                    .eq("inhabitantId", getPlayerId())
-                    .findList();
-
-            if (majorities.size() == 1) {
-                selectedTownId = majorities.get(0).getTownId();
-                return nation.getTown(majorities.get(0).getTownId());
-            }
-
-            throw new NoTownSelectedException();
-        } else {
-            return nation.getTown(selectedTownId);
-        }
-    }
-
-    /**
-     * Sets the selected Town.
-     *
-     * @param town the town to set selected.
-     */
-    public void setSelectedTown(Town town) {
-        selectedTownId = town.getId();
-    }
-
-    public Block getSelectedSignBlock() {
-        return selectedSignBlock;
-    }
-
-    /**
-     * Sets the last selected sign.
-     *
-     * @param selectedSignBlock the block of the selected sign.
-     */
-    public void setSelectedSignBlock(Block selectedSignBlock) {
-        if (selectedSignBlock == null) {
-            this.selectedSignBlock = null;
-            this.selectedSign = null;
-        } else if (selectedSignBlock.getState() instanceof Sign) {
-            this.selectedSignBlock = selectedSignBlock;
-            this.selectedSign = (Sign) selectedSignBlock.getState();
-
-            signSelectedAt = System.currentTimeMillis();
-        } else {
-            throw new RuntimeException("Block is not a sign!");
-        }
-    }
-
-    public int getLastHomeResidenceId() {
-        return lastHomeResidenceId;
-    }
-
-    public void setLastHomeResidenceId(int lastHomeResidenceId) {
-        this.lastHomeResidenceId = lastHomeResidenceId;
-    }
-
-    public boolean isDebugger() {
-        return debugger;
-    }
-
-    public void setDebugger(boolean debugger) {
-        this.debugger = debugger;
-    }
-
-    public Sign getSelectedSign() {
-        return selectedSign;
-    }
-
-    public Runnable getTask() {
-        return task;
-    }
-
-    public void setTask(Runnable task) {
-        this.task = task;
-    }
-
-    public Activator getTaskActivator() {
-        return taskActivator;
-    }
-
-    public void setTaskActivator(Activator taskActivator) {
-        this.taskActivator = taskActivator;
-    }
+  public void setTaskActivator(Activator taskActivator) {
+    this.taskActivator = taskActivator;
+  }
 }

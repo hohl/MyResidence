@@ -24,54 +24,65 @@ package at.co.hohl.myresidence.event;
  * @author Michael Hohl
  */
 public abstract class ResidenceListener implements EventListener {
-    /**
-     * Checks if the handler can handle the event.
-     *
-     * @param o the object which is the event.
-     * @return true, if the handler could handle the event.
-     */
-    public boolean canHandle(Object o) {
-        return o instanceof ResidenceChangedEvent ||
-                o instanceof ResidenceCreatedEvent ||
-                o instanceof ResidenceRemovedEvent;
-    }
+  /**
+   * Checks if the handler can handle the event.
+   *
+   * @param o the object which is the event.
+   * @return true, if the handler could handle the event.
+   */
+  public boolean canHandle(Object o) {
+    return o instanceof ResidenceChangedEvent ||
+            o instanceof ResidenceCreatedEvent ||
+            o instanceof ResidenceRemovedEvent ||
+            o instanceof ResidenceLikedEvent;
+  }
 
-    /**
-     * Handles the event.
-     *
-     * @param o the object which is the event.
-     */
-    public void handle(Object o) {
-        if (o instanceof ResidenceChangedEvent) {
-            onResidenceChanged((ResidenceChangedEvent) o);
-        } else if (o instanceof ResidenceCreatedEvent) {
-            onResidenceCreated((ResidenceCreatedEvent) o);
-        } else if (o instanceof ResidenceRemovedEvent) {
-            onResidenceRemoved((ResidenceRemovedEvent) o);
-        }
+  /**
+   * Handles the event.
+   *
+   * @param o the object which is the event.
+   */
+  public void handle(Object o) {
+    if (o instanceof ResidenceChangedEvent) {
+      onResidenceChanged((ResidenceChangedEvent) o);
+    } else if (o instanceof ResidenceCreatedEvent) {
+      onResidenceCreated((ResidenceCreatedEvent) o);
+    } else if (o instanceof ResidenceRemovedEvent) {
+      onResidenceRemoved((ResidenceRemovedEvent) o);
+    } else if (o instanceof ResidenceLikedEvent) {
+      onResidenceLiked((ResidenceLikedEvent) o);
     }
+  }
 
-    /**
-     * Called when a new residence is created.
-     *
-     * @param event the event itself.
-     */
-    public void onResidenceCreated(ResidenceCreatedEvent event) {
-    }
+  /**
+   * Called when a new residence is created.
+   *
+   * @param event the event itself.
+   */
+  public void onResidenceCreated(ResidenceCreatedEvent event) {
+  }
 
-    /**
-     * Called when a residence is changed.
-     *
-     * @param event the event itself.
-     */
-    public void onResidenceChanged(ResidenceChangedEvent event) {
-    }
+  /**
+   * Called when a residence is changed.
+   *
+   * @param event the event itself.
+   */
+  public void onResidenceChanged(ResidenceChangedEvent event) {
+  }
 
-    /**
-     * Called when a residence is removed.
-     *
-     * @param event the event itself.
-     */
-    public void onResidenceRemoved(ResidenceRemovedEvent event) {
-    }
+  /**
+   * Called when a residence received a like.
+   *
+   * @param event the event itself.
+   */
+  public void onResidenceLiked(ResidenceLikedEvent event) {
+  }
+
+  /**
+   * Called when a residence is removed.
+   *
+   * @param event the event itself.
+   */
+  public void onResidenceRemoved(ResidenceRemovedEvent event) {
+  }
 }

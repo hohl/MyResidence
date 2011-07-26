@@ -23,6 +23,7 @@ import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.ResidenceManager;
 import at.co.hohl.myresidence.event.ResidenceChangedEvent;
+import at.co.hohl.myresidence.event.ResidenceLikedEvent;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Inhabitant;
@@ -38,63 +39,63 @@ import org.bukkit.entity.Player;
  * @author Michael Hohl
  */
 public class LikeCommands {
-    @Command(
-            aliases = {"like"},
-            desc = "Likes the selected or passed residence",
-            usage = "[residence]"
-    )
-    @CommandPermissions({"myresidence.like"})
-    public static void like(final CommandContext args,
+  @Command(
+          aliases = {"like"},
+          desc = "Likes the selected or passed residence",
+          usage = "[residence]"
+  )
+  @CommandPermissions({"myresidence.like"})
+  public static void like(final CommandContext args,
+                          final MyResidence plugin,
+                          final Nation nation,
+                          final Player player,
+                          final Session session)
+          throws MyResidenceException {
+    Residence residence;
+
+    if (args.argsLength() == 0) {
+      residence = session.getSelectedResidence();
+    } else {
+      residence = nation.getResidence(args.getJoinedStrings(0));
+    }
+
+    Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
+    ResidenceManager manager = nation.getResidenceManager(residence);
+
+    manager.like(playerInhabitant);
+
+    Chat.sendMessage(player, "&2You liked the residence.");
+
+    plugin.getEventManager().callEvent(new ResidenceLikedEvent(session, residence));
+  }
+
+  @Command(
+          aliases = {"unlike"},
+          desc = "Unlikes the selected or passed residence",
+          usage = "[residence]"
+  )
+  @CommandPermissions({"myresidence.like"})
+  public static void unlike(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
                             final Session session)
-            throws MyResidenceException {
-        Residence residence;
+          throws MyResidenceException {
+    Residence residence;
 
-        if (args.argsLength() == 0) {
-            residence = session.getSelectedResidence();
-        } else {
-            residence = nation.getResidence(args.getJoinedStrings(0));
-        }
-
-        Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
-        ResidenceManager manager = nation.getResidenceManager(residence);
-
-        manager.like(playerInhabitant);
-
-        Chat.sendMessage(player, "&2You liked the residence.");
-
-        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
+    if (args.argsLength() == 0) {
+      residence = session.getSelectedResidence();
+    } else {
+      residence = nation.getResidence(args.getJoinedStrings(0));
     }
 
-    @Command(
-            aliases = {"unlike"},
-            desc = "Unlikes the selected or passed residence",
-            usage = "[residence]"
-    )
-    @CommandPermissions({"myresidence.like"})
-    public static void unlike(final CommandContext args,
-                              final MyResidence plugin,
-                              final Nation nation,
-                              final Player player,
-                              final Session session)
-            throws MyResidenceException {
-        Residence residence;
+    Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
+    ResidenceManager manager = nation.getResidenceManager(residence);
 
-        if (args.argsLength() == 0) {
-            residence = session.getSelectedResidence();
-        } else {
-            residence = nation.getResidence(args.getJoinedStrings(0));
-        }
+    manager.unlike(playerInhabitant);
 
-        Inhabitant playerInhabitant = nation.getInhabitant(session.getPlayerId());
-        ResidenceManager manager = nation.getResidenceManager(residence);
+    Chat.sendMessage(player, "&2You do not like the residence anymore.");
 
-        manager.unlike(playerInhabitant);
-
-        Chat.sendMessage(player, "&2You do not like the residence anymore.");
-
-        plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
-    }
+    plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
+  }
 }
