@@ -66,7 +66,7 @@ public class TownCommands {
 
     nation.getTownManager(town).addMajor(nation.getInhabitant(session.getPlayerId()));
 
-    player.sendMessage(ChatColor.DARK_GREEN + "Town '" + args.getJoinedStrings(0) + "' created!");
+    Chat.sendMessage(player, "&2Town {0} selected!", town);
   }
 
   @Command(
@@ -93,7 +93,7 @@ public class TownCommands {
       public void run() {
         try {
           nation.remove(townToRemove);
-          Chat.sendMessage(player, "&Town {0} removed!", townToRemove);
+          Chat.sendMessage(player, "&2Town {0} removed!", townToRemove);
         } catch (MyResidenceException e) {
           Chat.sendMessage(player, "&a{0}", e);
         }
@@ -118,11 +118,17 @@ public class TownCommands {
                             final MyResidence plugin,
                             final Nation nation,
                             final Player player,
-                            final Session session) {
-    Town townToSelect = nation.getTown(args.getJoinedStrings(0));
-    session.setSelectedTown(townToSelect);
+                            final Session session) throws TownNotFoundException {
+    List<Town> townSearchResults = nation.findTown(args.getJoinedStrings(0));
+    if (townSearchResults.size() == 0) {
+      throw new TownNotFoundException("No town found to select!");
+    } else if (townSearchResults.size() > 1) {
+      throw new TownNotFoundException("Found more towns then one! Please use a more exact name.");
+    }
 
-    player.sendMessage(ChatColor.DARK_GREEN + "Town '" + townToSelect.getName() + "' selected!");
+    session.setSelectedTown(townSearchResults.get(0));
+
+    Chat.sendMessage(player, "&2Town {0} selected!", townSearchResults.get(0));
   }
 
   @Command(
