@@ -108,7 +108,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     eventManager = new EventManager(this);
     methods = new Methods();
     nation = new PersistNation(this);
-    sessionManager = new SessionManager(this, nation);
+    sessionManager = new SessionManager(nation);
 
     setupDatabase();
     setupListeners();

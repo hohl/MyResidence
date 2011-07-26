@@ -19,9 +19,7 @@
 package at.co.hohl.myresidence.storage;
 
 import at.co.hohl.mcutils.collections.CachedMap;
-import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
-import at.co.hohl.myresidence.storage.Session;
 import org.bukkit.entity.Player;
 
 /**
@@ -41,11 +39,6 @@ public class SessionManager {
     private final CachedMap<String, Session> sessionMap;
 
     /**
-     * The MyResidence plugin which holds the SessionManager.
-     */
-    private final MyResidence plugin;
-
-    /**
      * The Nation which is handled by the plugin.
      */
     private final Nation nation;
@@ -53,9 +46,8 @@ public class SessionManager {
     /**
      * Creates a new Session Manager.
      */
-    public SessionManager(MyResidence plugin, Nation nation) {
+    public SessionManager(Nation nation) {
         sessionMap = new CachedMap<String, Session>(SESSION_DURATION);
-        this.plugin = plugin;
         this.nation = nation;
     }
 
