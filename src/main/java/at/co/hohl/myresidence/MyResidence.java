@@ -20,10 +20,9 @@ package at.co.hohl.myresidence;
 
 import at.co.hohl.myresidence.event.EventManager;
 import at.co.hohl.myresidence.storage.Configuration;
+import at.co.hohl.myresidence.storage.SessionManager;
 import com.nijikokun.register.payment.Methods;
-import com.sk89q.bukkit.migration.PermissionsResolver;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -53,9 +52,6 @@ public interface MyResidence extends Plugin {
 
     /** @return all available payment methods. */
     Methods getPaymentMethods();
-
-    /** @return handler for the permissions. */
-    PermissionsResolver getPermissionsResolver();
 
     /** @return world edit plugin. */
     WorldEditPlugin getWorldEdit();
@@ -94,7 +90,4 @@ public interface MyResidence extends Plugin {
 
     /** @return the description of the implementation of MyResidence. */
     PluginDescriptionFile getDescription();
-
-    /** @return the server, which holds the implementation of MyResidence. */
-    Server getServer();
 }

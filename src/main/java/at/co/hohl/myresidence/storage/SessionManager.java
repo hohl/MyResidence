@@ -16,9 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.co.hohl.myresidence;
+package at.co.hohl.myresidence.storage;
 
 import at.co.hohl.mcutils.collections.CachedMap;
+import at.co.hohl.myresidence.MyResidence;
+import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.storage.Session;
 import org.bukkit.entity.Player;
 
@@ -65,7 +67,7 @@ public class SessionManager {
      */
     public Session get(Player player) {
         if (!sessionMap.containsKey(player.getName())) {
-            sessionMap.put(player.getName(), new Session(plugin, nation, player));
+            sessionMap.put(player.getName(), new Session(nation, player));
         }
 
         sessionMap.update(player.getName());

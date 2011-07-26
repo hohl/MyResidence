@@ -49,9 +49,6 @@ public class Session {
     /** Player who owns the session. */
     private final Player player;
 
-    /** The plugin which holds the session. */
-    private final MyResidence plugin;
-
     /** The nation which contains all the towns and residences. */
     private final Nation nation;
 
@@ -82,12 +79,10 @@ public class Session {
     /**
      * Creates a new Session for the passed player.
      *
-     * @param plugin the plugin which holds the session.
      * @param nation the nation which contains all the towns and residences.
      * @param player the player who should own the session.
      */
-    public Session(MyResidence plugin, Nation nation, Player player) {
-        this.plugin = plugin;
+    public Session(Nation nation, Player player) {
         this.nation = nation;
         this.player = player;
     }
@@ -103,8 +98,9 @@ public class Session {
      * @param permission the permission to check.
      * @return true, if the player has the permission.
      */
+    @Deprecated
     public boolean hasPermission(String permission) {
-        return plugin.getPermissionsResolver().hasPermission(player.getName(), permission);
+        return player.hasPermission(permission);
     }
 
     /**
@@ -115,7 +111,7 @@ public class Session {
      */
     public boolean hasMajorRights(Town town) {
         return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
-                hasPermission("myresidence.admin");
+                player.hasPermission("myresidence.admin");
     }
 
     /**
@@ -125,7 +121,7 @@ public class Session {
      * @return true, if the session has enough rights.
      */
     public boolean hasResidenceOwnerRights(Residence residence) {
-        return getPlayerId() == residence.getOwnerId() || hasPermission("myresidence.admin");
+        return getPlayerId() == residence.getOwnerId() || player.hasPermission("myresidence.admin");
     }
 
     /**
