@@ -246,6 +246,10 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     this.worldEdit = worldEdit;
   }
 
+  public boolean hasWorldEdit() {
+    return worldEdit != null;
+  }
+
   /**
    * @return the event manager.
    */

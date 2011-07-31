@@ -366,6 +366,10 @@ public class PersistNation implements Nation {
    * @param residence residence to remove.
    */
   public void remove(Residence residence) {
+    if (residence == null) {
+      throw new NullPointerException("null is not a residence!");
+    }
+
     final ResidenceArea residenceArea = getDatabase().find(ResidenceArea.class)
             .where()
             .eq("residenceId", residence.getId())
@@ -376,10 +380,10 @@ public class PersistNation implements Nation {
             .eq("residenceId", residence.getId())
             .findUnique();
 
-    final HomePoint residenceHomes = getDatabase().find(HomePoint.class)
+    final List<HomePoint> residenceHomes = getDatabase().find(HomePoint.class)
             .where()
             .eq("residenceId", residence.getId())
-            .findUnique();
+            .findList();
 
     final List<ResidenceFlag> residenceFlags = getDatabase().find(ResidenceFlag.class)
             .where()
@@ -402,7 +406,11 @@ public class PersistNation implements Nation {
             (Sign) signWorld.getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ()).getState();
 
     getDatabase().delete(residence);
-    getDatabase().delete(residenceArea);
+    if (residenceArea != null) {
+      getDatabase().delete(residenceArea);
+    } else {
+      plugin.warning("Deleted residence which does not have an area!");
+    }
     getDatabase().delete(residenceSign);
     getDatabase().delete(residenceHomes);
     getDatabase().delete(residenceMembers);

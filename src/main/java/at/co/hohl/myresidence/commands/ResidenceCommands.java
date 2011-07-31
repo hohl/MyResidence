@@ -68,9 +68,10 @@ public class ResidenceCommands {
 
     // Check if player has enough right.
     final boolean buildInWildness = args.hasFlag('w');
-    if (buildInWildness && !session.hasPermission("myresidence.residence.wildness")) {
-      throw new PermissionsDeniedException("You are not allowed to create a residence in wildness!");
-    } else if (!session.hasPermission("myresidence.town.major.create")) {
+    if (buildInWildness && !player.hasPermission("myresidence.residence.wildness")) {
+        throw new PermissionsDeniedException("You are not allowed to create a residence in wildness!");
+    }
+    if (!buildInWildness && !player.hasPermission("myresidence.major")) {
       throw new PermissionsDeniedException("Your are not allowed to create residences inside towns!");
     }
 

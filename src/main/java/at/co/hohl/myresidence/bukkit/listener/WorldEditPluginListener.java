@@ -40,7 +40,7 @@ public class WorldEditPluginListener extends ServerListener {
   /**
    * Creates a new WorldEditPluginListener.
    *
-   * @param plugin the api which holds the instance.
+   * @param residencePlugin the api which holds the instance.
    */
   public WorldEditPluginListener(final MyResidencePlugin residencePlugin) {
     this.plugin = residencePlugin;
@@ -60,7 +60,7 @@ public class WorldEditPluginListener extends ServerListener {
    */
   @Override
   public void onPluginEnable(PluginEnableEvent event) {
-    if (plugin.getWorldEdit() == null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
+    if (!plugin.hasWorldEdit() && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
       plugin.setWorldEdit((WorldEditPlugin) event.getPlugin());
 
       plugin.info("WorldEdit plugin connected!");
@@ -74,7 +74,7 @@ public class WorldEditPluginListener extends ServerListener {
    */
   @Override
   public void onPluginDisable(PluginDisableEvent event) {
-    if (plugin.getWorldEdit() != null && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
+    if (plugin.hasWorldEdit() && "WorldEdit".equals(event.getPlugin().getDescription().getName())) {
       plugin.setWorldEdit(null);
 
       plugin.info("WorldEdit plugin detached!");
