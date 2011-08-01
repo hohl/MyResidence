@@ -18,11 +18,13 @@
 
 package at.co.hohl.myresidence.bukkit.persistent;
 
+import at.co.hohl.mcutils.chat.Chat;
 import at.co.hohl.myresidence.*;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
 import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
 import com.sk89q.util.StringUtil;
+import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -91,7 +93,8 @@ public class PersistNation implements Nation {
       player.sendMessage(ChatColor.GRAY + "Town: " + ChatColor.WHITE + town);
 
       // Retrieve and send area...
-      player.sendMessage(ChatColor.GRAY + "Size: " + ChatColor.WHITE + manager.getArea().getArea());
+      Selection area = manager.getArea();
+      Chat.sendMessage(player, "&7Size: &f{0}x{1}x{2}", area.getLength(), area.getWidth(), area.getHeight());
 
       // Retrieve flags
       List<ResidenceFlag.Type> flags = manager.getFlags();
