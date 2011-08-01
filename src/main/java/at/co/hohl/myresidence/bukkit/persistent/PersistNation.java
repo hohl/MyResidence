@@ -25,10 +25,8 @@ import at.co.hohl.myresidence.storage.persistent.*;
 import com.avaje.ebean.EbeanServer;
 import com.sk89q.util.StringUtil;
 import com.sk89q.worldedit.bukkit.selections.Selection;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -403,11 +401,6 @@ public class PersistNation implements Nation {
             .eq("residenceId", residence.getId())
             .findList();
 
-    World signWorld = Bukkit.getServer().getWorld(residenceSign.getWorld());
-
-    final Sign sign =
-            (Sign) signWorld.getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ()).getState();
-
     getDatabase().delete(residence);
     if (residenceArea != null) {
       getDatabase().delete(residenceArea);
@@ -449,48 +442,6 @@ public class PersistNation implements Nation {
    */
   public Inhabitant getInhabitant(int id) {
     return getDatabase().find(Inhabitant.class).where().idEq(id).findUnique();
-  }
-
-  /**
-   * Sets a new major.
-   *
-   * @param town       the town where the new major should be set.
-   * @param inhabitant the inhabitant to become the major.
-   * @param co         there could be multiple co major, which has the same rights, but not mentioned as the major.
-   */
-  public void setMajor(Town town, Inhabitant inhabitant, boolean co) {
-    Major major = new Major();
-    major.setHidden(co);
-    major.setInhabitantId(inhabitant.getId());
-    major.setTownId(town.getId());
-
-    if (!co) {
-      Major oldMajor = getDatabase().find(Major.class).where()
-              .eq("townId", town.getId())
-              .eq("hidden", false)
-              .findUnique();
-
-      if (oldMajor != null) {
-        getDatabase().delete(oldMajor);
-      }
-    }
-
-    getDatabase().save(major);
-  }
-
-  /**
-   * Checks if the passed player is a major of the town.
-   *
-   * @param town       the town where to check if the player is major.
-   * @param inhabitant the inhabitant to check if he is major.
-   * @return true, if the inhabitant is a major.
-   */
-  public boolean isMajor(Town town, Inhabitant inhabitant) {
-    return getDatabase().find(Major.class)
-            .where()
-            .eq("townId", town.getId())
-            .eq("inhabitantId", inhabitant.getId())
-            .findRowCount() > 0;
   }
 
   /**
