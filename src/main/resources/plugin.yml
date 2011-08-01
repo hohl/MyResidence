@@ -1,5 +1,6 @@
 name: MyResidence
 version: ${project.version}
+description: Manage residences and towns on creative and survival servers.
 website: http://www.github.com/hohl/MyResidence
 
 main: at.co.hohl.myresidence.bukkit.MyResidencePlugin
