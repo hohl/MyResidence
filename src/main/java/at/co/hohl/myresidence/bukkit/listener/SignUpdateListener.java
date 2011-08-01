@@ -104,6 +104,7 @@ public class SignUpdateListener extends ResidenceListener {
 
       for (int index = 0; index < 4; ++index) {
         sign.setLine(index, "");
+        sign.update();
       }
     } catch (ResidenceSignMissingException e) {
       plugin.severe("Sign not found for residence %s!", event.getResidence().getName());
