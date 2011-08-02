@@ -24,13 +24,12 @@
 
   <groupId>at.co.hohl</groupId>
   <artifactId>myresidence</artifactId>
-  <version>0.0.2-snapshot</version>
-  <description>Allows users to manage their residences.</description>
+  <version>0.1</version>
+  <description>Bukkit plugin which allows to manage residences and towns.</description>
 
   <scm>
     <connection>scm:git:git://github.com/hohl/myresidence.git</connection>
     <url>https://github.com/hohl/myresidence</url>
-    <developerConnection>scm:git:git@github.com:hohl/myresidence.git</developerConnection>
   </scm>
 
   <repositories>
