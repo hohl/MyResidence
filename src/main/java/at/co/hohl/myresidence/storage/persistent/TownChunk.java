@@ -20,7 +20,7 @@ package at.co.hohl.myresidence.storage.persistent;
 
 import com.avaje.ebean.validation.Length;
 import com.avaje.ebean.validation.NotEmpty;
-import com.sun.istack.internal.NotNull;
+import com.avaje.ebean.validation.NotNull;
 import org.bukkit.Chunk;
 
 import javax.persistence.Entity;
