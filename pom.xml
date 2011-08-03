@@ -38,7 +38,7 @@
     <!-- Repository for dependencies of Hohl IT -->
     <repository>
       <id>hohl-it</id>
-      <url>http://dev.hohl-it.com/artifactory/</url>
+      <url>http://dev.hohl-it.com/artifactory/repo</url>
     </repository>
 
     <!-- Repository for other dependencies of SK's -->
