@@ -35,10 +35,10 @@
   </scm>
 
   <repositories>
-    <!-- Repository for dependencies of MIHO's -->
+    <!-- Repository for dependencies of Hohl IT -->
     <repository>
-      <id>miho-mvn2</id>
-      <url>http://hohl.bplaced.net/mvn2</url>
+      <id>hohl-it</id>
+      <url>http://dev.hohl-it.com/artifactory/</url>
     </repository>
 
     <!-- Repository for other dependencies of SK's -->
@@ -85,14 +85,6 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
-  <!-- Repository used for deploying -->
-  <distributionManagement>
-    <repository>
-      <id>ftp-repository</id>
-      <url>ftp://hohl.bplaced.net/mvn2</url>
-    </repository>
-  </distributionManagement>
 
   <build>
     <sourceDirectory>src/main/java/</sourceDirectory>
@@ -148,16 +140,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
-
-    <extensions>
-      <!-- Enabling the use of FTP -->
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ftp</artifactId>
-        <version>1.0-beta-6</version>
-      </extension>
-    </extensions>
   </build>
 </project>
