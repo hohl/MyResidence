@@ -24,7 +24,7 @@
 
   <groupId>at.co.hohl</groupId>
   <artifactId>myresidence</artifactId>
-  <version>0.0.2-snapshot</version>
+  <version>0.1</version>
   <name>MyResidence</name>
   <description>Allows users to manage their residences.</description>
 
