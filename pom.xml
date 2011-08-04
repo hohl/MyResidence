@@ -35,22 +35,9 @@
   </scm>
 
   <repositories>
-    <!-- Repository for dependencies of Hohl IT -->
     <repository>
-      <id>hohl-it</id>
-      <url>http://dev.hohl-it.com/artifactory/repo</url>
-    </repository>
-
-    <!-- Repository for other dependencies of SK's -->
-    <repository>
-      <id>sk89q-mvn2</id>
-      <url>http://mvn2.sk89q.com/repo</url>
-    </repository>
-
-    <!-- Repository for Bukkit -->
-    <repository>
-      <id>bukkit-repo</id>
-      <url>http://repo.bukkit.org/artifactory/repo</url>
+      <id>miho-mvn2</id>
+      <url>http://hohl.bplaced.net/mvn2</url>
     </repository>
   </repositories>
 
