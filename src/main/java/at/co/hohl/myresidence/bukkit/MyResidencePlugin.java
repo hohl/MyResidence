@@ -353,10 +353,11 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
    * Setups the commands.
    */
   private void setupCommands() {
+    final MyResidence plugin = this;
     commands = new CommandsManager<Player>() {
       @Override
       public boolean hasPermission(Player player, String permission) {
-        return hasPermission(player, permission);
+        return plugin.hasPermission(player, permission);
       }
     };
 
