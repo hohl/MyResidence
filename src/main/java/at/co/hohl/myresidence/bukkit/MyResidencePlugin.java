@@ -108,7 +108,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     eventManager = new EventManager(this);
     methods = new Methods();
     nation = new PersistNation(this);
-    sessionManager = new SessionManager(nation);
+    sessionManager = new SessionManager(this, nation);
 
     setupDatabase();
     setupListeners();
@@ -356,7 +356,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     commands = new CommandsManager<Player>() {
       @Override
       public boolean hasPermission(Player player, String permission) {
-        hasPermission(player, permission);
+        return hasPermission(player, permission);
       }
     };
 
