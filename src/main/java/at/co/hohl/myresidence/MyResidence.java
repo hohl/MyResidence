@@ -24,6 +24,7 @@ import at.co.hohl.myresidence.storage.SessionManager;
 import com.nijikokun.register.payment.Methods;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 
@@ -42,6 +43,15 @@ public interface MyResidence extends Plugin {
    * @return the collection of towns and residences.
    */
   Nation getNation();
+
+  /**
+   * Checks if the passed player has required permissions.
+   *
+   * @param player     the player to check.
+   * @param permission the required permission.
+   * @return true, if the player has required permission.
+   */
+  boolean hasPermission(Player player, String permission);
 
   /**
    * @param world the world to get configuration.

@@ -211,6 +211,22 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
   }
 
   /**
+   * Checks if the player has the passed permission.
+   *
+   * @param player     player to check.
+   * @param permission permission to check.
+   * @return true, if the players owns the permission.
+   */
+  public boolean hasPermission(Player player, String permission) {
+    //return player.hasPermission(permission);
+    if (hasWorldEdit()) {
+      return worldEdit.getPermissionsResolver().hasPermission(player.getName(), permission);
+    } else {
+      return player.isOp();
+    }
+  }
+
+  /**
    * @return the collection of towns and residences.
    */
   public Nation getNation() {
@@ -340,7 +356,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     commands = new CommandsManager<Player>() {
       @Override
       public boolean hasPermission(Player player, String permission) {
-        return player.hasPermission(permission);
+        hasPermission(player, permission);
       }
     };
 

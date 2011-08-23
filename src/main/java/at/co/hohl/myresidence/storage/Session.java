@@ -18,6 +18,7 @@
 
 package at.co.hohl.myresidence.storage;
 
+import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.NoResidenceSelectedException;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
@@ -46,6 +47,11 @@ public class Session {
     CONFIRM_COMMAND,
     SELECT_SIGN
   }
+
+  /**
+   * MyResidence Plugin.
+   */
+  private final MyResidence plugin;
 
   /**
    * Player who owns the session.
@@ -100,10 +106,12 @@ public class Session {
   /**
    * Creates a new Session for the passed player.
    *
+   * @param plugin the plugin whichs holds the session.
    * @param nation the nation which contains all the towns and residences.
    * @param player the player who should own the session.
    */
-  public Session(Nation nation, Player player) {
+  public Session(MyResidence plugin, Nation nation, Player player) {
+    this.plugin = plugin;
     this.nation = nation;
     this.player = player;
   }
@@ -130,7 +138,7 @@ public class Session {
    */
   @Deprecated
   public boolean hasPermission(String permission) {
-    return player.hasPermission(permission);
+    return plugin.hasPermission(player, permission);
   }
 
   /**
