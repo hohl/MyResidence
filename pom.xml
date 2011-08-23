@@ -37,7 +37,7 @@
   <repositories>
     <repository>
       <id>miho-mvn2</id>
-      <url>http://hohl.bplaced.net/mvn2</url>
+      <url>http://dev.hohl-it.com/artifactory/repo</url>
     </repository>
   </repositories>
 
