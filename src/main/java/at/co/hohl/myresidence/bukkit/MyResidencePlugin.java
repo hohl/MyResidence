@@ -218,8 +218,9 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
    * @return true, if the players owns the permission.
    */
   public boolean hasPermission(Player player, String permission) {
-    //return player.hasPermission(permission);
-    if (hasWorldEdit()) {
+    if (player.hasPermission(permission)) {
+      return true;
+    } else if (hasWorldEdit()) {
       return worldEdit.getPermissionsResolver().hasPermission(player.getName(), permission);
     } else {
       return player.isOp();
