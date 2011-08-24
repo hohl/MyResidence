@@ -48,6 +48,9 @@ public class SessionManager {
 
   /**
    * Creates a new Session Manager.
+   *
+   * @param plugin the plugin to server.
+   * @param nation the nation which holds the sessions.
    */
   public SessionManager(MyResidence plugin, Nation nation) {
     sessionMap = new CachedMap<String, Session>(SESSION_DURATION);
