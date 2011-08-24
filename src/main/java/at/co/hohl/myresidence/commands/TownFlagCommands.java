@@ -58,7 +58,7 @@ public class TownFlagCommands {
     }
 
     try {
-      TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
+      TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0).toUpperCase());
       nation.getFlagManager(selectedTown).setFlag(flag);
 
       player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
@@ -92,7 +92,7 @@ public class TownFlagCommands {
 
     try {
 
-      TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0));
+      TownFlag.Type flag = TownFlag.Type.valueOf(args.getString(0).toUpperCase());
       nation.getFlagManager(selectedTown).removeFlag(flag);
 
       player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +

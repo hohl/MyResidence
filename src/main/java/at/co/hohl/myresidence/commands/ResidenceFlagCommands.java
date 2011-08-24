@@ -52,7 +52,7 @@ public class ResidenceFlagCommands {
                          final Session session) throws NoResidenceSelectedException {
     try {
       Residence selectedResidence = session.getSelectedResidence();
-      ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
+      ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0).toUpperCase());
       nation.getFlagManager(selectedResidence).setFlag(flag);
 
       player.sendMessage(ChatColor.DARK_GREEN + "Set flag " +
@@ -81,7 +81,7 @@ public class ResidenceFlagCommands {
 
     try {
       Residence selectedResidence = session.getSelectedResidence();
-      ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0));
+      ResidenceFlag.Type flag = ResidenceFlag.Type.valueOf(args.getString(0).toUpperCase());
       nation.getFlagManager(selectedResidence).removeFlag(flag);
 
       player.sendMessage(ChatColor.DARK_GREEN + "Removed flag " +
