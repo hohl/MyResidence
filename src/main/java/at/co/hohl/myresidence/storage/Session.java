@@ -149,7 +149,7 @@ public class Session {
    */
   public boolean hasMajorRights(Town town) {
     return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
-            player.hasPermission("myresidence.admin");
+            hasPermission("myresidence.admin");
   }
 
   /**
@@ -159,7 +159,7 @@ public class Session {
    * @return true, if the session has enough rights.
    */
   public boolean hasResidenceOwnerRights(Residence residence) {
-    return getPlayerId() == residence.getOwnerId() || player.hasPermission("myresidence.admin");
+    return getPlayerId() == residence.getOwnerId() || hasPermission("myresidence.admin");
   }
 
   /**
