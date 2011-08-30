@@ -31,6 +31,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,15 +41,14 @@ import java.util.Map;
  * @author Michael Hohl
  */
 public class PersistNation implements Nation {
-  /**
-   * The MyResidencePlugin which holds the Nation.
-   */
+  // Plugin which holds this nation.
   protected final MyResidence plugin;
 
-  /**
-   * ChunkManager used by PersistNation.
-   */
-  private final ChunkManager chunkManager = new PersistChunkManager(this);
+  // ChunkManager used by this nation.
+  private ChunkManager chunkManager;
+
+  // PermissionsResolver of this nation.
+  private PermissionsResolver permissionsResolver;
 
   /**
    * Creates a new Nation for the passed plugin.
@@ -275,6 +275,38 @@ public class PersistNation implements Nation {
   }
 
   /**
+   * Returns all residences, which are at the passed location or inside the overflow.
+   *
+   * @param location the location to retreive.
+   * @param overlay  integer which defines what's the maximum overlay.
+   * @return list of found residences.
+   */
+  public List<Residence> findResidencesNearTo(Location location, int overlay) {
+    List<ResidenceArea> residenceAreas = getDatabase().find(ResidenceArea.class).where()
+            .ieq("world", location.getWorld().getName())
+            .le("lowX", location.getBlockX() + overlay)
+            .le("lowY", location.getBlockY())
+            .le("lowZ", location.getBlockZ() + overlay)
+            .ge("highX", location.getBlockX() - overlay)
+            .ge("highY", location.getBlockY())
+            .ge("highZ", location.getBlockZ() - overlay)
+            .findList();
+
+    List<Residence> residences = new LinkedList<Residence>();
+    for (ResidenceArea residenceArea : residenceAreas) {
+      Residence residence = getResidence(residenceArea.getResidenceId());
+      if (residence != null) {
+        residences.add(residence);
+      } else {
+        plugin.warning("ResidenceArea without a Residence found! Remove ResidenceArea %d...", residenceArea.getId());
+        getDatabase().delete(residenceArea);
+      }
+    }
+
+    return residences;
+  }
+
+  /**
    * Returns the town with the passed id.
    *
    * @param id the id of the town to look for.
@@ -445,13 +477,6 @@ public class PersistNation implements Nation {
   }
 
   /**
-   * @return manager for the chunks.
-   */
-  public ChunkManager getChunkManager() {
-    return chunkManager;
-  }
-
-  /**
    * Returns a manager for the rules of the town.
    *
    * @param town the town to manage.
@@ -499,6 +524,28 @@ public class PersistNation implements Nation {
    */
   public FlagManager<TownFlag.Type> getFlagManager(Town town) {
     return new PersistTownFlagManager(this, town);
+  }
+
+  /**
+   * @return manager for the chunks.
+   */
+  public ChunkManager getChunkManager() {
+    if (chunkManager == null) {
+      chunkManager = new PersistChunkManager(this);
+    }
+
+    return chunkManager;
+  }
+
+  /**
+   * @return the PermissionsResolver used by this nation.
+   */
+  public PermissionsResolver getPermissionsResolver() {
+    if (permissionsResolver == null) {
+      permissionsResolver = new PersistPermissionsResolver(plugin, this);
+    }
+
+    return permissionsResolver;
   }
 
   /**

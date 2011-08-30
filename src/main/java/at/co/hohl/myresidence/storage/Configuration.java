@@ -18,36 +18,38 @@
 
 package at.co.hohl.myresidence.storage;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Storage for all settings applied to a world.
  *
  * @author Michael Hohl
  */
 public class Configuration {
-  /**
-   * The configuration used by for loading/saving.
-   */
-  private final org.bukkit.util.config.Configuration configuartion;
+  // The configuration used by for loading/saving.
+  private final org.bukkit.util.config.Configuration configuration;
 
-  /**
-   * Costs for one chunk.
-   */
+  // Costs for one chunk.
   private double chunkCost;
 
-  /**
-   * Title for residence signs.
-   */
+  // Title for residence signs.
   private String signTitle;
 
-  /**
-   * Text for sign for sale.
-   */
+  // Text for sign for sale.
   private String signSaleText;
 
-  /**
-   * Check if block is free, before teleporting.
-   */
+  // Check if block is free, before teleporting.
   private boolean safeTeleport;
+
+  // Maximum numbers of blocks a residence is allowed to overlay from area.
+  private int residenceOverlay;
+
+  // Blocks allowed to build/destroy in default areas.
+  private List<Integer> allowedToBuildInWildness;
+  private List<Integer> allowedToDestroyInWildness;
+  private List<Integer> allowedToBuildInTown;
+  private List<Integer> allowedToDestroyInTown;
 
   /**
    * Creates a new Configuration with the passed Bukkit Config.
@@ -55,7 +57,7 @@ public class Configuration {
    * @param configuration the bukkit config to load/save.
    */
   public Configuration(org.bukkit.util.config.Configuration configuration) {
-    this.configuartion = configuration;
+    this.configuration = configuration;
     load();
   }
 
@@ -63,22 +65,32 @@ public class Configuration {
    * Loads the configuration. (Auto done on construction, only for reload!)
    */
   public void load() {
-    configuartion.load();
-    chunkCost = configuartion.getDouble("cost.chunk", 1000);
-    signTitle = configuartion.getString("sign.title", "[Residence]");
-    signSaleText = configuartion.getString("sign.sale", "FOR SALE!");
-    safeTeleport = configuartion.getBoolean("safe_teleport", true);
+    configuration.load();
+    chunkCost = configuration.getDouble("cost.chunk", 1000);
+    signTitle = configuration.getString("sign.title", "[Residence]");
+    signSaleText = configuration.getString("sign.sale", "FOR SALE!");
+    safeTeleport = configuration.getBoolean("safe_teleport", true);
+    residenceOverlay = configuration.getInt("residenceOverlay", 0);
+    allowedToBuildInTown = configuration.getIntList("town.place", new LinkedList<Integer>());
+    allowedToDestroyInTown = configuration.getIntList("town.destroy", new LinkedList<Integer>());
+    allowedToBuildInWildness = configuration.getIntList("wildness.place", new LinkedList<Integer>());
+    allowedToDestroyInWildness = configuration.getIntList("wildness.destroy", new LinkedList<Integer>());
   }
 
   /**
    * Saves changes to file.
    */
   public void save() {
-    configuartion.setProperty("cost.chunk", chunkCost);
-    configuartion.setProperty("sign.title", signTitle);
-    configuartion.setProperty("sign.sale", signSaleText);
-    configuartion.setProperty("safe_teleport", safeTeleport);
-    configuartion.save();
+    configuration.setProperty("cost.chunk", chunkCost);
+    configuration.setProperty("sign.title", signTitle);
+    configuration.setProperty("sign.sale", signSaleText);
+    configuration.setProperty("safe_teleport", safeTeleport);
+    configuration.setProperty("residenceOverlay", residenceOverlay);
+    configuration.setProperty("town.place", allowedToBuildInTown);
+    configuration.setProperty("town.destroy", allowedToDestroyInTown);
+    configuration.setProperty("wildness.place", allowedToBuildInWildness);
+    configuration.setProperty("wildness.destroy", allowedToDestroyInWildness);
+    configuration.save();
   }
 
   public double getChunkCost() {
@@ -111,5 +123,45 @@ public class Configuration {
 
   public void setSafeTeleport(boolean safeTeleport) {
     this.safeTeleport = safeTeleport;
+  }
+
+  public int getResidenceOverlay() {
+    return residenceOverlay;
+  }
+
+  public void setResidenceOverlay(int residenceOverlay) {
+    this.residenceOverlay = residenceOverlay;
+  }
+
+  public List<Integer> getAllowedToBuildInWildness() {
+    return allowedToBuildInWildness;
+  }
+
+  public void setAllowedToBuildInWildness(List<Integer> allowedToBuildInWildness) {
+    this.allowedToBuildInWildness = allowedToBuildInWildness;
+  }
+
+  public List<Integer> getAllowedToDestroyInWildness() {
+    return allowedToDestroyInWildness;
+  }
+
+  public void setAllowedToDestroyInWildness(List<Integer> allowedToDestroyInWildness) {
+    this.allowedToDestroyInWildness = allowedToDestroyInWildness;
+  }
+
+  public List<Integer> getAllowedToBuildInTown() {
+    return allowedToBuildInTown;
+  }
+
+  public void setAllowedToBuildInTown(List<Integer> allowedToBuildInTown) {
+    this.allowedToBuildInTown = allowedToBuildInTown;
+  }
+
+  public List<Integer> getAllowedToDestroyInTown() {
+    return allowedToDestroyInTown;
+  }
+
+  public void setAllowedToDestroyInTown(List<Integer> allowedToDestroyInTown) {
+    this.allowedToDestroyInTown = allowedToDestroyInTown;
   }
 }

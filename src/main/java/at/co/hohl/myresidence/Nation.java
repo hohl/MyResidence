@@ -91,6 +91,15 @@ public interface Nation {
   List<Residence> findResidences(Inhabitant inhabitant);
 
   /**
+   * Returns all residences, which are at the passed location or inside the overflow.
+   *
+   * @param location the location to retreive.
+   * @param overlay  integer which defines what's the maximum overlay.
+   * @return list of found residences.
+   */
+  List<Residence> findResidencesNearTo(Location location, int overlay);
+
+  /**
    * Returns the town with the passed id.
    *
    * @param id the id of the town to look for.
@@ -196,6 +205,11 @@ public interface Nation {
    * @return the manager for the flags.
    */
   FlagManager<TownFlag.Type> getFlagManager(Town town);
+
+  /**
+   * @return the PermissionsResolver used by this nation.
+   */
+  PermissionsResolver getPermissionsResolver();
 
   /**
    * Sends the passed player information about the passed object.

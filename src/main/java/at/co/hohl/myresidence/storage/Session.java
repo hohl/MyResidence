@@ -39,12 +39,6 @@ public class Session {
   // Duration, how long a selection should be stored.
   private static final long SELECTION_DURATION = 45 * 1000;
 
-  // Permission describes that player is an admin.
-  private static final String ADMIN_PERMISSION = "myresidence.admin";
-
-  // Permission describes that player is trusted.
-  private static final String TRUSTED_PERMISSION = "myresidence.trust";
-
   /**
    * Activator for tasks.
    */
@@ -129,24 +123,6 @@ public class Session {
   }
 
   /**
-   * Checks if the session is a session of an Administrator.
-   *
-   * @return true, if the player owns the administrator permission.
-   */
-  public boolean isAdmin() {
-    return player.hasPermission(ADMIN_PERMISSION);
-  }
-
-  /**
-   * Checks if the session is a session of an Administrator.
-   *
-   * @return true, if the player owns the trusted permission.
-   */
-  public boolean isTrustedPlayer() {
-    return player.hasPermission(TRUSTED_PERMISSION);
-  }
-
-  /**
    * Checks if the player has permission to do that.
    *
    * @param permission the permission to check.
@@ -165,7 +141,8 @@ public class Session {
    */
   @Deprecated
   public boolean hasMajorRights(Town town) {
-    return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) || isAdmin();
+    return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
+            nation.getPermissionsResolver().isAdmin(player);
   }
 
   /**
@@ -176,7 +153,7 @@ public class Session {
    */
   @Deprecated
   public boolean hasResidenceOwnerRights(Residence residence) {
-    return getPlayerId() == residence.getOwnerId() || isAdmin();
+    return getPlayerId() == residence.getOwnerId() || nation.getPermissionsResolver().isAdmin(player);
   }
 
   /**
