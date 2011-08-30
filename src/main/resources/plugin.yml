@@ -1,5 +1,5 @@
 name: MyResidence
-version: ${project.version}
+version: preview-${env.BUILD_NUMBER}-${env.BUILD_VCS_NUMBER}
 description: Manage residences and towns on creative and survival servers.
 website: http://www.github.com/hohl/MyResidence
 
