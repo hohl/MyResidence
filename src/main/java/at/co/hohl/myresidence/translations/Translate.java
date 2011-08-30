@@ -37,10 +37,10 @@ public final class Translate {
    * @param languageCode the code of the language to retrieve. (for example de or en).
    */
   public static void load(String languageCode) {
-    File translationFile = new File("myresidence_" + languageCode.toLowerCase() + ".yml");
+    File translationFile = new File("classpath:myresidence_" + languageCode.toLowerCase() + ".yml");
 
     if (!(translationFile.exists() && translationFile.canRead())) {
-      translationFile = new File("myresidence_en.yml");
+      translationFile = new File("classpath:myresidence_en.yml");
       Logger.getLogger("Minecraft").warning("[MyResidence] Use default translation, " +
               "because there exists no localization for your language.");
     }
