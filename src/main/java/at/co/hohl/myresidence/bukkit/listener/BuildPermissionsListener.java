@@ -48,7 +48,7 @@ public class BuildPermissionsListener extends BlockListener {
       return;
     }
 
-    if (permissionsResolver.isAllowedToPlaceBlockAt(event.getPlayer(), event.getBlockPlaced())) {
+    if (!permissionsResolver.isAllowedToPlaceBlockAt(event.getPlayer(), event.getBlockPlaced())) {
       Chat.sendMessage(event.getPlayer(), Translate.get("not_allowed_to_build"));
       event.setBuild(false);
     }
@@ -60,7 +60,7 @@ public class BuildPermissionsListener extends BlockListener {
       return;
     }
 
-    if (permissionsResolver.isAllowedToDestroyBlockAt(event.getPlayer(), event.getBlock())) {
+    if (!permissionsResolver.isAllowedToDestroyBlockAt(event.getPlayer(), event.getBlock())) {
       Chat.sendMessage(event.getPlayer(), Translate.get("not_allowed_to_destroy"));
       event.setCancelled(true);
     }
