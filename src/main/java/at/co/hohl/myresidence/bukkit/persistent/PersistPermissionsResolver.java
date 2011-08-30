@@ -21,6 +21,7 @@ package at.co.hohl.myresidence.bukkit.persistent;
 import at.co.hohl.myresidence.*;
 import at.co.hohl.myresidence.storage.persistent.*;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -74,19 +75,21 @@ public class PersistPermissionsResolver implements PermissionsResolver {
   /**
    * Checks if the player is
    *
-   * @param player   player to check the permissions for.
-   * @param location the location to look up.
+   * @param player      player to check the permissions for.
+   * @param blockPlaced the placed block.
    * @return true, if the player is allowed to build here.
    */
-  public boolean isAllowedToPlaceBlockAt(Player player, Location location) {
+  public boolean isAllowedToPlaceBlockAt(Player player, Block blockPlaced) {
     if (isTrustedPlayer(player) || isAdmin(player)) {
       return true;
     }
 
+    Location blockLocation = blockPlaced.getLocation();
     Inhabitant inhabitant = nation.getInhabitant(player.getName());
 
-    List<Residence> residencesAtLocation =
-            nation.findResidencesNearTo(location, plugin.getConfiguration(player.getWorld()).getResidenceOverlay());
+    // On Residence?
+    List<Residence> residencesAtLocation = nation.findResidencesNearTo(blockLocation,
+            plugin.getConfiguration(player.getWorld()).getResidenceOverlay());
     if (residencesAtLocation != null && residencesAtLocation.size() > 0) {
       for (Residence residence : residencesAtLocation) {
         if (!canBuildAndDestroy(residence, inhabitant)) {
@@ -96,34 +99,34 @@ public class PersistPermissionsResolver implements PermissionsResolver {
       return true;
     }
 
-    Town town = nation.getTown(location);
-    // Town not null? You must be inside a town.
+    // Inside Town?
+    Town town = nation.getTown(blockLocation);
     if (town != null) {
       return canBuildAndDestroy(town, inhabitant) || plugin.getConfiguration(player.getWorld())
-              .getAllowedToBuildInTown().contains(location.getBlock().getTypeId());
+              .getAllowedToBuildInTown().contains(blockPlaced.getTypeId());
     }
 
     // In wildness?
-    return plugin.getConfiguration(player.getWorld()).getAllowedToBuildInWildness()
-            .contains(location.getBlock().getTypeId());
+    return plugin.getConfiguration(player.getWorld()).getAllowedToBuildInWildness().contains(blockPlaced.getTypeId());
   }
 
   /**
    * Checks if the player is
    *
-   * @param player   player to check the permissions for.
-   * @param location the location to look up.
+   * @param player         player to check the permissions for.
+   * @param blockDestroyed the block which gets destroyed.
    * @return true, if the player is allowed to build here.
    */
-  public boolean isAllowedToDestroyBlockAt(Player player, Location location) {
+  public boolean isAllowedToDestroyBlockAt(Player player, Block blockDestroyed) {
     if (isTrustedPlayer(player) || isAdmin(player)) {
       return true;
     }
 
+    Location blockLocation = blockDestroyed.getLocation();
     Inhabitant inhabitant = nation.getInhabitant(player.getName());
 
-    List<Residence> residencesAtLocation =
-            nation.findResidencesNearTo(location, plugin.getConfiguration(player.getWorld()).getResidenceOverlay());
+    List<Residence> residencesAtLocation = nation.findResidencesNearTo(blockLocation,
+            plugin.getConfiguration(player.getWorld()).getResidenceOverlay());
     if (residencesAtLocation != null && residencesAtLocation.size() > 0) {
       for (Residence residence : residencesAtLocation) {
         if (!canBuildAndDestroy(residence, inhabitant)) {
@@ -133,16 +136,17 @@ public class PersistPermissionsResolver implements PermissionsResolver {
       return true;
     }
 
-    Town town = nation.getTown(location);
+    Town town = nation.getTown(blockLocation);
     // Town not null? You must be inside a town.
     if (town != null) {
-      return canBuildAndDestroy(town, inhabitant) || plugin.getConfiguration(player.getWorld())
-              .getAllowedToDestroyInTown().contains(location.getBlock().getTypeId());
+      return canBuildAndDestroy(town, inhabitant) ||
+              plugin.getConfiguration(player.getWorld()).getAllowedToDestroyInTown()
+                      .contains(blockDestroyed.getTypeId());
     }
 
     // In wildness?
     return plugin.getConfiguration(player.getWorld()).getAllowedToDestroyInWildness()
-            .contains(location.getBlock().getTypeId());
+            .contains(blockDestroyed.getTypeId());
   }
 
   /**

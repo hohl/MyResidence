@@ -1,0 +1,11 @@
+welcome_at_home: ''
+
+# BuildPermissionsListener.java
+not_allowed_to_build: '&cYou are not allowed to build here!'
+not_allowed_to_destroy: '&cYou are not allowed to destroy these block!'
+
+# NotifyPlayerListener.java
+liked_your_residence: '&2{0} liked your residence!'
+
+# SignBrokeListener.java
+cant_destroy_sign: '&cYou can not destroy a residence sign!'

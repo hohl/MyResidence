@@ -1,0 +1,36 @@
+#
+# MyResidence Example Configuration
+# @author: MIHO <michael@hohl.cc>
+#
+
+# Defines costs of the MyResidence plugin.
+cost:
+    chunk: 1000
+
+sign:
+    # Message stored in every first line of the residence signs. DO NOT CHANGE THESE ON RUNNING SERVERS!
+    title: '[Residence]'
+    # Message displayed on signs which are for sale.
+    sale: 'FOR SALE!'
+
+# number of blocks, which are allowed to overflow the residence area.
+residenceOverflow: 0
+
+# setting this to true will prevent teleporting into walls.
+safeTeleports: true
+
+# Defines which blocks can placed/destroyed inside towns, also if you do not own the residence.
+town:
+    place:
+    - 6
+    destroy:
+    - 17
+    - 18
+
+# Defines which blocks can placed/destroyed outside towns.
+wildness:
+    place:
+    - 6
+    destroy:
+    - 17
+    - 18

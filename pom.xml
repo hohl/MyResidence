@@ -84,6 +84,7 @@
         <directory>${basedir}/src/main/resources/</directory>
         <includes>
           <include>plugin.yml</include>
+          <include>myresidence_*.yml</include>
         </includes>
       </resource>
       <resource>

@@ -345,9 +345,15 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     SignBrokeListener signBrokeListener = new SignBrokeListener(this, nation);
     pluginManager.registerEvent(Event.Type.BLOCK_BREAK, signBrokeListener, Event.Priority.Normal, this);
 
+    // Listener for world protection.
+    BuildPermissionsListener buildPermissionsListener = new BuildPermissionsListener(nation.getPermissionsResolver());
+    pluginManager.registerEvent(Event.Type.BLOCK_PLACE, buildPermissionsListener, Event.Priority.Normal, this);
+    pluginManager.registerEvent(Event.Type.BLOCK_BREAK, buildPermissionsListener, Event.Priority.Normal, this);
+
     // Listen for residences.
     SignUpdateListener signUpdateListener = new SignUpdateListener(nation, this);
     getEventManager().addListener(signUpdateListener);
+
   }
 
   /**

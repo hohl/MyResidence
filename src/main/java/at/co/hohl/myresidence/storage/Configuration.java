@@ -69,7 +69,7 @@ public class Configuration {
     chunkCost = configuration.getDouble("cost.chunk", 1000);
     signTitle = configuration.getString("sign.title", "[Residence]");
     signSaleText = configuration.getString("sign.sale", "FOR SALE!");
-    safeTeleport = configuration.getBoolean("safe_teleport", true);
+    safeTeleport = configuration.getBoolean("safeTeleport", true);
     residenceOverlay = configuration.getInt("residenceOverlay", 0);
     allowedToBuildInTown = configuration.getIntList("town.place", new LinkedList<Integer>());
     allowedToDestroyInTown = configuration.getIntList("town.destroy", new LinkedList<Integer>());
@@ -84,7 +84,7 @@ public class Configuration {
     configuration.setProperty("cost.chunk", chunkCost);
     configuration.setProperty("sign.title", signTitle);
     configuration.setProperty("sign.sale", signSaleText);
-    configuration.setProperty("safe_teleport", safeTeleport);
+    configuration.setProperty("safeTeleport", safeTeleport);
     configuration.setProperty("residenceOverlay", residenceOverlay);
     configuration.setProperty("town.place", allowedToBuildInTown);
     configuration.setProperty("town.destroy", allowedToDestroyInTown);

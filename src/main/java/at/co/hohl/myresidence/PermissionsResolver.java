@@ -18,7 +18,7 @@
 
 package at.co.hohl.myresidence;
 
-import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 /**
@@ -47,19 +47,19 @@ public interface PermissionsResolver {
   /**
    * Checks if the player is
    *
-   * @param player   player to check the permissions for.
-   * @param location the location to look up.
+   * @param player      player to check the permissions for.
+   * @param blockPlaced the placed block.
    * @return true, if the player is allowed to build here.
    */
-  boolean isAllowedToPlaceBlockAt(Player player, Location location);
+  public boolean isAllowedToPlaceBlockAt(Player player, Block blockPlaced);
 
   /**
    * Checks if the player is
    *
-   * @param player   player to check the permissions for.
-   * @param location the location to look up.
+   * @param player         player to check the permissions for.
+   * @param blockDestroyed the block which gets destroyed.
    * @return true, if the player is allowed to build here.
    */
-  boolean isAllowedToDestroyBlockAt(Player player, Location location);
+  public boolean isAllowedToDestroyBlockAt(Player player, Block blockDestroyed);
 
 }

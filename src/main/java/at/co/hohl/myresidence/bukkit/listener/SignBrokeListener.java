@@ -18,11 +18,12 @@
 
 package at.co.hohl.myresidence.bukkit.listener;
 
+import at.co.hohl.mcutils.chat.Chat;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.event.ResidenceChangedEvent;
 import at.co.hohl.myresidence.storage.persistent.Residence;
-import org.bukkit.ChatColor;
+import at.co.hohl.myresidence.translations.Translate;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -71,7 +72,7 @@ public class SignBrokeListener extends BlockListener {
       return;
     }
 
-    event.getPlayer().sendMessage(ChatColor.RED + "You can not destroy a residence sign!");
+    Chat.sendMessage(event.getPlayer(), Translate.get("cant_destroy_sign"));
     event.setCancelled(true);
 
     plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
