@@ -36,8 +36,8 @@
 
   <repositories>
     <repository>
-      <id>miho-mvn2</id>
-      <url>http://dev.hohl-it.com/artifactory/repo</url>
+      <id>hohl-repo</id>
+      <url>http://repo.hohl.cc/repo</url>
     </repository>
   </repositories>
 

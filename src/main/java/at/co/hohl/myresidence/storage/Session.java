@@ -18,7 +18,6 @@
 
 package at.co.hohl.myresidence.storage;
 
-import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.NoResidenceSelectedException;
 import at.co.hohl.myresidence.exceptions.NoTownSelectedException;
@@ -40,6 +39,12 @@ public class Session {
   // Duration, how long a selection should be stored.
   private static final long SELECTION_DURATION = 45 * 1000;
 
+  // Permission describes that player is an admin.
+  private static final String ADMIN_PERMISSION = "myresidence.admin";
+
+  // Permission describes that player is trusted.
+  private static final String TRUSTED_PERMISSION = "myresidence.trust";
+
   /**
    * Activator for tasks.
    */
@@ -47,11 +52,6 @@ public class Session {
     CONFIRM_COMMAND,
     SELECT_SIGN
   }
-
-  /**
-   * MyResidence Plugin.
-   */
-  private final MyResidence plugin;
 
   /**
    * Player who owns the session.
@@ -106,12 +106,10 @@ public class Session {
   /**
    * Creates a new Session for the passed player.
    *
-   * @param plugin the plugin whichs holds the session.
    * @param nation the nation which contains all the towns and residences.
    * @param player the player who should own the session.
    */
-  public Session(MyResidence plugin, Nation nation, Player player) {
-    this.plugin = plugin;
+  public Session(Nation nation, Player player) {
     this.nation = nation;
     this.player = player;
   }
@@ -131,6 +129,24 @@ public class Session {
   }
 
   /**
+   * Checks if the session is a session of an Administrator.
+   *
+   * @return true, if the player owns the administrator permission.
+   */
+  public boolean isAdmin() {
+    return player.hasPermission(ADMIN_PERMISSION);
+  }
+
+  /**
+   * Checks if the session is a session of an Administrator.
+   *
+   * @return true, if the player owns the trusted permission.
+   */
+  public boolean isTrustedPlayer() {
+    return player.hasPermission(TRUSTED_PERMISSION);
+  }
+
+  /**
    * Checks if the player has permission to do that.
    *
    * @param permission the permission to check.
@@ -138,7 +154,7 @@ public class Session {
    */
   @Deprecated
   public boolean hasPermission(String permission) {
-    return plugin.hasPermission(player, permission);
+    return player.hasPermission(permission);
   }
 
   /**
@@ -147,9 +163,9 @@ public class Session {
    * @param town the town to check.
    * @return true, if the session has enough rights.
    */
+  @Deprecated
   public boolean hasMajorRights(Town town) {
-    return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) ||
-            hasPermission("myresidence.admin");
+    return nation.getTownManager(town).isMajor(nation.getInhabitant(getPlayerId())) || isAdmin();
   }
 
   /**
@@ -158,16 +174,16 @@ public class Session {
    * @param residence the residence to check.
    * @return true, if the session has enough rights.
    */
+  @Deprecated
   public boolean hasResidenceOwnerRights(Residence residence) {
-    return getPlayerId() == residence.getOwnerId() || hasPermission("myresidence.admin");
+    return getPlayerId() == residence.getOwnerId() || isAdmin();
   }
 
   /**
    * Returns the current selected Residence.
    *
    * @return the current selection of the player.
-   * @throws at.co.hohl.myresidence.exceptions.NoResidenceSelectedException
-   *          thrown when the player don't have a selection.
+   * @throws NoResidenceSelectedException thrown when the player don't have a selection.
    */
   public Residence getSelectedResidence() throws NoResidenceSelectedException {
     Residence residence;
