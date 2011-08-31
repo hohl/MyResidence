@@ -48,6 +48,7 @@ public final class Translate {
 
 
     translations = new Configuration(translationFile);
+    translations.load();
   }
 
   /**
