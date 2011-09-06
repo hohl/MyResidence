@@ -38,7 +38,7 @@ public class PluginCommands {
           desc = "Reloads the MyResidence plugin",
           max = 0
   )
-  @CommandPermissions({"myresidence.reload"})
+  @CommandPermissions({"myresidence.admin"})
   public static void reload(final CommandContext args,
                             final MyResidence plugin,
                             final Nation nation,

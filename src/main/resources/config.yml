@@ -14,7 +14,7 @@ sign:
     sale: 'FOR SALE!'
 
 # number of blocks, which are allowed to overflow the residence area.
-residenceOverflow: 0
+residenceOverlay: 0
 
 # setting this to true will prevent teleporting into walls.
 safeTeleports: true
