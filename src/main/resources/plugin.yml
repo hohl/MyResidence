@@ -44,6 +44,7 @@ permissions:
             myresidence.residence.*: true
             myresidence.town.*: true
             myresidence.admin: true
+            myresidence.trust: true
             myresidence.like: true
     myresidence.residence.*:
         description: Gives access to all commands for managing residences.
@@ -62,6 +63,9 @@ permissions:
             myresidence.major: true
     myresidence.admin:
         description: Allows manage all residences and towns without beeing major or owner
+        default: op
+    myresidence.trust:
+        description: Allows to build and destroy everywhere, ignoring build rules
         default: op
     myresidence.major:
         description: Allows user to become a major of a town
