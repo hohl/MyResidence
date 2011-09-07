@@ -347,7 +347,7 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     commands = new CommandsManager<Player>() {
       @Override
       public boolean hasPermission(Player player, String permission) {
-        return player.hasPermission(permission);
+        return nation.getPermissionsResolver().hasPermission(player, permission);
       }
     };
 

@@ -29,6 +29,15 @@ import org.bukkit.entity.Player;
 public interface PermissionsResolver {
 
   /**
+   * Checks if the player has the passed permission.
+   *
+   * @param player     the player to check.
+   * @param permission the permission to check.
+   * @return true if the player has the requiered permission.
+   */
+  boolean hasPermission(Player player, String permission);
+
+  /**
    * Checks if the session is a session of an Administrator.
    *
    * @param player player to check the permissions for.

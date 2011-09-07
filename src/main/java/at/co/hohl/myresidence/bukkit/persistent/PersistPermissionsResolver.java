@@ -42,6 +42,21 @@ public class PersistPermissionsResolver implements PermissionsResolver {
   private final Nation nation;
 
   /**
+   * Checks if the player has the passed permission.
+   *
+   * @param player     the player to check.
+   * @param permission the permission to check.
+   * @return true if the player has the requiered permission.
+   */
+  public boolean hasPermission(Player player, String permission) {
+    if (plugin.getWorldEdit() != null) {
+      return plugin.getWorldEdit().getPermissionsResolver().hasPermission(player.getName(), permission);
+    } else {
+      return player.hasPermission(permission) || player.isOp();
+    }
+  }
+
+  /**
    * Creates a new, persistence based PermissionsResolver.
    *
    * @param plugin the myresidence which holds the nation.
@@ -59,7 +74,7 @@ public class PersistPermissionsResolver implements PermissionsResolver {
    * @return true, if the player owns the administrator permission.
    */
   public boolean isAdmin(Player player) {
-    return player.hasPermission(ADMIN_PERMISSION);
+    return hasPermission(player, ADMIN_PERMISSION);
   }
 
   /**
@@ -69,7 +84,7 @@ public class PersistPermissionsResolver implements PermissionsResolver {
    * @return true, if the player owns the trusted permission.
    */
   public boolean isTrustedPlayer(Player player) {
-    return player.hasPermission(TRUSTED_PERMISSION);
+    return hasPermission(player, TRUSTED_PERMISSION);
   }
 
   /**

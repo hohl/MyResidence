@@ -123,17 +123,6 @@ public class Session {
   }
 
   /**
-   * Checks if the player has permission to do that.
-   *
-   * @param permission the permission to check.
-   * @return true, if the player has the permission.
-   */
-  @Deprecated
-  public boolean hasPermission(String permission) {
-    return player.hasPermission(permission);
-  }
-
-  /**
    * Checks if the session has major rights in the town.
    *
    * @param town the town to check.

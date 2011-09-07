@@ -68,7 +68,7 @@ public class TownClaimCommands {
     }
 
     // Check if player is allowed to use the i-flag
-    if (args.hasFlag('i') && !session.hasPermission("myresidence.admin")) {
+    if (args.hasFlag('i') && !nation.getPermissionsResolver().isAdmin(player)) {
       throw new PermissionsDeniedException("Only admins are allowed to use the ignore flag!");
     }
 
@@ -124,7 +124,7 @@ public class TownClaimCommands {
     }
 
     // Check if player is allowed to use the i-flag
-    if (args.hasFlag('i') && !session.hasPermission("myresidence.admin")) {
+    if (args.hasFlag('i') && !nation.getPermissionsResolver().isAdmin(player)) {
       throw new PermissionsDeniedException("Only admins are allowed to use the ignore flag!");
     }
 
