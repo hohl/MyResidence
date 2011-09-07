@@ -70,7 +70,7 @@ public class Configuration {
     signTitle = configuration.getString("sign.title", "[Residence]");
     signSaleText = configuration.getString("sign.sale", "FOR SALE!");
     safeTeleport = configuration.getBoolean("safeTeleport", true);
-    residenceOverlay = configuration.getInt("residenceOverlay", 0);
+    residenceOverlay = configuration.getInt("residenceOverlay", 1);
     allowedToBuildInTown = configuration.getIntList("town.place", new LinkedList<Integer>());
     allowedToDestroyInTown = configuration.getIntList("town.destroy", new LinkedList<Integer>());
     allowedToBuildInWildness = configuration.getIntList("wildness.place", new LinkedList<Integer>());
