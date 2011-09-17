@@ -165,9 +165,12 @@ public class ResidenceCommands {
     session.setTask(new Runnable() {
       public void run() {
         plugin.getEventManager().callEvent(new ResidenceRemovedEvent(session, residenceToRemove));
-
-        nation.remove(residenceToRemove);
-        Chat.sendMessage(player, "&2Residence {0} removed!", residenceToRemove);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+          public void run() {
+            nation.remove(residenceToRemove);
+            Chat.sendMessage(player, "&2Residence {0} removed!", residenceToRemove);
+          }
+        });
       }
     });
     session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);

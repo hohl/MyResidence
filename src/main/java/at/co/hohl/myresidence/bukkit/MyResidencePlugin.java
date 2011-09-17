@@ -336,6 +336,8 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     // Listen for residences.
     SignUpdateListener signUpdateListener = new SignUpdateListener(nation, this);
     getEventManager().addListener(signUpdateListener);
+    NotifyPlayerListener notifyPlayerListener = new NotifyPlayerListener(nation, this);
+    getEventManager().addListener(notifyPlayerListener);
 
   }
 
