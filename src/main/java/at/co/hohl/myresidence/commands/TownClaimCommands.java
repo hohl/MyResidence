@@ -94,6 +94,9 @@ public class TownClaimCommands {
     // Reserve new chunk.
     nation.getChunkManager().addChunk(selectedTown, chunkWorld, chunkVector);
 
+    // Save and end transaction
+    nation.getDatabase().save(selectedTown);
+
     player.sendMessage(ChatColor.DARK_GREEN + "Town bought chunk for " + ChatColor.GREEN +
             plugin.format(chunkCost) + ChatColor.DARK_GREEN + ".");
   }

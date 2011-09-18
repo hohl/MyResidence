@@ -97,6 +97,11 @@ public class TownAccountCommands {
       throw new InsufficientArgumentsException("You can not send an amount smaller than 0!");
     }
 
+    // Has enough money on account?
+    if (amount > selectedTown.getMoney()) {
+      throw new InsufficientArgumentsException("Not enough money!");
+    }
+
     selectedTown.subtractMoney(amount);
     account.add(amount);
     nation.save(selectedTown);
