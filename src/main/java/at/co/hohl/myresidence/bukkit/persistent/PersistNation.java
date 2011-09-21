@@ -176,9 +176,9 @@ public class PersistNation implements Nation {
 
     List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
     while (!residenceSigns.isEmpty()) {
-      List<ResidenceSign> residencesPackage = residenceSigns.subList(0, Math.min(residenceSigns.size(), 5));
-      residenceSignPackages.add(residenceSignPackages);
-      residenceSigns.removeAll(residenceSignPackages);
+      List<ResidenceSign> residenceSignPackage = residenceSigns.subList(0, Math.min(residenceSigns.size(), 5));
+      residenceSignPackages.add(residenceSignPackage);
+      residenceSigns.removeAll(residenceSignPackage);
     }
 
     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
