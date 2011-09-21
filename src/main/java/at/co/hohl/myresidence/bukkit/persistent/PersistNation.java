@@ -186,36 +186,40 @@ public class PersistNation implements Nation {
 
     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
       public void run() {
-        plugin.info("Run background task to search databse conflicts.");
+        try {
+          plugin.info("Run background task to search database conflicts.");
 
-        List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
-        residenceSignPackages.remove(residenceSignsToCheck);
+          List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
+          residenceSignPackages.remove(residenceSignsToCheck);
 
-        plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
+          plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
 
-        // Check residences and save invalid ones
-        for (ResidenceSign residenceSign : residenceSignsToCheck) {
+          // Check residences and save invalid ones
+          for (ResidenceSign residenceSign : residenceSignsToCheck) {
 
-          plugin.info("Check residence sign at [%s-%d,%d,%d] for residence with id %d...",
-                  residenceSign.getWorld(),
-                  residenceSign.getX(),
-                  residenceSign.getY(),
-                  residenceSign.getZ(),
-                  residenceSign.getResidenceId());
+            plugin.info("Check residence sign at [%s-%d,%d,%d] for residence with id %d...",
+                    residenceSign.getWorld(),
+                    residenceSign.getX(),
+                    residenceSign.getY(),
+                    residenceSign.getZ(),
+                    residenceSign.getResidenceId());
 
-          Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
-                  .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
-          if (!(residenceSignBlock.getType().equals(Material.SIGN_POST) ||
-                  residenceSignBlock.getType().equals(Material.WALL_SIGN))) {
-            invalidResidences.add(getResidence(residenceSign.getResidenceId()));
+            Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
+                    .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
+            if (!(residenceSignBlock.getType().equals(Material.SIGN_POST) ||
+                    residenceSignBlock.getType().equals(Material.WALL_SIGN))) {
+              invalidResidences.add(getResidence(residenceSign.getResidenceId()));
+            }
           }
-        }
 
-        // Inform users or search other residences if there are others
-        if (!residenceSignPackages.isEmpty()) {
-          plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 5);
-        } else {
-          invalidResidenceListener.invalidResidencesFound(invalidResidences);
+          // Inform users or search other residences if there are others
+          if (!residenceSignPackages.isEmpty()) {
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 5);
+          } else {
+            invalidResidenceListener.invalidResidencesFound(invalidResidences);
+          }
+        } catch (Throwable e) {
+          e.printStackTrace();
         }
       }
     });

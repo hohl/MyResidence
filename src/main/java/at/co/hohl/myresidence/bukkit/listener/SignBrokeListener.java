@@ -26,11 +26,9 @@ import at.co.hohl.myresidence.storage.persistent.Residence;
 import at.co.hohl.myresidence.translations.Translate;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
-import org.bukkit.material.MaterialData;
 
 /**
  * Listens to the block break event, if the player broke a block which is a residence sign.
@@ -83,7 +81,7 @@ public class SignBrokeListener extends BlockListener {
 
       plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
 
-    } else {
+    }/* else { !!!: Slows down the server too much
       for (BlockFace blockFace :
               new BlockFace[]{BlockFace.UP, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST}) {
 
@@ -104,7 +102,7 @@ public class SignBrokeListener extends BlockListener {
           plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
 
         }
-      }
-    }
+      }*/
   }
+}
 }
