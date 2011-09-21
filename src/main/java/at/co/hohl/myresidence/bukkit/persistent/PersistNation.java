@@ -178,7 +178,7 @@ public class PersistNation implements Nation {
     plugin.info("Check %d residence signs.", residenceSigns.size());
     for (int index = 0; index < residenceSigns.size(); index += 5) {
       List<ResidenceSign> residenceSignPackage =
-              residenceSigns.subList(index, Math.min(residenceSigns.size() - index, 5));
+              residenceSigns.subList(index, index + Math.min(residenceSigns.size() - index, 5));
       residenceSignPackages.add(residenceSignPackage);
     }
 
