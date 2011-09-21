@@ -176,10 +176,10 @@ public class PersistNation implements Nation {
 
     List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
     plugin.info("Check %d residence signs.", residenceSigns.size());
-    while (!residenceSigns.isEmpty()) {
-      List<ResidenceSign> residenceSignPackage = residenceSigns.subList(0, Math.min(residenceSigns.size(), 5));
+    for (int index = 0; index < residenceSigns.size(); index += 5) {
+      List<ResidenceSign> residenceSignPackage =
+              residenceSigns.subList(index, Math.min(residenceSigns.size() - index, 5));
       residenceSignPackages.add(residenceSignPackage);
-      residenceSigns.removeAll(residenceSignPackage);
     }
 
     plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
