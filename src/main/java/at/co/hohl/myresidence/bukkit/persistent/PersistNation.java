@@ -175,16 +175,21 @@ public class PersistNation implements Nation {
     final List<Residence> invalidResidences = new LinkedList<Residence>();
 
     List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
+    plugin.info("Check %d residence signs.", residenceSigns.size());
     while (!residenceSigns.isEmpty()) {
       List<ResidenceSign> residenceSignPackage = residenceSigns.subList(0, Math.min(residenceSigns.size(), 5));
       residenceSignPackages.add(residenceSignPackage);
       residenceSigns.removeAll(residenceSignPackage);
     }
 
+    plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
+
     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
       public void run() {
         List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
         residenceSignPackages.remove(residenceSignsToCheck);
+
+        plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
 
         // Check residences and save invalid ones
         for (ResidenceSign residenceSign : residenceSignsToCheck) {
