@@ -109,13 +109,13 @@ public class PluginCommands {
                                      final Player player,
                                      final Session session) {
 
-    Chat.sendMessage(player, "&2MyResidence is checking the database in background.");
-    Chat.sendMessage(player, "&2You'll get notified when interaction is needed.");
+    Chat.sendMessage(player, "&8MyResidence is checking the database in background.");
+    Chat.sendMessage(player, "&8You'll get notified when interaction is needed.");
 
     nation.searchInvalidResidences(new InvalidResidenceListener() {
       public void invalidResidencesFound(final List<Residence> invalidResidences) {
         if (invalidResidences.size() == 0) {
-          Chat.sendMessage(player, "&8Everything is ok in MyResidence database!");
+          Chat.sendMessage(player, "&2Everything is ok in MyResidence database!");
           return;
         }
 
@@ -131,6 +131,8 @@ public class PluginCommands {
             for (Residence residenceToRemove : invalidResidences) {
               nation.remove(residenceToRemove);
             }
+
+            Chat.sendMessage(player, "&2All conflicts in MyResidence database are solved!");
           }
         });
       }
