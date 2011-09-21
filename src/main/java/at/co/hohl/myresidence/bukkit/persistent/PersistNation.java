@@ -211,12 +211,12 @@ public class PersistNation implements Nation {
 
         // Inform users or search other residences if there are others
         if (!residenceSignPackages.isEmpty()) {
-          plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this);
+          plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 5);
         } else {
           invalidResidenceListener.invalidResidencesFound(invalidResidences);
         }
       }
-    });
+    }, 5);
   }
 
   /**
