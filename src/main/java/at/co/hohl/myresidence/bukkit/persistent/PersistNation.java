@@ -190,8 +190,8 @@ public class PersistNation implements Nation {
         for (ResidenceSign residenceSign : residenceSignsToCheck) {
           Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
                   .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
-          if (!residenceSignBlock.getType().equals(Material.SIGN_POST) ||
-                  residenceSignBlock.getType().equals(Material.WALL_SIGN)) {
+          if (!(residenceSignBlock.getType().equals(Material.SIGN_POST) ||
+                  residenceSignBlock.getType().equals(Material.WALL_SIGN))) {
             invalidResidences.add(getResidence(residenceSign.getResidenceId()));
           }
         }
