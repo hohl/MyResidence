@@ -25,9 +25,12 @@ import at.co.hohl.myresidence.event.ResidenceChangedEvent;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import at.co.hohl.myresidence.translations.Translate;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
+import org.bukkit.material.MaterialData;
 
 /**
  * Listens to the block break event, if the player broke a block which is a residence sign.
@@ -57,24 +60,51 @@ public class SignBrokeListener extends BlockListener {
    */
   @Override
   public void onBlockBreak(BlockBreakEvent event) {
-    if (event.isCancelled() || !(event.getBlock().getType().equals(Material.SIGN_POST)
-            || event.getBlock().getType().equals(Material.WALL_SIGN))) {
+    if (event.isCancelled()) {
       return;
     }
 
-    final Sign clickedSign = (Sign) event.getBlock().getState();
-    if (!plugin.getConfiguration(event.getBlock().getWorld()).getSignTitle().equals(clickedSign.getLine(0))) {
-      return;
+    Block eventBlock = event.getBlock();
+
+    if (eventBlock.getType().equals(Material.SIGN_POST) || eventBlock.getType().equals(Material.WALL_SIGN)) {
+
+      final Sign clickedSign = (Sign) event.getBlock().getState();
+      if (!plugin.getConfiguration(event.getBlock().getWorld()).getSignTitle().equals(clickedSign.getLine(0))) {
+        return;
+      }
+
+      final Residence residence = nation.getResidence(clickedSign);
+      if (residence == null) {
+        return;
+      }
+
+      Chat.sendMessage(event.getPlayer(), Translate.get("cant_destroy_sign"));
+      event.setCancelled(true);
+
+      plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
+
+    } else {
+      for (BlockFace blockFace :
+              new BlockFace[]{BlockFace.UP, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST}) {
+
+        MaterialData blockAtFaceMaterial = eventBlock.getRelative(blockFace).getState().getData();
+        if (blockAtFaceMaterial instanceof org.bukkit.material.Sign &&
+                ((org.bukkit.material.Sign) blockAtFaceMaterial).getAttachedFace()
+                        .getOppositeFace()
+                        .equals(blockFace)) {
+
+          final Residence residence = nation.getResidence((Sign) eventBlock.getRelative(blockFace).getState());
+          if (residence == null) {
+            return;
+          }
+
+          Chat.sendMessage(event.getPlayer(), Translate.get("cant_destroy_sign"));
+          event.setCancelled(true);
+
+          plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
+
+        }
+      }
     }
-
-    final Residence residence = nation.getResidence(clickedSign);
-    if (residence == null) {
-      return;
-    }
-
-    Chat.sendMessage(event.getPlayer(), Translate.get("cant_destroy_sign"));
-    event.setCancelled(true);
-
-    plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
   }
 }
