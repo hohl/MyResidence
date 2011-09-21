@@ -186,6 +186,8 @@ public class PersistNation implements Nation {
 
     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
       public void run() {
+        plugin.info("Run background task to search databse conflicts.");
+
         List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
         residenceSignPackages.remove(residenceSignsToCheck);
 
@@ -216,7 +218,7 @@ public class PersistNation implements Nation {
           invalidResidenceListener.invalidResidencesFound(invalidResidences);
         }
       }
-    }, 5);
+    });
   }
 
   /**

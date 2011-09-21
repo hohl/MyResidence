@@ -109,7 +109,7 @@ public class PluginCommands {
                                      final Player player,
                                      final Session session) {
 
-    Chat.sendMessage(player, "&2MyResidence is checking the database in background. Expect lags!");
+    Chat.sendMessage(player, "&2MyResidence is checking the database in background.");
     Chat.sendMessage(player, "&2You'll get notified when interaction is needed.");
 
     nation.searchInvalidResidences(new InvalidResidenceListener() {
