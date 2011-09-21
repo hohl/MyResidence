@@ -171,22 +171,26 @@ public class PersistNation implements Nation {
   }
 
   public void searchInvalidResidences(final InvalidResidenceListener invalidResidenceListener) {
-    final List<List<ResidenceSign>> residenceSignPackages = new LinkedList<List<ResidenceSign>>();
-    final List<Residence> invalidResidences = new LinkedList<Residence>();
-
-    List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
-    plugin.info("Check %d residence signs.", residenceSigns.size());
-    for (int index = 0; index < residenceSigns.size(); index += 5) {
-      List<ResidenceSign> residenceSignPackage =
-              residenceSigns.subList(index, index + Math.min(residenceSigns.size() - index, 5));
-      residenceSignPackages.add(residenceSignPackage);
-    }
-
-    plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
-
     Runnable delayedTask = new Runnable() {
+      private List<List<ResidenceSign>> residenceSignPackages;
+      private List<Residence> invalidResidences = new LinkedList<Residence>();
+
       public void run() {
         try {
+          if (residenceSignPackages == null) {
+            List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
+            plugin.info("Check %d residence signs.", residenceSigns.size());
+
+            residenceSignPackages = new LinkedList<List<ResidenceSign>>();
+            for (int index = 0; index < residenceSigns.size(); index += 5) {
+              List<ResidenceSign> residenceSignPackage =
+                      residenceSigns.subList(index, index + Math.min(residenceSigns.size() - index, 5));
+              residenceSignPackage.add(residenceSignPackage);
+            }
+
+            plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
+          }
+
           plugin.info("Run background task to search database conflicts.");
           plugin.info("%d packaged left to check.", residenceSignPackages.size());
 
