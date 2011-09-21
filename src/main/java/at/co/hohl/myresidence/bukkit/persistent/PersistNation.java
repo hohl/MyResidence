@@ -185,7 +185,7 @@ public class PersistNation implements Nation {
             for (int index = 0; index < residenceSigns.size(); index += 5) {
               List<ResidenceSign> residenceSignPackage =
                       residenceSigns.subList(index, index + Math.min(residenceSigns.size() - index, 5));
-              residenceSignPackage.add(residenceSignPackage);
+              residenceSignPackages.add(residenceSignPackage);
             }
 
             plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
