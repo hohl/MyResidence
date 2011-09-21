@@ -184,10 +184,11 @@ public class PersistNation implements Nation {
 
     plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
 
-    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+    Runnable delayedTask = new Runnable() {
       public void run() {
         try {
           plugin.info("Run background task to search database conflicts.");
+          plugin.info("%d packaged left.", residenceSignPackages.size());
 
           List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
           plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
@@ -223,7 +224,9 @@ public class PersistNation implements Nation {
           e.printStackTrace();
         }
       }
-    });
+    };
+
+    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, delayedTask);
   }
 
   /**
