@@ -114,6 +114,11 @@ public class PluginCommands {
 
     nation.searchInvalidResidences(new InvalidResidenceListener() {
       public void invalidResidencesFound(final List<Residence> invalidResidences) {
+        if (invalidResidences.size() == 0) {
+          Chat.sendMessage(player, "&8Everything is ok in MyResidence database!");
+          return;
+        }
+
         Chat.sendMessage(player, "&4Invalid residences found!");
 
         // Notify user about need confirmation.
