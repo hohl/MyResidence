@@ -333,6 +333,16 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
     pluginManager.registerEvent(Event.Type.BLOCK_PLACE, buildPermissionsListener, Event.Priority.Normal, this);
     pluginManager.registerEvent(Event.Type.BLOCK_BREAK, buildPermissionsListener, Event.Priority.Normal, this);
 
+    // Listener for player interactions.
+    InteractPermissionsListener interactPermissionsListener =
+            new InteractPermissionsListener(nation.getPermissionsResolver());
+    pluginManager.registerEvent(Event.Type.PLAYER_BUCKET_EMPTY, interactPermissionsListener, Event.Priority.Normal,
+            this);
+    pluginManager.registerEvent(Event.Type.PLAYER_BUCKET_FILL, interactPermissionsListener, Event.Priority.Normal,
+            this);
+    pluginManager.registerEvent(Event.Type.PLAYER_BED_ENTER, interactPermissionsListener, Event.Priority.Normal, this);
+    pluginManager.registerEvent(Event.Type.PLAYER_FISH, interactPermissionsListener, Event.Priority.Normal, this);
+
     // Listen for residences.
     SignUpdateListener signUpdateListener = new SignUpdateListener(nation, this);
     getEventManager().addListener(signUpdateListener);

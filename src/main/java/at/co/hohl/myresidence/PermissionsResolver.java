@@ -71,4 +71,13 @@ public interface PermissionsResolver {
    */
   public boolean isAllowedToDestroyBlockAt(Player player, Block blockDestroyed);
 
+  /**
+   * Checks if the player is allowed to interact with the passed block.
+   *
+   * @param player          player to check
+   * @param blockToInteract the block to interact
+   * @return true, if the player is allowed to interact
+   */
+  public boolean isAllowedToInteractWithBlock(Player player, Block blockToInteract);
+
 }

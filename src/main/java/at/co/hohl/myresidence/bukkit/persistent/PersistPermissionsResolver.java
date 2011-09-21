@@ -165,6 +165,23 @@ public class PersistPermissionsResolver implements PermissionsResolver {
   }
 
   /**
+   * Checks if the player is allowed to interact with the passed block.
+   *
+   * @param player          player to check
+   * @param blockToInteract the block to interact
+   * @return true, if the player is allowed to interact
+   */
+  public boolean isAllowedToInteractWithBlock(Player player, Block blockToInteract) {
+    if (isTrustedPlayer(player) || isAdmin(player)) {
+      return true;
+    }
+
+    Inhabitant inhabitant = nation.getInhabitant(player.getName());
+    Residence residencesAtLocation = nation.getResidence(blockToInteract.getLocation());
+    return residencesAtLocation != null && canBuildAndDestroy(residencesAtLocation, inhabitant);
+  }
+
+  /**
    * Return true, if the player can build and destroy on the passed residence.
    *
    * @param residence  the residence to check.

@@ -3,6 +3,12 @@
 not_allowed_to_build: '&cYou are not allowed to build here!'
 not_allowed_to_destroy: '&cYou are not allowed to destroy these block!'
 
+# InteractPermissionsListener.java
+not_allowed_to_fill_bucket_here: '&cYou are not allowed to fill your bucket here!'
+not_allowed_to_empty_bucket_here: '&cDo not flood foreign residences!'
+not_allowed_to_sleep_here: '&cYou are not allowed to sleep in foreign beds!'
+not_allowed_to_fish_here: '&cYou are not allowed to fish here!'
+
 # NotifyPlayerListener.java
 liked_your_residence: '&2{0} liked your residence!'
 
