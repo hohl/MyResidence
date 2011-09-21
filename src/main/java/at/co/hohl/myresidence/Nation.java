@@ -220,6 +220,13 @@ public interface Nation {
   public void sendInformation(Player player, Object object) throws MyResidenceException;
 
   /**
+   * Search for invalid residences.
+   *
+   * @param invalidResidenceListener the result listener.
+   */
+  public void searchInvalidResidences(final InvalidResidenceListener invalidResidenceListener);
+
+  /**
    * Saves any changes to towns or residences.
    *
    * @param object the object of the town or residence to save.

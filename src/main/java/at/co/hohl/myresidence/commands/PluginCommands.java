@@ -18,14 +18,19 @@
 
 package at.co.hohl.myresidence.commands;
 
+import at.co.hohl.mcutils.chat.Chat;
+import at.co.hohl.myresidence.InvalidResidenceListener;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.storage.Session;
+import at.co.hohl.myresidence.storage.persistent.Residence;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 /**
  * Commands to handle the plugin.
@@ -84,11 +89,49 @@ public class PluginCommands {
 
     if (!session.isDebugger()) {
       session.setDebugger(true);
-      player.sendMessage(ChatColor.LIGHT_PURPLE + "You will now receive more detailed debug information!");
+      Chat.sendMessage(player, "&dYou will now receive more detailed debug information!");
     } else {
       session.setDebugger(false);
-      player.sendMessage(ChatColor.LIGHT_PURPLE + "You will not receive debug information anymore!");
+      Chat.sendMessage(player, "&dYou will not receive debug information anymore!");
     }
 
   }
+
+  @Command(
+          aliases = {"searchconflicts"},
+          desc = "Search the MyResidence database for conflicts",
+          max = 0
+  )
+  @CommandPermissions("myresidence.admin")
+  public static void searchConflicts(final CommandContext args,
+                                     final MyResidence plugin,
+                                     final Nation nation,
+                                     final Player player,
+                                     final Session session) {
+
+    Chat.sendMessage(player, "&2MyResidence is checking the database in background. Expect lags!");
+    Chat.sendMessage(player, "&2You'll get notified when interaction is needed.");
+
+    nation.searchInvalidResidences(new InvalidResidenceListener() {
+      public void invalidResidencesFound(final List<Residence> invalidResidences) {
+        Chat.sendMessage(player, "&4Invalid residences found!");
+
+        // Notify user about need confirmation.
+        Chat.sendMessage(player, "&dDo you really want to remove &5{0}&d residences?", invalidResidences.size());
+        Chat.sendMessage(player, "&dUse &5/task confirm&d to confirm this task!");
+
+        session.setTaskActivator(Session.Activator.CONFIRM_COMMAND);
+        session.setTask(new Runnable() {
+          public void run() {
+            for (Residence residenceToRemove : invalidResidences) {
+              nation.remove(residenceToRemove);
+            }
+          }
+        });
+      }
+    });
+
+
+  }
+
 }

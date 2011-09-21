@@ -27,6 +27,8 @@ import com.sk89q.util.StringUtil;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -166,6 +168,40 @@ public class PersistNation implements Nation {
     } else {
       throw new MyResidenceException("Can't retrieve information about that object!");
     }
+  }
+
+  public void searchInvalidResidences(final InvalidResidenceListener invalidResidenceListener) {
+    final List<List<ResidenceSign>> residenceSignPackages = new LinkedList<List<ResidenceSign>>();
+    final List<Residence> invalidResidences = new LinkedList<Residence>();
+
+    List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
+    while (!residenceSigns.isEmpty()) {
+      residenceSignPackages.add(residenceSigns.subList(0, Math.min(residenceSigns.size(), 5)));
+    }
+
+    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+      public void run() {
+        List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
+        residenceSignPackages.remove(residenceSignsToCheck);
+
+        // Check residences and save invalid ones
+        for (ResidenceSign residenceSign : residenceSignsToCheck) {
+          Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
+                  .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
+          if (!residenceSignBlock.getType().equals(Material.SIGN_POST) ||
+                  residenceSignBlock.getType().equals(Material.WALL_SIGN)) {
+            invalidResidences.add(getResidence(residenceSign.getResidenceId()));
+          }
+        }
+
+        // Inform users or search other residences if there are others
+        if (!residenceSignPackages.isEmpty()) {
+          plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this);
+        } else {
+          invalidResidenceListener.invalidResidencesFound(invalidResidences);
+        }
+      }
+    });
   }
 
   /**
