@@ -102,7 +102,7 @@ public class SignBrokeListener extends BlockListener {
           plugin.getEventManager().callEvent(new ResidenceChangedEvent(null, residence));
 
         }
-      }*/
+      }
+    }*/
   }
-}
 }
