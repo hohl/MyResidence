@@ -190,8 +190,6 @@ public class PersistNation implements Nation {
           plugin.info("Run background task to search database conflicts.");
 
           List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.get(0);
-          residenceSignPackages.remove(residenceSignsToCheck);
-
           plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
 
           // Check residences and save invalid ones
@@ -211,6 +209,9 @@ public class PersistNation implements Nation {
               invalidResidences.add(getResidence(residenceSign.getResidenceId()));
             }
           }
+
+          // Remove the already checked package
+          residenceSignPackages.remove(residenceSignsToCheck);
 
           // Inform users or search other residences if there are others
           if (!residenceSignPackages.isEmpty()) {
