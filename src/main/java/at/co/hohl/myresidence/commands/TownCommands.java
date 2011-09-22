@@ -88,6 +88,9 @@ public class TownCommands {
     session.setTask(new Runnable() {
       public void run() {
         try {
+          if (plugin.getPaymentMethods().hasMethod()) {
+            plugin.getPaymentMethods().getMethod().getAccount(player.getName()).add(townToRemove.getMoney());
+          }
           nation.remove(townToRemove);
           Chat.sendMessage(player, "&2Town {0} removed!", townToRemove);
         } catch (MyResidenceException e) {

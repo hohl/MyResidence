@@ -202,7 +202,6 @@ public class PersistNation implements Nation {
             Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
                     .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
 
-
             plugin.info("Check residence sign at [%s] for residence with id %d...",
                     residenceSignBlock.toString(),
                     residenceSign.getResidenceId());
