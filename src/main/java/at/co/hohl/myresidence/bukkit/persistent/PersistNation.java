@@ -224,8 +224,7 @@ public class PersistNation implements Nation {
             invalidResidenceListener.invalidResidencesFound(invalidResidences);
           }
         } catch (Throwable e) {
-          plugin.info("Exception thrown: %s", e.getMessage());
-          e.printStackTrace();
+          plugin.info("Exception %s thrown: %s", e.getClass().getName(), e.getMessage());
         }
       }
     };
