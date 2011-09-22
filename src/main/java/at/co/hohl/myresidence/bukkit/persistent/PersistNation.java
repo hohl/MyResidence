@@ -199,16 +199,14 @@ public class PersistNation implements Nation {
 
           // Check residences and save invalid ones
           for (ResidenceSign residenceSign : residenceSignsToCheck) {
-
-            plugin.info("Check residence sign at [%s-%d,%d,%d] for residence with id %d...",
-                    residenceSign.getWorld(),
-                    residenceSign.getX(),
-                    residenceSign.getY(),
-                    residenceSign.getZ(),
-                    residenceSign.getResidenceId());
-
             Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
                     .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
+
+
+            plugin.info("Check residence sign at [%s] for residence with id %d...",
+                    residenceSignBlock.toString(),
+                    residenceSign.getResidenceId());
+
             if (!(residenceSignBlock.getType().equals(Material.SIGN_POST) ||
                     residenceSignBlock.getType().equals(Material.WALL_SIGN))) {
               Residence residenceOfInvalidSign = getResidence(residenceSign.getResidenceId());
