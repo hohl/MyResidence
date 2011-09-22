@@ -211,7 +211,12 @@ public class PersistNation implements Nation {
                     .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
             if (!(residenceSignBlock.getType().equals(Material.SIGN_POST) ||
                     residenceSignBlock.getType().equals(Material.WALL_SIGN))) {
-              invalidResidences.add(getResidence(residenceSign.getResidenceId()));
+              Residence residenceOfInvalidSign = getResidence(residenceSign.getResidenceId());
+              if (residenceOfInvalidSign != null) {
+                invalidResidences.add(residenceOfInvalidSign);
+              } else {
+                getDatabase().delete(residenceSign);
+              }
             }
           }
 
