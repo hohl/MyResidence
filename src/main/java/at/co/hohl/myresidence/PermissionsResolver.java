@@ -33,7 +33,7 @@ public interface PermissionsResolver {
    *
    * @param player     the player to check.
    * @param permission the permission to check.
-   * @return true if the player has the requiered permission.
+   * @return true if the player has the required permission.
    */
   boolean hasPermission(Player player, String permission);
 
