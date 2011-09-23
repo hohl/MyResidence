@@ -225,6 +225,7 @@ public class PersistNation implements Nation {
           }
         } catch (Throwable e) {
           plugin.info("Exception %s thrown: %s", e.getClass().getName(), e.getMessage());
+          e.printStackTrace();
         }
       }
     };
