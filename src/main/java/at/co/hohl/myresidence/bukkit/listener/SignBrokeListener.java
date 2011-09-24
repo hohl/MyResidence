@@ -66,8 +66,8 @@ public class SignBrokeListener extends BlockListener {
 
     if (eventBlock.getType().equals(Material.SIGN_POST) || eventBlock.getType().equals(Material.WALL_SIGN)) {
 
-      final Sign clickedSign = (Sign) event.getBlock().getState();
-      if (!plugin.getConfiguration(event.getBlock().getWorld()).getSignTitle().equals(clickedSign.getLine(0))) {
+      final Sign clickedSign = (Sign) eventBlock.getState();
+      if (!plugin.getConfiguration(eventBlock.getWorld()).getSignTitle().equals(clickedSign.getLine(0))) {
         return;
       }
 
