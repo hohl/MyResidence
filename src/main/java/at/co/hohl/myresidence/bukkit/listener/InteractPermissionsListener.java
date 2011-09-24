@@ -47,7 +47,7 @@ public class InteractPermissionsListener extends PlayerListener {
     }
 
     if (!permissionsResolver.isAllowedToInteractWithBlock(event.getPlayer(),
-            event.getPlayer().getLocation().getBlock())) {
+            event.getBlockClicked())) {
       Chat.sendMessage(event.getPlayer(), Translate.get("not_allowed_to_fill_bucket_here"));
       event.setCancelled(true);
     }
@@ -60,7 +60,7 @@ public class InteractPermissionsListener extends PlayerListener {
     }
 
     if (!permissionsResolver.isAllowedToInteractWithBlock(event.getPlayer(),
-            event.getPlayer().getLocation().getBlock())) {
+            event.getBlockClicked())) {
       Chat.sendMessage(event.getPlayer(), Translate.get("not_allowed_to_empty_bucket_here"));
       event.setCancelled(true);
     }

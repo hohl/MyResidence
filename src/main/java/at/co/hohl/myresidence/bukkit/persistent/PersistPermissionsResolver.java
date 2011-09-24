@@ -178,7 +178,7 @@ public class PersistPermissionsResolver implements PermissionsResolver {
 
     Inhabitant inhabitant = nation.getInhabitant(player.getName());
     Residence residencesAtLocation = nation.getResidence(blockToInteract.getLocation());
-    return residencesAtLocation != null && canBuildAndDestroy(residencesAtLocation, inhabitant);
+    return residencesAtLocation == null || canBuildAndDestroy(residencesAtLocation, inhabitant);
   }
 
   /**
