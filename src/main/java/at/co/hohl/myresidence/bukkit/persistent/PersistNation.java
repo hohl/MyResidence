@@ -176,29 +176,29 @@ public class PersistNation implements Nation {
       private List<Residence> invalidResidences = new LinkedList<Residence>();
 
       public void run() {
-        try {
-          if (residenceSignPackages == null) {
-            List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
-            plugin.info("Check %d residence signs.", residenceSigns.size());
+        if (residenceSignPackages == null) {
+          List<ResidenceSign> residenceSigns = getDatabase().find(ResidenceSign.class).findList();
+          plugin.info("Check %d residence signs.", residenceSigns.size());
 
-            residenceSignPackages = new LinkedList<List<ResidenceSign>>();
-            for (int index = 0; index < residenceSigns.size(); index += 5) {
-              List<ResidenceSign> residenceSignPackage =
-                      residenceSigns.subList(index, index + Math.min(residenceSigns.size() - index, 5));
-              residenceSignPackages.add(residenceSignPackage);
-            }
-
-            plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
+          residenceSignPackages = new LinkedList<List<ResidenceSign>>();
+          for (int index = 0; index < residenceSigns.size(); index += 5) {
+            List<ResidenceSign> residenceSignPackage =
+                    residenceSigns.subList(index, index + Math.min(residenceSigns.size() - index, 5));
+            residenceSignPackages.add(residenceSignPackage);
           }
 
-          plugin.info("Run background task to search database conflicts.");
-          plugin.info("%d packaged left to check.", residenceSignPackages.size());
+          plugin.info("Divided into %d packages to check.", residenceSignPackages.size());
+        }
 
-          List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.remove(0);
-          plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
+        plugin.info("Run background task to search database conflicts.");
+        plugin.info("%d packaged left to check.", residenceSignPackages.size());
 
-          // Check residences and save invalid ones
-          for (ResidenceSign residenceSign : residenceSignsToCheck) {
+        List<ResidenceSign> residenceSignsToCheck = residenceSignPackages.remove(0);
+        plugin.info("Check package with %d residence signs.", residenceSignsToCheck.size());
+
+        // Check residences and save invalid ones
+        for (ResidenceSign residenceSign : residenceSignsToCheck) {
+          try {
             Block residenceSignBlock = plugin.getServer().getWorld(residenceSign.getWorld())
                     .getBlockAt(residenceSign.getX(), residenceSign.getY(), residenceSign.getZ());
 
@@ -215,17 +215,18 @@ public class PersistNation implements Nation {
                 getDatabase().delete(residenceSign);
               }
             }
+          } catch (Throwable e) {
+            plugin.info("Can not check residence with id %d because of an exception which is thrown during check!",
+                    residenceSign.getResidenceId());
+            e.printStackTrace();
           }
+        }
 
-          // Inform users or search other residences if there are others
-          if (!residenceSignPackages.isEmpty()) {
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 5);
-          } else {
-            invalidResidenceListener.invalidResidencesFound(invalidResidences);
-          }
-        } catch (Throwable e) {
-          plugin.info("Exception %s thrown: %s", e.getClass().getName(), e.getMessage());
-          e.printStackTrace();
+        // Inform users or search other residences if there are others
+        if (!residenceSignPackages.isEmpty()) {
+          plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 5);
+        } else {
+          invalidResidenceListener.invalidResidencesFound(invalidResidences);
         }
       }
     };
@@ -504,7 +505,11 @@ public class PersistNation implements Nation {
     } else {
       plugin.warning("Deleted residence which does not have an area!");
     }
-    getDatabase().delete(residenceSign);
+    if (residenceSign != null) {
+      getDatabase().delete(residenceSign);
+    } else {
+      plugin.warning("Deleted residence which does not have an sign!");
+    }
     getDatabase().delete(residenceHomes);
     getDatabase().delete(residenceMembers);
     getDatabase().delete(residenceFlags);
