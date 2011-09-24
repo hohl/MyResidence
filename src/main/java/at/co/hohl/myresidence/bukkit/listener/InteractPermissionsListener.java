@@ -59,7 +59,7 @@ public class InteractPermissionsListener extends PlayerListener {
       return;
     }
 
-    if (!permissionsResolver.isAllowedToInteractWithBlock(event.getPlayer(),
+    if (!permissionsResolver.isAllowedToPlaceBlockAt(event.getPlayer(),
             event.getBlockClicked())) {
       Chat.sendMessage(event.getPlayer(), Translate.get("not_allowed_to_empty_bucket_here"));
       event.setCancelled(true);
