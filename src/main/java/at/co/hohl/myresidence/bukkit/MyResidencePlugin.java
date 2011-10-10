@@ -185,6 +185,10 @@ public class MyResidencePlugin extends JavaPlugin implements MyResidence {
       player.sendMessage(ChatColor.RED + e.getMessage());
     } catch (MyResidenceException e) {
       player.sendMessage(ChatColor.RED + e.getMessage());
+    } catch (PersistenceException exception) {
+      player.sendMessage(ChatColor.RED + "Town or Residence is invalid. Please report this error!");
+      player.sendMessage(ChatColor.RED + exception.getClass().getName() + ": " + exception.getMessage());
+      exception.printStackTrace();
     } catch (Throwable exception) {
       player.sendMessage(ChatColor.RED + "Please report this error: [See console]");
       player.sendMessage(ChatColor.RED + exception.getClass().getName() + ": " + exception.getMessage());
