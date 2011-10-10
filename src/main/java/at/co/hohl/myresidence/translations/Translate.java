@@ -18,6 +18,7 @@
 
 package at.co.hohl.myresidence.translations;
 
+import org.bukkit.Bukkit;
 import org.bukkit.util.config.Configuration;
 
 import java.io.File;
@@ -40,14 +41,13 @@ public final class Translate {
     File translationFile = new File("myresidence_" + languageCode.toLowerCase() + ".yml");
 
     if (!(translationFile.exists() && translationFile.canRead())) {
-      translationFile = new File("myresidence_en.yml");
       Logger.getLogger("Minecraft").warning("[MyResidence] Use default translation, " +
               "because there exists no localization for your language.");
+      translations = Bukkit.getServer().getPluginManager().getPlugin("MyResidence").getConfiguration();
+    } else {
+      translations = new Configuration(translationFile);
+      translations.load();
     }
-
-
-    translations = new Configuration(translationFile);
-    translations.load();
   }
 
   /**
