@@ -159,7 +159,7 @@ public class ResidenceListCommands {
 
     // Find and display exact page.
     int page = args.getInteger(1, 1);
-    displayResults("Residences (Owner: " + player.getDisplayName() + ")", expressionList, page,
+    displayResults("Residences (Owner: " + inhabitant + ")", expressionList, page,
             plugin, nation, player, !args.hasFlag('t'), false, false);
 
   }
