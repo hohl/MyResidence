@@ -20,7 +20,9 @@ package at.co.hohl.myresidence.commands;
 
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
+import at.co.hohl.myresidence.exceptions.PlayerNotFoundException;
 import at.co.hohl.myresidence.storage.Session;
+import at.co.hohl.myresidence.storage.persistent.Inhabitant;
 import at.co.hohl.myresidence.storage.persistent.Residence;
 import at.co.hohl.myresidence.storage.persistent.Town;
 import com.avaje.ebean.ExpressionList;
@@ -86,7 +88,7 @@ public class ResidenceListCommands {
           usage = "[page]",
           desc = "Lists all residences you own",
           flags = "t",
-          max = 1
+          max = 2
   )
   public static void own(final CommandContext args,
                          final MyResidence plugin,
@@ -114,6 +116,49 @@ public class ResidenceListCommands {
 
     // Find and display exact page.
     int page = args.getInteger(0, 1);
+    displayResults("Residences (Owner: " + player.getDisplayName() + ")", expressionList, page,
+            plugin, nation, player, !args.hasFlag('t'), false, false);
+
+  }
+
+  @Command(
+          aliases = {"player"},
+          usage = "<PLAYER> [page]",
+          desc = "Lists all residences a player owns",
+          flags = "t",
+          min = 1,
+          max = 2
+  )
+  public static void player(final CommandContext args,
+                            final MyResidence plugin,
+                            final Nation nation,
+                            final Player player,
+                            final Session session) throws InsufficientArgumentsException, PlayerNotFoundException {
+
+    ExpressionList expressionList = nation.getDatabase().find(Residence.class).where();
+
+    // Sort by name.
+    expressionList.orderBy("name ASC");
+
+    // Only residences i own.
+    Inhabitant inhabitant = nation.getInhabitant(args.getString(0));
+    if (inhabitant == null) {
+      throw new PlayerNotFoundException();
+    }
+    expressionList.eq("ownerId", inhabitant);
+
+    if (args.hasFlag('t')) {
+      Town currentTown = nation.getTown(player.getLocation());
+      if (currentTown == null) {
+        throw new InsufficientArgumentsException(
+                "You are not inside a town! You could only use -t inside towns.");
+      } else {
+        expressionList.eq("townId", currentTown.getId());
+      }
+    }
+
+    // Find and display exact page.
+    int page = args.getInteger(1, 1);
     displayResults("Residences (Owner: " + player.getDisplayName() + ")", expressionList, page,
             plugin, nation, player, !args.hasFlag('t'), false, false);
 
