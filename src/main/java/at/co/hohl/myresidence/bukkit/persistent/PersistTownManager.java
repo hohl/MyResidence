@@ -152,7 +152,7 @@ public class PersistTownManager extends PersistTownFlagManager implements TownMa
   public boolean isInhabitant(Inhabitant inhabitant) {
     return nation.getDatabase().find(Residence.class).where()
             .eq("townId", town.getId())
-            .eq("inhabitantId", inhabitant.getId())
+            .eq("ownerId", inhabitant.getId())
             .findRowCount() > 0;
   }
 
