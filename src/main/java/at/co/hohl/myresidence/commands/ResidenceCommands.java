@@ -210,6 +210,7 @@ public class ResidenceCommands {
     }
 
     Chat.sendMessage(player, "&2Removed all likes of residence {0}!", residence);
+    plugin.getEventManager().callEvent(new ResidenceChangedEvent(session, residence));
   }
 
   @Command(
