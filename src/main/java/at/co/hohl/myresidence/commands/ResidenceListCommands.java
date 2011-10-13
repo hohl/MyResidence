@@ -145,7 +145,7 @@ public class ResidenceListCommands {
     if (inhabitant == null) {
       throw new PlayerNotFoundException();
     }
-    expressionList.eq("ownerId", inhabitant);
+    expressionList.eq("ownerId", inhabitant.getId());
 
     if (args.hasFlag('t')) {
       Town currentTown = nation.getTown(player.getLocation());
