@@ -127,7 +127,7 @@ public class ResidenceCommands {
                               final Session session)
           throws NotOwnException, NoResidenceSelectedException, IncompleteRegionException {
     Residence residence = session.getSelectedResidence();
-    if (!session.hasResidenceOwnerRights(residence)) {
+    if (!session.hasMajorRights(nation.getTown(residence.getTownId()))) {
       throw new NotOwnException();
     }
 
