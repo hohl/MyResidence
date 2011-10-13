@@ -39,6 +39,8 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 /**
  * Command for managing residences.
  *
@@ -125,10 +127,11 @@ public class ResidenceCommands {
                               final Nation nation,
                               final Player player,
                               final Session session)
-          throws NotOwnException, NoResidenceSelectedException, IncompleteRegionException {
+          throws PermissionsDeniedException, NoResidenceSelectedException, IncompleteRegionException {
     Residence residence = session.getSelectedResidence();
-    if (!session.hasMajorRights(nation.getTown(residence.getTownId()))) {
-      throw new NotOwnException();
+    if (!session.hasResidenceOwnerRights(residence) ||
+            !session.hasMajorRights(nation.getTown(residence.getTownId()))) {
+      throw new PermissionsDeniedException("You must be the owner and the major to do that!");
     }
 
     // Can not make a Residence without a selection.
@@ -157,8 +160,9 @@ public class ResidenceCommands {
           throws NoResidenceSelectedException, PermissionsDeniedException {
 
     final Residence residenceToRemove = session.getSelectedResidence();
-    if (!session.hasResidenceOwnerRights(residenceToRemove)) {
-      throw new PermissionsDeniedException("Only the owner of the residence can remove it!");
+    if (!session.hasResidenceOwnerRights(residenceToRemove) ||
+            !session.hasMajorRights(nation.getTown(residenceToRemove.getTownId()))) {
+      throw new PermissionsDeniedException("You must be the owner and the major to do that!");
     }
 
     // Create task to confirm.
@@ -179,6 +183,33 @@ public class ResidenceCommands {
     Chat.sendMessage(player, "&dDo you really want to remove &5{0}&d?", residenceToRemove);
     Chat.sendMessage(player, "&dUse &5/task confirm&d to confirm this task!");
 
+  }
+
+  @Command(
+          aliases = {"resetlikes", "removelikes"},
+          desc = "Removes all likes from a residence",
+          max = 0
+  )
+  @CommandPermissions({"myresidence.major"})
+  public static void resetLikes(final CommandContext args,
+                                final MyResidence plugin,
+                                final Nation nation,
+                                final Player player,
+                                final Session session)
+          throws NoResidenceSelectedException, PermissionsDeniedException {
+    final Residence residence = session.getSelectedResidence();
+    if (!session.hasResidenceOwnerRights(residence) ||
+            !session.hasMajorRights(nation.getTown(residence.getTownId()))) {
+      throw new PermissionsDeniedException("You must be the owner and the major to do that!");
+    }
+
+    ResidenceManager residenceManager = nation.getResidenceManager(residence);
+    List<Inhabitant> likes = residenceManager.getLikes();
+    for (Inhabitant like : likes) {
+      residenceManager.unlike(like);
+    }
+
+    Chat.sendMessage(player, "&2Removed all likes of residence {0}!", residence);
   }
 
   @Command(
