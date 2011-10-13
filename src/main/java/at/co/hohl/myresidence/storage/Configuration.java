@@ -45,6 +45,12 @@ public class Configuration {
   // Maximum numbers of blocks a residence is allowed to overlay from area.
   private int residenceOverlay;
 
+  // Maximum number of creatures spawned in world.
+  private int mobSpawnLimit;
+
+  // Setting that to true will block mob spawning from spawners.
+  private boolean denyBlockSpawners;
+
   // Blocks allowed to build/destroy in default areas.
   private List<Integer> allowedToBuildInWildness;
   private List<Integer> allowedToDestroyInWildness;
@@ -71,6 +77,8 @@ public class Configuration {
     signSaleText = configuration.getString("sign.sale", "FOR SALE!");
     safeTeleport = configuration.getBoolean("safeTeleport", true);
     residenceOverlay = configuration.getInt("residenceOverlay", 1);
+    mobSpawnLimit = configuration.getInt("mobSpawnLimit", 600);
+    denyBlockSpawners = configuration.getBoolean("denyMobSpawners", true);
     allowedToBuildInTown = configuration.getIntList("town.place", new LinkedList<Integer>());
     allowedToDestroyInTown = configuration.getIntList("town.destroy", new LinkedList<Integer>());
     allowedToBuildInWildness = configuration.getIntList("wildness.place", new LinkedList<Integer>());
@@ -86,6 +94,8 @@ public class Configuration {
     configuration.setProperty("sign.sale", signSaleText);
     configuration.setProperty("safeTeleport", safeTeleport);
     configuration.setProperty("residenceOverlay", residenceOverlay);
+    configuration.setProperty("mobSpawnLimit", mobSpawnLimit);
+    configuration.setProperty("denyMobSpawners", denyBlockSpawners);
     configuration.setProperty("town.place", allowedToBuildInTown);
     configuration.setProperty("town.destroy", allowedToDestroyInTown);
     configuration.setProperty("wildness.place", allowedToBuildInWildness);
@@ -125,12 +135,28 @@ public class Configuration {
     this.safeTeleport = safeTeleport;
   }
 
+  public boolean isDenyBlockSpawners() {
+    return denyBlockSpawners;
+  }
+
+  public void setDenyBlockSpawners(boolean denyBlockSpawners) {
+    this.denyBlockSpawners = denyBlockSpawners;
+  }
+
   public int getResidenceOverlay() {
     return residenceOverlay;
   }
 
   public void setResidenceOverlay(int residenceOverlay) {
     this.residenceOverlay = residenceOverlay;
+  }
+
+  public int getMobSpawnLimit() {
+    return mobSpawnLimit;
+  }
+
+  public void setMobSpawnLimit(int mobSpawnLimit) {
+    this.mobSpawnLimit = mobSpawnLimit;
   }
 
   public List<Integer> getAllowedToBuildInWildness() {

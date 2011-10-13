@@ -32,49 +32,54 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "res_residenceflags")
 public class ResidenceFlag {
-    /** All type of town flags. */
-    public enum Type {
-        PUBLIC,
-        LOCAL,
-        SIGHT,
-        HIDDEN,
-        ALLOW_PVP
-    }
+  /**
+   * All type of town flags.
+   */
+  public enum Type {
+    PUBLIC,
+    LOCAL,
+    SIGHT,
+    HIDDEN,
+    ALLOW_PVP,
+    MOB_SPAWNING
+  }
 
-    @Id
-    private int id;
+  @Id
+  private int id;
 
-    @NotNull
-    private int residenceId;
+  @NotNull
+  private int residenceId;
 
-    @NotNull
-    private Type flag;
+  @NotNull
+  private Type flag;
 
-    /** Creates a new ResidenceFlag */
-    public ResidenceFlag() {
-    }
+  /**
+   * Creates a new ResidenceFlag
+   */
+  public ResidenceFlag() {
+  }
 
-    public Type getFlag() {
-        return flag;
-    }
+  public Type getFlag() {
+    return flag;
+  }
 
-    public void setFlag(Type flag) {
-        this.flag = flag;
-    }
+  public void setFlag(Type flag) {
+    this.flag = flag;
+  }
 
-    public int getId() {
-        return id;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public int getResidenceId() {
-        return residenceId;
-    }
+  public int getResidenceId() {
+    return residenceId;
+  }
 
-    public void setResidenceId(int residenceId) {
-        this.residenceId = residenceId;
-    }
+  public void setResidenceId(int residenceId) {
+    this.residenceId = residenceId;
+  }
 }

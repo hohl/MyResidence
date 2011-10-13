@@ -23,6 +23,7 @@ import at.co.hohl.myresidence.storage.persistent.*;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import java.util.List;
 
@@ -179,6 +180,23 @@ public class PersistPermissionsResolver implements PermissionsResolver {
     Inhabitant inhabitant = nation.getInhabitant(player.getName());
     Residence residencesAtLocation = nation.getResidence(blockToInteract.getLocation());
     return residencesAtLocation == null || canBuildAndDestroy(residencesAtLocation, inhabitant);
+  }
+
+  /**
+   * Checks if it is allowed to spawn the creature.
+   *
+   * @param event the event to check.
+   * @return true, if the creature is allowed to spawn.
+   */
+  public boolean isAllowedToSpawnCreature(CreatureSpawnEvent event) {
+    if (event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER)
+            && plugin.getConfiguration(event.getLocation().getWorld()).isDenyBlockSpawners()) {
+      return false;
+    }
+
+    Residence residence = nation.getResidence(event.getLocation());
+
+    return residence == null || nation.getResidenceManager(residence).hasFlag(ResidenceFlag.Type.MOB_SPAWNING);
   }
 
   /**

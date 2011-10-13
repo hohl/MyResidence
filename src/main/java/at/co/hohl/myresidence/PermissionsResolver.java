@@ -20,6 +20,7 @@ package at.co.hohl.myresidence;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 /**
  * Used to retrieve information about what a player is allowed to do and what not.
@@ -79,5 +80,13 @@ public interface PermissionsResolver {
    * @return true, if the player is allowed to interact
    */
   public boolean isAllowedToInteractWithBlock(Player player, Block blockToInteract);
+
+  /**
+   * Checks if it is allowed to spawn the creature.
+   *
+   * @param event the event to check.
+   * @return true, if the creature is allowed to spawn.
+   */
+  public boolean isAllowedToSpawnCreature(CreatureSpawnEvent event);
 
 }
