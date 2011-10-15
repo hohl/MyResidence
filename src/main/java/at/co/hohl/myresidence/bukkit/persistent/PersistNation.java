@@ -46,6 +46,9 @@ public class PersistNation implements Nation {
   // Plugin which holds this nation.
   protected final MyResidence plugin;
 
+  // Town Manager used for the wildness.
+  protected final PersistWildnessManager wildnessManager;
+
   // ChunkManager used by this nation.
   private ChunkManager chunkManager;
 
@@ -59,6 +62,7 @@ public class PersistNation implements Nation {
    */
   public PersistNation(MyResidence plugin) {
     this.plugin = plugin;
+    this.wildnessManager = new PersistWildnessManager(this);
   }
 
   /**
@@ -573,7 +577,11 @@ public class PersistNation implements Nation {
    * @return the town.
    */
   public TownManager getTownManager(Town town) {
-    return new PersistTownManager(this, town);
+    if (town != null) {
+      return new PersistTownManager(this, town);
+    } else {
+      return wildnessManager;
+    }
   }
 
   /**
