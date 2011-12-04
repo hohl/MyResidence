@@ -37,7 +37,7 @@
   <repositories>
     <repository>
       <id>hohl-repo</id>
-      <url>http://repo.hohl.cc/repo</url>
+      <url>http://repo.hohl.cc/artifactory/repo</url>
     </repository>
   </repositories>
 

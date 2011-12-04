@@ -22,6 +22,7 @@ import at.co.hohl.mcutils.chat.Chat;
 import at.co.hohl.myresidence.MyResidence;
 import at.co.hohl.myresidence.Nation;
 import at.co.hohl.myresidence.exceptions.MyResidenceException;
+import at.co.hohl.myresidence.exceptions.PermissionsDeniedException;
 import at.co.hohl.myresidence.exceptions.PlayerNotFoundException;
 import at.co.hohl.myresidence.storage.Session;
 import at.co.hohl.myresidence.storage.persistent.Inhabitant;
@@ -61,6 +62,10 @@ public class ResidenceMemberCommands {
       throw new PlayerNotFoundException();
     }
 
+    if (selectedResidence.getOwnerId() != nation.getInhabitant(player.getName()).getId()) {
+      throw new PermissionsDeniedException();
+    }
+
     nation.getResidenceManager(selectedResidence).addMember(inhabitantToAdd);
 
     Chat.sendMessage(player, "&2Member &a{0}&2 added!", inhabitantToAdd.getName());
@@ -85,6 +90,10 @@ public class ResidenceMemberCommands {
 
     if (inhabitantToRemove == null) {
       throw new PlayerNotFoundException();
+    }
+
+    if (selectedResidence.getOwnerId() != nation.getInhabitant(player.getName()).getId()) {
+      throw new PermissionsDeniedException();
     }
 
     nation.getResidenceManager(selectedResidence).removeMember(inhabitantToRemove);
