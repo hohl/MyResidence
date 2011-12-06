@@ -60,7 +60,7 @@
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldedit</artifactId>
-      <version>4.8-SNAPSHOT</version>
+      <version>4.8-20111206.151629-1</version>
       <scope>provided</scope>
     </dependency>
 
