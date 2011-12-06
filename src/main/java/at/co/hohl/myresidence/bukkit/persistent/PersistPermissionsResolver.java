@@ -19,7 +19,9 @@
 package at.co.hohl.myresidence.bukkit.persistent;
 
 import at.co.hohl.myresidence.*;
+import at.co.hohl.myresidence.PermissionsResolver;
 import at.co.hohl.myresidence.storage.persistent.*;
+import com.sk89q.wepif.PermissionsResolverManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -51,7 +53,7 @@ public class PersistPermissionsResolver implements PermissionsResolver {
    */
   public boolean hasPermission(Player player, String permission) {
     if (plugin.getWorldEdit() != null) {
-      return plugin.getWorldEdit().getPermissionsResolver().hasPermission(player.getName(), permission);
+      return PermissionsResolverManager.getInstance().hasPermission(player.getName(), permission);
     } else {
       return player.hasPermission(permission) || player.isOp();
     }
