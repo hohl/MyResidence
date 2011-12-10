@@ -5,6 +5,7 @@ website: http://www.github.com/hohl/MyResidence
 
 main: at.co.hohl.myresidence.bukkit.MyResidencePlugin
 database: true
+softdepend: [WorldEdit]
 
 commands:
     residence:

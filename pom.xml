@@ -20,114 +20,118 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>at.co.hohl</groupId>
-  <artifactId>myresidence</artifactId>
-  <version>0.1</version>
-  <name>MyResidence</name>
-  <description>Allows users to manage their residences.</description>
+    <groupId>at.co.hohl</groupId>
+    <artifactId>myresidence</artifactId>
+    <version>0.1</version>
+    <name>MyResidence</name>
+    <description>Allows users to manage their residences.</description>
 
-  <scm>
-    <connection>scm:git:git://github.com/hohl/myresidence.git</connection>
-    <url>https://github.com/hohl/myresidence</url>
-    <developerConnection>scm:git:git@github.com:hohl/myresidence.git</developerConnection>
-  </scm>
+    <scm>
+        <connection>scm:git:git://github.com/hohl/myresidence.git</connection>
+        <url>https://github.com/hohl/myresidence</url>
+        <developerConnection>scm:git:git@github.com:hohl/myresidence.git</developerConnection>
+    </scm>
 
-  <repositories>
-    <repository>
-      <id>hohl-repo</id>
-      <url>http://repo.hohl.cc/artifactory/repo</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <id>sk89q-mvn2</id>
+            <url>http://mvn2.sk89q.com/repo</url>
+        </repository>
+        <repository>
+            <id>hohl-repo</id>
+            <url>http://repo.hohl.cc/artifactory/repo</url>
+        </repository>
+    </repositories>
 
-  <dependencies>
-    <!-- Register -->
-    <dependency>
-      <groupId>com.nijikokun</groupId>
-      <artifactId>register</artifactId>
-      <version>1.1</version>
-    </dependency>
+    <dependencies>
+        <!-- Register -->
+        <dependency>
+            <groupId>com.nijikokun</groupId>
+            <artifactId>register</artifactId>
+            <version>1.1</version>
+        </dependency>
 
-    <!-- McUtils -->
-    <dependency>
-      <groupId>at.co.hohl</groupId>
-      <artifactId>mcutils</artifactId>
-      <version>1.1.0</version>
-    </dependency>
+        <!-- McUtils -->
+        <dependency>
+            <groupId>at.co.hohl</groupId>
+            <artifactId>mcutils</artifactId>
+            <version>1.1.0</version>
+        </dependency>
 
-    <!-- WorldEdit -->
-    <dependency>
-      <groupId>com.sk89q</groupId>
-      <artifactId>worldedit</artifactId>
-      <version>4.8-20111206.151629-1</version>
-      <scope>provided</scope>
-    </dependency>
+        <!-- WorldEdit -->
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>worldedit</artifactId>
+            <version>4.8-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <!-- Bukkit -->
-    <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+        <!-- Bukkit -->
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-  <build>
-    <sourceDirectory>src/main/java/</sourceDirectory>
+    <build>
+        <sourceDirectory>src/main/java/</sourceDirectory>
 
-    <!-- Resources -->
-    <resources>
-      <resource>
-        <targetPath>.</targetPath>
-        <filtering>true</filtering>
-        <directory>${basedir}/src/main/resources/</directory>
-        <includes>
-          <include>plugin.yml</include>
-          <include>myresidence_*.yml</include>
-        </includes>
-      </resource>
-      <resource>
-        <targetPath>defaults/</targetPath>
-        <filtering>true</filtering>
-        <directory>${basedir}/src/main/resources/</directory>
-        <includes>
-          <include>config.yml</include>
-        </includes>
-      </resource>
-    </resources>
+        <!-- Resources -->
+        <resources>
+            <resource>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources/</directory>
+                <includes>
+                    <include>plugin.yml</include>
+                    <include>myresidence_*.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <targetPath>defaults/</targetPath>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources/</directory>
+                <includes>
+                    <include>config.yml</include>
+                </includes>
+            </resource>
+        </resources>
 
-    <!-- Plugins -->
-    <plugins>
-      <!-- Compile plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-      </plugin>
+        <!-- Plugins -->
+        <plugins>
+            <!-- Compile plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+            </plugin>
 
-      <!-- Assembly -->
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass>at.co.hohl.myresidence.dev.DocumentationPrinter</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+            <!-- Assembly -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>at.co.hohl.myresidence.dev.DocumentationPrinter</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
